@@ -1,2 +1,2 @@
 # Adulis
-This is the main repository for the project
+This is the organizational website repository for the project
