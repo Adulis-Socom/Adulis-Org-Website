@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { buildRobots } from '@/lib/metadata';
 import { InfoCard, SectionTitle } from '@/components/ui';
 import { WaitlistForm } from '@/components/WaitlistForm';
 
@@ -9,7 +10,7 @@ type Item = { title: string; body: string };
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'forSellers' });
-  return { title: t('pageTitle') };
+  return { title: t('pageTitle'), robots: buildRobots({ locale }) };
 }
 
 export default async function ForSellersPage({ params }: LocaleParams) {

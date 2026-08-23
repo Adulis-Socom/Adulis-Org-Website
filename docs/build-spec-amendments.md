@@ -161,11 +161,66 @@ unaffected by the v4 migration.
 
 ## 5 · Part 8 — layout metadata
 
+> ### A page's `metadata` replaces the layout's value for each field it sets
+>
+> **This is the Next.js behaviour to know once rather than rediscover.** Metadata
+> merges *per field*, and the page wins. There is no error, no warning and no
+> build failure when a page silently overrides something the layout computed.
+>
+> It is not a wholesale replacement — a page setting only `robots` keeps the
+> layout's `title` template, `canonical` and `alternates`. That is precisely what
+> makes it easy to miss: the page looks fine, and one field is quietly wrong.
+>
+> How it was found: the Tier 2 stubs exported a static
+> `metadata = {robots: {index: false}}`, which replaced the layout's
+> `{index: false, follow: false}` on `/am` routes. `/am/help` said `noindex`
+> while `/am/about` said `noindex, nofollow`, and nothing anywhere reported the
+> disagreement. On a private pre-launch site `follow` is worth almost nothing —
+> the point is that the same mechanism will clobber `alternates.languages`, the
+> canonical URL or the title template the day someone sets one on a page.
+>
+> **Two rules follow.**
+>
+> 1. **No page hand-writes a robots object.** Every `generateMetadata` calls
+>    `buildRobots()` from `src/lib/metadata.ts`, declaring its *intent*
+>    (`unbuilt` for a Tier 2 stub, `unlisted` for the account-deletion path) and
+>    letting one module decide what that means. The three reasons compose: any of
+>    unbuilt, unlisted, `locale === 'am' && !AM_ENABLED`, or a missing
+>    `NEXT_PUBLIC_SITE_URL` produces `{index: false, follow: false}`.
+> 2. **A page that needs locale-aware metadata must use `generateMetadata`, not a
+>    static `metadata` export.** A static export cannot see `locale`, so it
+>    cannot ask the right question — and whatever it answers replaces the
+>    layout's value anyway. Converting the seven stubs is what actually closed
+>    this; the directive string was only the symptom.
+
 Amend the `[locale]/layout.tsx` description:
 
-> `robots: {index: false, follow: false}` whenever `NEXT_PUBLIC_SITE_URL` is
-> unset **or the locale is `am` while `AM_ENABLED` is false**.
-> `alternates.languages` lists only locales actually on offer.
+> `robots: buildRobots({locale})`. `alternates.languages` lists only locales
+> actually on offer.
+
+### 5.1 Open defect — the canonical URL is the locale root on every page
+
+Found while verifying the above. `[locale]/layout.tsx` sets
+`alternates.canonical: '/' + locale`, and no page overrides it, so **every route
+declares the locale root as its canonical**:
+
+```
+/en/about   -> <link rel="canonical" href="https://…/en"/>
+/en/help    -> <link rel="canonical" href="https://…/en"/>
+```
+
+That tells a search engine all fifteen pages are duplicates of the home page.
+
+**Inert today** — everything is `noindex` while `NEXT_PUBLIC_SITE_URL` is unset.
+It goes live at exactly the moment the domain lands, which is the same commit
+that makes the site indexable.
+
+**Not fixed here**, because the fix embeds a design choice that belongs to the
+founders: either each page declares its own path (per-page metadata, the thing
+§2 just centralised away from) or the layout stops declaring `canonical` and a
+helper derives it. Recommend extending `src/lib/metadata.ts` with a
+`buildAlternates({locale, path})` alongside `buildRobots`, so the same "pages
+declare intent, one module decides" rule covers both.
 
 ---
 

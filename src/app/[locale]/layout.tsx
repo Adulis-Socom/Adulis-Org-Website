@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { AM_ENABLED, routing, type Locale } from '@/i18n/routing';
+import { buildRobots } from '@/lib/metadata';
 import { inter, notoEthiopic } from '@/lib/fonts';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -39,11 +40,6 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
-  // /am resolves so that URLs stay stable and translation can land key by key,
-  // but it must not be indexed while it is serving English fallback text.
-  const localeIsOffered = locale !== 'am' || AM_ENABLED;
-  const indexable = Boolean(siteUrl) && localeIsOffered;
-
   return {
     metadataBase: new URL(siteUrl ?? 'http://localhost:3000'),
     title: {
@@ -61,10 +57,8 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
           .map((code) => [code, `/${code}`])
       )
     },
-    // No domain is decided yet. Until NEXT_PUBLIC_SITE_URL is set deliberately,
-    // every page is noindex: a pre-launch build indexed under the Adulis name is
-    // public use of a name whose IP registration is not complete.
-    robots: indexable ? undefined : { index: false, follow: false }
+    // Computed in one place for every route -- see src/lib/metadata.ts.
+    robots: buildRobots({ locale })
   };
 }
 

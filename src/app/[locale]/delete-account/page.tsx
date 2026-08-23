@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { buildRobots } from '@/lib/metadata';
 import { DeleteAccountFlow } from '@/components/DeleteAccountFlow';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
@@ -11,7 +12,7 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
     title: t('pageTitle'),
     // Reachable by URL because both app stores require it, but there is no
     // reason for it to rank.
-    robots: { index: false, follow: false }
+    robots: buildRobots({ locale, unlisted: true })
   };
 }
 

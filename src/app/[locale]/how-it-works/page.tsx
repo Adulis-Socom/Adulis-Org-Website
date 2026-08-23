@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { buildRobots } from '@/lib/metadata';
 import { ShopPreview } from '@/components/ShopPreview';
 import { InfoCard, MediaPlaceholder, SectionTitle, Sequence } from '@/components/ui';
 
@@ -9,7 +10,7 @@ type Step = { title: string; body: string };
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'howItWorks' });
-  return { title: t('pageTitle') };
+  return { title: t('pageTitle'), robots: buildRobots({ locale }) };
 }
 
 export default async function HowItWorksPage({ params }: LocaleParams) {

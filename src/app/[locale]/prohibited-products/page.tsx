@@ -1,12 +1,13 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { buildRobots } from '@/lib/metadata';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'prohibited' });
-  return { title: t('pageTitle') };
+  return { title: t('pageTitle'), robots: buildRobots({ locale }) };
 }
 
 export default async function ProhibitedProductsPage({ params }: LocaleParams) {
