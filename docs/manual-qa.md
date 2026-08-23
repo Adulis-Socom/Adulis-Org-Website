@@ -134,6 +134,35 @@ Every route, both locales. Target **WCAG 2.1 AA**.
 
 - [ ] Record the Lighthouse numbers in the PR, not just pass or fail
 
+## 7 · Client-component message namespaces
+
+The provider sends only three namespaces to the browser — `nav`, `waitlist` and
+`deleteAccount` (see `CLIENT_NAMESPACES` in
+[`src/app/[locale]/layout.tsx`](../src/app/[locale]/layout.tsx)). A client
+component reaching for anything else **fails at runtime, not at build**.
+
+Server-rendered branches are already covered: the production build prerenders
+every client component, so a missing namespace would have failed the build. What
+is *not* covered is any branch that only ever renders after an interaction.
+
+Walk these with the console open. **Any `MISSING_MESSAGE` error is a failure.**
+
+- [ ] `/delete-account` — step through **every** state: explain → phone → OTP →
+      confirm → success. Enter six digits to pass the OTP step
+- [ ] `/delete-account` — the **blocked** branch, via "Preview the blocked state"
+      on the OTP step
+- [ ] `/delete-account` — Cancel from the confirm step returns to explain
+- [ ] `/delete-account` — trigger each validation message: a bad phone number, a
+      bad code, submitting confirm without ticking the box
+- [ ] `/delete-account` — the OTP resend cooldown text renders its countdown
+- [ ] `/for-sellers` — submit empty, and confirm every error string renders
+- [ ] `/for-sellers` — submit valid, and confirm the success state and its
+      reference number render
+- [ ] `/for-sellers` — choose a second platform and confirm the second-handle
+      field appears with its help text
+- [ ] Mobile menu open and closed on any route
+- [ ] No `MISSING_MESSAGE` anywhere in the console on any route
+
 ---
 
 ## Already verified — do not re-do
