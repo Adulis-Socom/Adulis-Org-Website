@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { buildRobots } from '@/lib/metadata';
+import { buildPageMetadata } from '@/lib/metadata';
+import { ROUTES } from '@/lib/routes';
 import { MediaPlaceholder, SectionTitle } from '@/components/ui';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
@@ -9,7 +10,7 @@ type Founder = { name: string; role: string; body: string };
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'about' });
-  return { title: t('pageTitle'), robots: buildRobots({ locale }) };
+  return buildPageMetadata({ locale, path: ROUTES.about, title: t('pageTitle') });
 }
 
 export default async function AboutPage({ params }: LocaleParams) {

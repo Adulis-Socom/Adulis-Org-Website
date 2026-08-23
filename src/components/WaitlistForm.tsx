@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { submitWaitlist } from '@/app/actions/waitlist';
 import { emptyFormState } from '@/lib/validation';
+import { ROUTES, WAITLIST_HREF } from '@/lib/routes';
 
 /** Order matters: the error summary lists fields in the order they appear. */
 const FIELD_ORDER = [
@@ -45,7 +46,7 @@ export function WaitlistForm() {
           </p>
           <p className="card-body">{t('success.next')}</p>
           <p className="field-help">{t('success.correctPhoneHelp')}</p>
-          <Link href="/for-sellers#waitlist" className="btn-secondary mt-4">
+          <Link href={WAITLIST_HREF} className="btn-secondary mt-4">
             {t('success.correctPhone')}
           </Link>
         </div>
@@ -214,7 +215,7 @@ export function WaitlistForm() {
           />
           <label htmlFor="consent" className="text-small text-ink-muted">
             {t('fields.consent')}{' '}
-            <Link href="/privacy" className="link-arrow">
+            <Link href={ROUTES.privacy} className="link-arrow">
               {t('fields.consentLink')}
             </Link>
           </label>

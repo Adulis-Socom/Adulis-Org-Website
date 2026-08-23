@@ -1,5 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
+import { ROUTES } from '@/lib/routes';
 
 export default function LocaleNotFound() {
   const t = useTranslations('notFound');
@@ -11,10 +12,10 @@ export default function LocaleNotFound() {
       <p className="lede">{t('body')}</p>
 
       <div className="mt-6 flex flex-wrap gap-3">
-        <Link href="/" className="btn-primary">
+        <Link href={ROUTES.home} className="btn-primary">
           {t('home')}
         </Link>
-        <Link href="/help" className="btn-secondary">
+        <Link href={ROUTES.help} className="btn-secondary">
           {t('help')}
         </Link>
       </div>

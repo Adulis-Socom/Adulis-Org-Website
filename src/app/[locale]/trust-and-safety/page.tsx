@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { buildRobots } from '@/lib/metadata';
+import { buildPageMetadata } from '@/lib/metadata';
+import { ROUTES } from '@/lib/routes';
 import { Link } from '@/i18n/routing';
 import { InfoCard, SectionTitle } from '@/components/ui';
 
@@ -10,7 +11,7 @@ type Item = { title: string; body: string };
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'trust' });
-  return { title: t('pageTitle'), robots: buildRobots({ locale }) };
+  return buildPageMetadata({ locale, path: ROUTES.trustAndSafety, title: t('pageTitle') });
 }
 
 export default async function TrustAndSafetyPage({ params }: LocaleParams) {
@@ -89,10 +90,10 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
           <h2 className="section-title">{t('wrongTitle')}</h2>
           <p className="card-body max-w-prose">{t('wrongBody')}</p>
           <p className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-            <Link href="/refunds-and-disputes" className="link-arrow">
+            <Link href={ROUTES.refunds} className="link-arrow">
               {t('refundsLink')}
             </Link>
-            <Link href="/report-content" className="link-arrow">
+            <Link href={ROUTES.report} className="link-arrow">
               {t('reportLink')}
             </Link>
           </p>

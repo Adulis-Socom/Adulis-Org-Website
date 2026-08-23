@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { buildRobots } from '@/lib/metadata';
+import { buildPageMetadata } from '@/lib/metadata';
+import { ROUTES } from '@/lib/routes';
 import { Link } from '@/i18n/routing';
 import { WAITLIST_HREF } from '@/lib/nav';
 import { ShopPreview } from '@/components/ShopPreview';
@@ -11,7 +12,7 @@ type LocaleParams = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'home' });
-  return { title: t('pageTitle'), robots: buildRobots({ locale }) };
+  return buildPageMetadata({ locale, path: ROUTES.home, title: t('pageTitle') });
 }
 
 export default async function HomePage({ params }: LocaleParams) {
@@ -53,7 +54,7 @@ export default async function HomePage({ params }: LocaleParams) {
         <DoorBand
           title={t('buyerDoorTitle')}
           linkLabel={t('buyerDoorLink')}
-          href="/for-buyers"
+          href={ROUTES.forBuyers}
         />
       </section>
 

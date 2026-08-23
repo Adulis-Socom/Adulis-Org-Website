@@ -4,7 +4,7 @@ import { useEffect, useId, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { AM_ENABLED, Link, usePathname } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
-import { primaryNav, WAITLIST_HREF } from '@/lib/nav';
+import { primaryNav, ROUTES, WAITLIST_HREF } from '@/lib/nav';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 /**
@@ -45,7 +45,7 @@ export function Header() {
   return (
     <header className="border-b border-line bg-surface">
       <div className="container-page flex items-center justify-between gap-4 py-3">
-        <Link href="/" className="text-h3 font-bold tracking-tight text-ink">
+        <Link href={ROUTES.home} className="text-h3 font-bold tracking-tight text-ink">
           ADULIS
         </Link>
 

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { buildRobots } from '@/lib/metadata';
+import { buildPageMetadata } from '@/lib/metadata';
+import { ROUTES } from '@/lib/routes';
 import { DeleteAccountFlow } from '@/components/DeleteAccountFlow';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
@@ -8,12 +9,14 @@ type LocaleParams = { params: Promise<{ locale: string }> };
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'deleteAccount' });
-  return {
+  // Reachable by URL because both app stores require it, but there is no
+  // reason for it to rank.
+  return buildPageMetadata({
+    locale,
+    path: ROUTES.deleteAccount,
     title: t('pageTitle'),
-    // Reachable by URL because both app stores require it, but there is no
-    // reason for it to rank.
-    robots: buildRobots({ locale, unlisted: true })
-  };
+    unlisted: true
+  });
 }
 
 export default async function DeleteAccountPage({ params }: LocaleParams) {

@@ -1,6 +1,7 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
 import { UndecidedFlag } from './ui';
+import { ROUTES } from '@/lib/routes';
 
 /**
  * These seven routes are linked from the header and the footer on every page, so
@@ -21,7 +22,7 @@ export async function TierTwoStub({ title, note }: { title: string; note: string
 
       <p className="lede">{note}</p>
 
-      <Link href="/" className="btn-secondary mt-6">
+      <Link href={ROUTES.home} className="btn-secondary mt-6">
         {notFound('home')}
       </Link>
     </div>

@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
-import { AM_ENABLED, routing, type Locale } from '@/i18n/routing';
-import { buildRobots } from '@/lib/metadata';
+import { routing, type Locale } from '@/i18n/routing';
+import { buildPageMetadata } from '@/lib/metadata';
 import { inter, notoEthiopic } from '@/lib/fonts';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -47,18 +47,16 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
       template: `%s · ${t('siteName')}`
     },
     description: t('defaultDescription'),
-    alternates: {
-      canonical: `/${locale}`,
-      // Only advertise locales actually on offer, or search engines are told
-      // about an Amharic tree that is not Amharic yet.
-      languages: Object.fromEntries(
-        routing.locales
-          .filter((code) => code !== 'am' || AM_ENABLED)
-          .map((code) => [code, `/${code}`])
-      )
-    },
-    // Computed in one place for every route -- see src/lib/metadata.ts.
-    robots: buildRobots({ locale })
+
+    // Deliberately no `alternates` here. Every real page supplies its own
+    // canonical through buildPageMetadata; a layout-level one would be the
+    // locale root, and each page would inherit it and claim to be a duplicate
+    // of the home page. Leaving it out is also what lets the 404 and the
+    // catch-all emit no canonical at all, which is correct for both.
+    //
+    // Robots is still computed here, because those two surfaces define no
+    // metadata of their own and this is the value they should inherit.
+    ...buildPageMetadata({ locale })
   };
 }
 

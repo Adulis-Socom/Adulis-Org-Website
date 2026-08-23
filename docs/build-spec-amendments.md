@@ -40,8 +40,10 @@ four build files above. Added since:
 | `docs/manual-qa.md` | Amendment 01 §9 |
 | `docs/build-spec-amendments.md` | Amendment 01 §10.5 (this file) |
 | `scripts/check-i18n.mjs` | Amendment 02 §3.2 |
+| `src/lib/metadata.ts` | Amendment 03 §2 |
+| `src/lib/routes.ts` | Amendment 04 §2.3 |
 
-**54 tracked files.** Part 9's file-count check should assert the number the
+**56 tracked files.** Part 9's file-count check should assert the number the
 manifest actually lists, and be updated whenever a file is added rather than
 being treated as a fixed constant.
 
@@ -198,29 +200,57 @@ Amend the `[locale]/layout.tsx` description:
 > `robots: buildRobots({locale})`. `alternates.languages` lists only locales
 > actually on offer.
 
-### 5.1 Open defect — the canonical URL is the locale root on every page
+### 5.1 The canonical defect — resolved
 
-Found while verifying the above. `[locale]/layout.tsx` sets
-`alternates.canonical: '/' + locale`, and no page overrides it, so **every route
-declares the locale root as its canonical**:
+`[locale]/layout.tsx` used to set `alternates.canonical: '/' + locale`, which no
+page overrode, so **every route declared the locale root as its canonical** —
+telling a search engine all fifteen pages were duplicates of the home page. It
+was inert while everything was `noindex`, and would have armed itself at exactly
+the moment the domain landed, since setting `NEXT_PUBLIC_SITE_URL` is the same
+change that makes the site indexable.
 
+It survived *because* the override is per-field: `robots` was centralised and
+`alternates` was not, every page silently inherited the layout's, and nothing
+looked broken.
+
+**Resolved by merging robots and alternates into one entry point**, rather than
+adding a second helper beside the first. Two helpers would have preserved the
+failure mode — a page can call one and forget the other. One helper means a page
+cannot half-adopt it, and there is deliberately no exported `buildRobots` any
+more, because a helper that still exists will get called.
+
+```ts
+buildPageMetadata({ locale, path, unbuilt?, unlisted?, title?, description? })
 ```
-/en/about   -> <link rel="canonical" href="https://…/en"/>
-/en/help    -> <link rel="canonical" href="https://…/en"/>
-```
 
-That tells a search engine all fifteen pages are duplicates of the home page.
+| Field | Rule |
+|---|---|
+| `canonical` | `/{locale}{path}` — the page's own URL, never the locale root |
+| `languages.en` | `/en{path}` — always |
+| `languages.am` | `/am{path}` — **only when `AM_ENABLED`** |
+| `x-default` | `/en{path}` |
+| `robots` | composed from the three reasons above |
 
-**Inert today** — everything is `noindex` while `NEXT_PUBLIC_SITE_URL` is unset.
-It goes live at exactly the moment the domain lands, which is the same commit
-that makes the site indexable.
+Omitting `path` yields no `alternates` at all, which is how the 404 and the
+catch-all correctly emit no canonical. The layout no longer declares
+`alternates` — that is what lets those two inherit nothing.
 
-**Not fixed here**, because the fix embeds a design choice that belongs to the
-founders: either each page declares its own path (per-page metadata, the thing
-§2 just centralised away from) or the layout stops declaring `canonical` and a
-helper derives it. Recommend extending `src/lib/metadata.ts` with a
-`buildAlternates({locale, path})` alongside `buildRobots`, so the same "pages
-declare intent, one module decides" rule covers both.
+**On suppressing the `am` alternate.** While `AM_ENABLED` is false, `/am` is
+`noindex`. An hreflang alternate pointing at a noindex page is
+self-contradictory: search engines discard it, and it advertises an unfinished
+surface. It returns with the flag, using the same composition logic as robots.
+
+### 5.2 Route paths live in one typed constant
+
+A hardcoded path string can diverge from its route folder on a rename, which
+reproduces this same class of silent bug. `src/lib/routes.ts` holds every path;
+pages reference `ROUTES.about` rather than `'/about'`, so a typo or a stale path
+is a compile error caught by `npm run typecheck` — no new tooling.
+
+`src/lib/nav.ts` now reads from it, `Footer` takes Contact from it, and no
+component hand-writes an href. The one exception is `src/app/not-found.tsx`,
+which renders outside the router with a plain `<a href="/en">` and has no locale
+context to build one from.
 
 ---
 

@@ -1,6 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/routing';
-import { legalNav, primaryNav } from '@/lib/nav';
+import { legalNav, primaryNav, ROUTES } from '@/lib/nav';
 
 /**
  * Row 2 appears on every page and is not optional. Report content and Delete my
@@ -23,7 +23,7 @@ export async function Footer() {
             </li>
           ))}
           <li>
-            <Link href="/contact" className="text-small font-medium text-ink hover:underline">
+            <Link href={ROUTES.contact} className="text-small font-medium text-ink hover:underline">
               {footer('contact')}
             </Link>
           </li>

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { buildRobots } from '@/lib/metadata';
+import { buildPageMetadata } from '@/lib/metadata';
+import { ROUTES } from '@/lib/routes';
 import { ShopPreview } from '@/components/ShopPreview';
 import { InfoCard, MediaPlaceholder, SectionTitle, Sequence } from '@/components/ui';
 
@@ -10,7 +11,7 @@ type Step = { title: string; body: string };
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'howItWorks' });
-  return { title: t('pageTitle'), robots: buildRobots({ locale }) };
+  return buildPageMetadata({ locale, path: ROUTES.howItWorks, title: t('pageTitle') });
 }
 
 export default async function HowItWorksPage({ params }: LocaleParams) {

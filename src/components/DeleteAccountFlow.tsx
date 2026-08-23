@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { isPlausiblePhone } from '@/lib/validation';
+import { ROUTES } from '@/lib/routes';
 
 type Step = 'explain' | 'phone' | 'otp' | 'confirm' | 'blocked' | 'success';
 
@@ -267,7 +268,7 @@ export function DeleteAccountFlow() {
 
         <p className="note mt-4">{t('blocked.note')}</p>
 
-        <Link href="/" className="btn-secondary mt-6">
+        <Link href={ROUTES.home} className="btn-secondary mt-6">
           {t('blocked.home')}
         </Link>
       </div>
@@ -278,7 +279,7 @@ export function DeleteAccountFlow() {
     <div className="form-column" role="status">
       <h1 className="page-title">{t('success.title')}</h1>
       <p className="lede">{t('success.body')}</p>
-      <Link href="/" className="btn-secondary mt-6">
+      <Link href={ROUTES.home} className="btn-secondary mt-6">
         {t('success.home')}
       </Link>
     </div>
