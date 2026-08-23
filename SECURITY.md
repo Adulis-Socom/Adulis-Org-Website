@@ -154,14 +154,46 @@ security change even when no advisory is involved.
   registration completes. No deployment to a publicly reachable URL — a
   Cloudflare Pages project goes behind Cloudflare Access first, because preview
   URLs are real, crawlable URLs.
-- **Every public form is rate limited and validated server-side.** The current
-  limiter (`src/lib/rate-limit.ts`) is in-memory and is a placeholder: it does
-  not survive a restart and does not coordinate across instances, so on
-  Cloudflare it limits almost nothing. It must be replaced with KV or a Durable
-  Object before the site is reachable.
-- **The delete-account OTP is currently mocked.** It must be issued and verified
-  server-side, with strict per-phone and per-IP rate limits, before that page is
-  reachable — and the "Preview the blocked state" demo button removed.
+- **Every public form is rate limited and validated server-side.** The primary
+  control is **Cloudflare's edge rate-limiting rules**, configured in the
+  dashboard, where a refused request never reaches a function.
+  `src/lib/rate-limit.ts` is the **fail-closed backstop** for anything not behind
+  Cloudflare. **Do not replace it with KV or a Durable Object** — that was
+  considered and declined, because KV still runs the function and so does not
+  close the cost of refusing a request. Do not delete it either, and do not
+  promote it back to primary.
+- **The delete-account flow is gated off.** `DELETION_FLOW_ENABLED` in
+  `src/lib/flags.ts` is `false`: the explanation ships, the interactive flow does
+  not, and the demo button that jumped to account data is gone. The seven
+  conditions for flipping it are in `docs/deletion-flow-design.md`. The OTP in
+  the unreachable flow is still mocked and must be issued and verified
+  server-side before the flag moves.
+
+### Three things that look like bugs and are not
+
+Each was a deliberate decision. Each will be "fixed" by somebody who does not
+know that, so it is written down here.
+
+- **Waitlist fields are prefixed with an apostrophe on delivery.**
+  `src/lib/spreadsheet-safe.ts` escapes a leading `=`, `+`, `@` or `-` because
+  the destination is a spreadsheet a founder reads by hand, and those characters
+  start a formula there. Almost every `@handle` is affected. The spreadsheet does
+  not display the apostrophe; a raw CSV export does. The stored value the seller
+  typed is unchanged — escaping happens at the delivery boundary only. **This is
+  destination-specific and wrong for a Postgres column**; revisit when the
+  destination is chosen.
+- **The waitlist rejects a request with no `Origin` header.** Added as hardening
+  (audit 01 F-13). Verified safe in chromium and webkit with JavaScript disabled,
+  both of which send `Origin` on a same-origin form POST. **If the no-JS form
+  ever breaks in a real browser, revert this rather than working around it** —
+  the real abuse control is rate limiting. There is a gating check in
+  `docs/manual-qa.md` §4.
+- **The waitlist refuses every submission when no destination is configured, and
+  `npm run build` refuses to build.** That is deliberate. It previously returned
+  a reference number while delivering nothing, which failed the site's only
+  conversion silently in both directions. A reference number is a promise that
+  the application exists somewhere. Local builds opt out explicitly with
+  `ALLOW_UNDELIVERED_WAITLIST=1`.
 
 ---
 
