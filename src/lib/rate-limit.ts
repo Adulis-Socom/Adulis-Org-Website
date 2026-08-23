@@ -20,6 +20,19 @@ export function rateLimit(
   { limit = 5, windowMs = 600_000 }: { limit?: number; windowMs?: number } = {}
 ): RateLimitResult {
   const now = Date.now();
+
+  // Opportunistic sweep. This sits ABOVE the early return on purpose.
+  //
+  // It used to sit below it, which made it unreachable under exactly the traffic
+  // that grows the map fastest: a flood of unique keys always takes the
+  // early-return branch, so the sweep only ran when an existing key was hit
+  // again. Ordinary traffic cleaned up after itself; an attack did not.
+  // Measured during audit 01 (F-11): 200 further new keys freed nothing, while a
+  // single repeat hit on a live key freed 6.51 MB, at 279 bytes per entry.
+  if (windows.size > 5_000) {
+    for (const [k, w] of windows) if (now >= w.resetAt) windows.delete(k);
+  }
+
   const existing = windows.get(key);
 
   if (!existing || now >= existing.resetAt) {
@@ -28,11 +41,6 @@ export function rateLimit(
   }
 
   existing.count += 1;
-
-  // Opportunistic sweep. Without it the map grows for the life of the process.
-  if (windows.size > 5_000) {
-    for (const [k, w] of windows) if (now >= w.resetAt) windows.delete(k);
-  }
 
   return {
     allowed: existing.count <= limit,
