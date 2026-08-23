@@ -144,28 +144,52 @@ credibility if ignored.
 
 ---
 
+## Amharic is behind a flag
+
+`AM_ENABLED` in [`src/i18n/routing.ts`](src/i18n/routing.ts) is **`false`**, and
+it is the single source of truth — never duplicate it into a component, an
+environment variable or a page.
+
+`messages/am.json` holds no approved translations. The Amharic carried from the
+v4.1 wireframes was unreviewed machine output, and invariant 14 forbids
+regenerating it. Rather than serve English under an Amharic switcher — a broken
+promise on a site whose doctrine is that every claim is one Adulis can stand
+behind — the locale is simply not offered yet.
+
+While the flag is false:
+
+- the language switcher is not rendered on any surface
+- `/am/*` still resolves, so URLs stay stable and translation can land key by key
+- `/am/*` is `noindex` regardless of `NEXT_PUBLIC_SITE_URL`, and only `/en` is
+  advertised in `alternates.languages`
+- the English fallback works exactly as it will when the catalogue arrives
+
+It may be flipped only when all three hold: `am.json` is human-translated for
+every key in `en.json`; Ge'ez layout validation has run against those real
+strings; and the Ethiopic micro-subset is implemented (issue #2).
+
+---
+
 ## Decisions taken during this build
 
 Recorded here because they deviate from the build specification and someone will
 otherwise wonder why.
 
 - **Dependency upgrades for security.** The specified pins carried a critical
-  advisory set. Upgraded **within the same majors**, so no API changed:
-  `next` 15.1.6 → **15.5.23**, `next-intl` 3.26.3 → **3.26.5**,
-  `eslint` 9.18.0 → **9.39.5**, `eslint-config-next` 15.1.6 → **15.5.23**,
-  `postcss` 8.5.1 → **8.5.26**. See "Still open" for what this does *not* fix.
-- **`.eslintrc.json` added.** Not in the manifest, but `next lint` with no
-  config drops into an interactive prompt, which hangs CI.
+  advisory set. `next` 15.1.6 → **15.5.23**, `eslint` 9.18.0 → **9.39.5**,
+  `eslint-config-next` 15.1.6 → **15.5.23**, `postcss` 8.5.1 → **8.5.26**, all
+  within their majors. **`next-intl` 3.26.3 → 4.13.7** is a deliberate major
+  migration: the open-redirect advisory has no fix in the v3 line. Every import
+  path survived; the only behavioural change adopted is that
+  `NextIntlClientProvider` now inherits messages from `i18n/request.ts`. See
+  [`SECURITY.md`](SECURITY.md).
+- **`.eslintrc.json` added.** Not in the original manifest, but `next lint` with
+  no config drops into an interactive prompt, which hangs CI.
 - **`src/app/layout.tsx` added** — a pass-through root layout. Next refuses to
   render `src/app/not-found.tsx` without one.
 - **`src/app/[locale]/[...rest]/page.tsx` added** — a catch-all calling
   `notFound()`. Without it an unmatched `/en/...` falls through to the
   unlocalised fallback and `[locale]/not-found.tsx` never renders at all.
-- **`messages/am.json` ships nearly empty.** The Amharic previously carried from
-  the v4.1 wireframes was unreviewed machine output, and invariant 14 forbids
-  regenerating it. `/am` therefore renders English under an `/am` prefix.
-- **The chatbot benefit card carries no commercial-terms sentence.** Founder
-  decision, overriding ADU-WEB-01 §3.4.
 
 ---
 
@@ -173,8 +197,9 @@ otherwise wonder why.
 
 - [ ] **Domain.** Blocks the contact email, `NEXT_PUBLIC_SITE_URL`, and later the
       App Links / Universal Links domain association.
-- [ ] **Human-translated Amharic catalogue.** Ge'ez layout validation is a launch
-      gate and cannot be performed against machine output.
+- [ ] **Human-translated Amharic catalogue**, then flip `AM_ENABLED`. Ge'ez
+      layout validation is a launch gate and cannot be performed against machine
+      output.
 - [ ] **Legal text** for Terms, Privacy, Seller Terms, Refunds & Disputes.
       Privacy §2 and §9 must both read *"Waitlist data is kept for up to 12
       months."*, matching the waitlist consent line verbatim. Privacy §4 must
@@ -190,27 +215,28 @@ otherwise wonder why.
       the "Preview the blocked state" demo button** in
       `src/components/DeleteAccountFlow.tsx`.
 - [ ] **DPIA covering waitlist data**, before the first submission is taken.
-- [ ] **Build Tier 2** — the seven stubbed routes.
+- [ ] **Manual QA on a real low-end Android** — [`docs/manual-qa.md`](docs/manual-qa.md).
+      Six checks that need a browser and were not run during the build.
+- [ ] **Build Tier 2** — the seven stubbed routes. Waits until this branch is
+      merged and the manual QA has been run.
 - [ ] **CI** — `npm ci && npm run typecheck && npm run lint && npm run build` on
       every pull request.
 - [ ] **Cloudflare Pages deployment**, behind Cloudflare Access.
-- [ ] **Accessibility and performance audits** on every route, both locales.
-- [ ] Real founder photographs and category imagery.
+- [ ] Real founder photographs and category imagery. ⚠ This re-opens the `sharp`
+      advisory — see [`SECURITY.md`](SECURITY.md) before merging that work.
 
-### Still open, needs a decision
+### Tracked separately
 
-- **`next-intl` v4.** v3 carries an open-redirect advisory with no fix inside the
-  v3 line. v4 is a breaking migration that changes the APIs this codebase is
-  built on, so it was not attempted here.
-- **`postcss` and `sharp` inside `next`.** Both are nested dependencies of Next
-  15; the only published fix is Next 16, a breaking major. `sharp` is used by
-  `next/image`, which this site does not use at all.
-- **`next lint` is removed in Next 16.** Migrating to the ESLint CLI and flat
-  config will be required before that upgrade.
-- **The language switcher defeats the Ethiopic-font-on-`/en` rule.** The
-  switcher renders `አማርኛ` on every page, so the Ethiopic subset is requested on
-  English routes too. Showing both scripts at all times and never fetching the
-  Ge'ez font on `/en` cannot both hold; which one gives is a founder call.
+- **[#1](https://github.com/Adulis-Socom/Adulis-Org-Website/issues/1) — flat
+  ESLint config.** `next lint` is removed in Next 16. Blocks that upgrade, which
+  is the only published fix for the two advisories below.
+- **[#2](https://github.com/Adulis-Socom/Adulis-Org-Website/issues/2) — Ethiopic
+  micro-subset.** ADU-WEB-01 §8.1 and §9.1 contradict: rendering `አማርኛ` on an
+  English page fetches the Ge'ez font. Dormant while `AM_ENABLED` is false;
+  a prerequisite for flipping it.
+- **`postcss` and `sharp` inside `next` 15** — accepted advisories, neither
+  reachable here. Reasoning and re-assessment triggers in
+  [`SECURITY.md`](SECURITY.md).
 
 ---
 
