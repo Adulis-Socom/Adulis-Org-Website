@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
-import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { AM_ENABLED, routing, type Locale } from '@/i18n/routing';
 import { inter, notoEthiopic } from '@/lib/fonts';
 import { Header } from '@/components/Header';
@@ -59,13 +59,15 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
 
-  const messages = await getMessages();
   const t = await getTranslations({ locale, namespace: 'nav' });
 
   return (
     <html lang={locale} className={`${inter.variable} ${notoEthiopic.variable}`}>
       <body className="flex min-h-screen flex-col">
-        <NextIntlClientProvider messages={messages}>
+        {/* From next-intl v4 the provider inherits messages, formats and locale
+            from i18n/request.ts when rendered on the server, so none of it is
+            passed by hand. The English fallback merge still happens there. */}
+        <NextIntlClientProvider>
           <a href="#main" className="skip-link">
             {t('skipToContent')}
           </a>
