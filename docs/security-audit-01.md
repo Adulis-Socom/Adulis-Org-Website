@@ -4,7 +4,11 @@
 **Scope:** Build Amendment 05 §3.1–3.7, stress testing §4
 **Method:** static review plus live testing against a production build (`next build` + `next start`) on `localhost:3100`. No traffic was sent to any host other than localhost.
 
-> **Audit only. Nothing in this report has been fixed.** Several findings are decisions rather than defects, and fixing during the audit would destroy the record and pre-empt choices that belong to the founders.
+> **The audit itself changed no code.** Several findings were decisions rather than defects, and fixing during the audit would have destroyed the record and pre-empted choices that belonged to the founders.
+>
+> **Triaged and actioned in Build Amendments 06 and 07.** Every finding below now carries a `Triage:` line with its state and commit. **The finding text is unchanged** — a fixed vulnerability that leaves no record is one nobody knows was ever there.
+>
+> **16 fixed · 2 mitigated by decision · 1 accepted as-is · 0 outstanding without a decision.**
 
 ## Secret scan — clean
 
@@ -21,27 +25,27 @@ Run first, per §1. **No live secret found**, so the audit continued.
 
 19 findings, 8 refuted leads. Severity is rated twice because this codebase's worst defects are inert now and arm themselves at launch.
 
-| # | Finding | Now | At launch | Surface |
-|---|---|---|---|---|
-| F-01 | CSV/formula injection into the review destination | Info | **Critical** | 3.5 |
-| F-02 | Deletion flow has no server-side design to be wired into | Low | **Critical** | 3.3 |
-| F-03 | `Preview the blocked state` demo button still present | Info | **Critical** | 3.3 |
-| F-04 | `X-Forwarded-For` rotation defeats the rate limiter | Low | **High** | 3.2 |
-| F-05 | Rate limiter is per-isolate on Cloudflare | Info | **High** | 3.2 |
-| F-06 | Waitlist PII written to server logs | Low | **High** | 3.5 |
-| F-07 | Waitlist silently succeeds while delivering nothing | Medium | **High** | 3.1 |
-| F-08 | No CI, no Cloudflare Access configuration | Medium | **High** | 3.7 |
-| F-09 | No maximum length on any input field | Low | Medium | 3.1 |
-| F-10 | No Content-Security-Policy | Low | Medium | 3.4 |
-| F-11 | Limiter eviction is unreachable under the attack pattern | Info | Medium | 3.2 |
-| F-12 | Rate-limited requests still cost a full page render | Info | Medium | 3.2 |
-| F-13 | Action is invocable with no `Origin` header | Info | Medium | 3.1 |
-| F-14 | HSTS `preload` asserted before a domain exists | Info | Medium | 3.4 |
-| F-15 | No `Permissions-Policy`, COOP or CORP | Info | Low | 3.4 |
-| F-16 | Stale `.next` silently 404s routes | Low | Low | 3.6 |
-| F-17 | Dependencies behind current patch releases | Low | Low | 3.6 |
-| F-18 | Dot-segment URLs serve duplicate content | Info | Low | 3.4 |
-| F-19 | `consent` satisfiable by a file part | Info | Low | 3.1 |
+| # | Finding | Now | At launch | Surface | Triage |
+|---|---|---|---|---|---|
+| F-01 | CSV/formula injection into the review destination | Info | **Critical** | 3.5 | Fixed `1a2e1cb` |
+| F-02 | Deletion flow has no server-side design to be wired into | Low | **Critical** | 3.3 | Mitigated `76cac82` |
+| F-03 | `Preview the blocked state` demo button still present | Info | **Critical** | 3.3 | Fixed `78ba457` |
+| F-04 | `X-Forwarded-For` rotation defeats the rate limiter | Low | **High** | 3.2 | Fixed `9e73002` |
+| F-05 | Rate limiter is per-isolate on Cloudflare | Info | **High** | 3.2 | Open by decision |
+| F-06 | Waitlist PII written to server logs | Low | **High** | 3.5 | Fixed `6ba606d` |
+| F-07 | Waitlist silently succeeds while delivering nothing | Medium | **High** | 3.1 | Fixed `6ba606d` |
+| F-08 | No CI, no Cloudflare Access configuration | Medium | **High** | 3.7 | Fixed `15c5748` |
+| F-09 | No maximum length on any input field | Low | Medium | 3.1 | Fixed `08fcb7b` |
+| F-10 | No Content-Security-Policy | Low | Medium | 3.4 | Fixed `6215397` |
+| F-11 | Limiter eviction is unreachable under the attack pattern | Info | Medium | 3.2 | Fixed `b6d3ffd` |
+| F-12 | Rate-limited requests still cost a full page render | Info | Medium | 3.2 | Mitigated `eea82cf` |
+| F-13 | Action is invocable with no `Origin` header | Info | Medium | 3.1 | Fixed `a775a2e` |
+| F-14 | HSTS `preload` asserted before a domain exists | Info | Medium | 3.4 | Fixed `5275dc5` |
+| F-15 | No `Permissions-Policy`, COOP or CORP | Info | Low | 3.4 | Fixed `f3e4691` |
+| F-16 | Stale `.next` silently 404s routes | Low | Low | 3.6 | Fixed `15c5748` |
+| F-17 | Dependencies behind current patch releases | Low | Low | 3.6 | Fixed `9e4ed2b` |
+| F-18 | Dot-segment URLs serve duplicate content | Info | Low | 3.4 | Accepted as-is |
+| F-19 | `consent` satisfiable by a file part | Info | Low | 3.1 | Fixed `2f31fd8` |
 
 ### Recommended fix order
 
@@ -58,6 +62,34 @@ Not severity order. Some fixes are one line, some unblock others, and two are re
 9. **F-10, F-14, F-15** — header decisions. Cheap, but they are choices, and F-10 is easier than expected (see the finding).
 10. **F-13, F-16, F-17, F-18, F-19** — hygiene, any time.
 
+### What the triage actually did differently
+
+Recorded because the reasoning is better than mine was.
+
+- **Item 7 was wrong.** This report recommended replacing the in-app limiter with
+  KV or a Durable Object. The triage kept it and **demoted it**: the primary
+  control becomes Cloudflare's edge rate-limiting rules, where a refused request
+  never reaches a function at all. That closes F-12, which KV would not have —
+  KV still runs the function. F-05 stays open by decision, correctly rescoped:
+  a *backstop* being per-isolate is not the same problem as a *primary control*
+  being per-isolate.
+- **F-11 was therefore not moot.** This report grouped it under "moot if the
+  limiter is replaced". Since the limiter is kept as a backstop, the one-line
+  sweep fix stood on its own.
+- **F-02 was resolved by removing the requirement, not by meeting it.** The
+  specification asked for a working deletion flow; the triage ruled that the
+  app-store obligation is that a person can find and understand the path, and
+  flagged the interactive flow off. The design requirements moved to
+  `docs/deletion-flow-design.md` and became the specification.
+- **F-10 shipped `'unsafe-inline'` on `script-src` deliberately**, against a
+  nonce, because 30 statically prerendered pages on a low-end-Android constraint
+  beat defence-in-depth on a site with no injection sink. The revisit trigger is
+  in `SECURITY.md`.
+
+Founder tasks that no commit can close — the Cloudflare origin lock, Access,
+edge rate-limiting rules, the waitlist destination, the log-sink assessment, and
+the manual QA pass — are tracked in Build Amendment 07 §6.
+
 ---
 
 ## Findings
@@ -70,6 +102,9 @@ Severity at launch: Critical
 Surface:            3.5
 Status:             Confirmed
 ```
+
+> **Triage: FIXED** · `1a2e1cb`
+> Escaped at the delivery boundary; the stored value is unchanged.
 
 **What it is.** No field is escaped anywhere between the form and the delivery destination. A field beginning `=`, `+`, `@` or `-` is a formula in Excel, Google Sheets and LibreOffice. The intended destination is a spreadsheet a founder reads by hand, so the attack lands on the person doing waitlist review — the one human control in the intake process.
 
@@ -109,6 +144,9 @@ Surface:            3.3
 Status:             Confirmed
 ```
 
+> **Triage: MITIGATED** · `76cac82`, `ef33831`
+> Interactive flow gated off behind `DELETION_FLOW_ENABLED`; the seven design conditions moved to `docs/deletion-flow-design.md`. Becomes build work when the account backend exists.
+
 **What it is.** `src/components/DeleteAccountFlow.tsx` holds the entire state machine — `explain → phone → otp → confirm → success`, plus `blocked` — in React state. There is no server action, no API route, and no server-side counterpart of any kind: a grep of `src/app/actions/` for OTP handling returns nothing.
 
 This is harmless while mocked. It matters because the amendment is right that it is about to be wired, and the current shape cannot be wired safely — every transition is a client decision. A user reaches `confirm` without passing `otp` by construction.
@@ -144,6 +182,9 @@ Surface:            3.3
 Status:             Confirmed
 ```
 
+> **Triage: FIXED** · `78ba457`
+> Button and its state transition removed.
+
 **What it is.** A visible button on the OTP step jumps straight to the blocked state, which displays account data. Harmless while that data is hardcoded; a direct bypass the moment it is real.
 
 **Evidence.** `src/components/DeleteAccountFlow.tsx:180–186`, comment at `:177` says `DEMO AFFORDANCE -- REMOVE when the real obligation lookup is wired.` Already listed as a launch blocker in `README.md` and `SECURITY.md`.
@@ -162,6 +203,9 @@ Severity at launch: High (conditional — see below)
 Surface:            3.2
 Status:             Confirmed
 ```
+
+> **Triage: FIXED** · `9e73002`
+> Fallback removed; only `cf-connecting-ip` is trusted, unidentified clients share one bucket. Re-measured 5 of 30, was 30 of 30. The origin-lock conditional is a founder task.
 
 **What it is.** `clientKey()` reads `cf-connecting-ip`, then falls back to the first entry of `x-forwarded-for`. Both are client-supplied unless a trusted proxy overwrites them. Adding one header per request gives every request a fresh identity and the limit never applies.
 
@@ -201,6 +245,9 @@ Surface:            3.2
 Status:             Suspected — not testable in this environment
 ```
 
+> **Triage: OPEN — by decision** · `eea82cf`
+> The limiter is demoted to a fail-closed backstop; the primary control becomes Cloudflare edge rules. A backstop being per-isolate is acceptable in a way a primary control is not. Still not testable without a deployment.
+
 **What it is.** The limiter is a module-level `Map` in process memory. Cloudflare Workers run many short-lived isolates across many locations; there is no shared memory. The effective limit becomes *5 × number of live isolates*, and an isolate that is recycled starts at zero.
 
 **Reproduction.** Not testable locally — it requires a real Cloudflare deployment, which §1 forbids. Locally there is one process, so the limiter behaves correctly (5 of 12 above).
@@ -223,6 +270,9 @@ Severity at launch: High
 Surface:            3.5
 Status:             Confirmed
 ```
+
+> **Triage: FIXED** · `6ba606d`
+> The `console.info` that wrote name, phone, handle and city is gone. Verified zero submission content in any log across three run modes.
 
 **What it is.** With no `WAITLIST_WEBHOOK_URL` configured, `console.info` writes the entire submission to stdout. That is name, phone number, social handle and city — personal data under Proclamation 1321/2024 — landing in whatever log sink the runtime has, with retention and access controls nobody has assessed and which almost certainly do not match the 12-month commitment published on the site.
 
@@ -265,6 +315,9 @@ Surface:            3.1
 Status:             Confirmed
 ```
 
+> **Triage: FIXED** · `6ba606d`
+> A reference is issued only after delivery succeeds; `npm run build` refuses without a destination.
+
 **What it is.** With no webhook configured the action logs, then returns `{ok: true, reference}`. The applicant sees "You are on the waitlist" and a reference number. Nobody receives the application unless somebody is reading server logs.
 
 This is the site's only conversion, and the failure mode is invisible from both ends: the seller believes they applied, and the founders see no queue rather than an error.
@@ -293,6 +346,9 @@ Surface:            3.7
 Status:             Confirmed
 ```
 
+> **Triage: FIXED** · `15c5748`
+> GitHub Actions on every PR, including the copy invariants and a route smoke check. Cloudflare Access remains a founder task.
+
 **What it is.** There is no `.github/` directory, no workflow, and no `wrangler.toml`, `_headers`, `_redirects` or any other Cloudflare configuration in the repository. Cloudflare Access is a stated intention with nothing in the repo to enforce it, and there is no automated check that any of the invariants in this codebase still hold on a given commit.
 
 This matters for the audit itself: every result here is a point-in-time measurement of one commit on one machine. Nothing re-checks them.
@@ -318,6 +374,9 @@ Severity at launch: Medium
 Surface:            3.1
 Status:             Confirmed
 ```
+
+> **Triage: FIXED** · `08fcb7b`
+> Per-field caps, plus `bodySizeLimit` lowered from 1 MB to 64kb.
 
 **What it is.** No field has a length limit. The only bound is Next's default server action body cap of 1 MB, which is a framework default nobody chose and which applies to the whole request rather than to any field.
 
@@ -352,6 +411,9 @@ Severity at launch: Medium
 Surface:            3.4
 Status:             Confirmed
 ```
+
+> **Triage: FIXED** · `6215397`
+> Strict policy with `'unsafe-inline'` on `script-src` only. Revisit trigger recorded in `SECURITY.md`.
 
 **What it is.** `next.config.mjs` sets four headers and no CSP. There is no injection sink in the current code — no `dangerouslySetInnerHTML`, no `eval`, no `innerHTML`, no third-party script — so there is nothing to exploit today. CSP is defence in depth for the code not yet written: Tier 2 adds four legal pages and two more forms.
 
@@ -389,6 +451,9 @@ Surface:            3.2
 Status:             Confirmed
 ```
 
+> **Triage: FIXED** · `b6d3ffd`
+> Sweep moved above the early return. 15.47 MB → 9.46 MB on the same flood, with live keys still retained.
+
 **What it is.** The `Map` sweep that deletes expired entries sits *below* the early return. A brand-new key takes the early-return branch and never reaches the sweep. So the one traffic pattern that grows the map fastest — a flood of unique keys — is exactly the pattern that never cleans it up. Only repeat traffic on a live key triggers eviction.
 
 **Reproduction.** Unit-test the module directly with `node --experimental-strip-types`.
@@ -421,6 +486,9 @@ Surface:            3.2
 Status:             Confirmed
 ```
 
+> **Triage: MITIGATED** · `eea82cf`
+> Closed by moving the primary control to Cloudflare edge rules, where a refused request never reaches a function. Configuration is a founder task.
+
 **What it is.** A refused submission still returns HTTP 200 with the whole page re-rendered — roughly 33 KB. The limiter prevents the submission being *recorded*; it does nothing for load. An attacker who is being rate-limited still costs the same as one who is not.
 
 **Evidence.** Measured on the production build, `localhost`, 50 concurrent:
@@ -450,6 +518,9 @@ Surface:            3.1
 Status:             Confirmed
 ```
 
+> **Triage: FIXED** · `a775a2e`
+> Requests with no `Origin` are refused. ⚠ Gated on a no-JS check in `docs/manual-qa.md` §4; revert if Safari or Chrome fails it.
+
 **What it is.** Next rejects a server action when `Origin` disagrees with `Host`, but accepts a request with **no** `Origin` at all. Browsers always send `Origin` on a cross-origin POST, so this is not browser-exploitable CSRF. It does mean any non-browser client can invoke the action directly with no token — which is the spam path, not the CSRF path.
 
 **Evidence.**
@@ -478,6 +549,9 @@ Surface:            3.4
 Status:             Confirmed
 ```
 
+> **Triage: FIXED** · `5275dc5`
+> `preload` removed; re-adding it is a launch checklist item in `README.md`.
+
 **What it is.** `Strict-Transport-Security: max-age=63072000; includeSubDomains; preload` is being sent by a site with no domain. `preload` is a request to be baked into browsers' built-in HSTS list. Removal takes months and cannot be rushed, and `includeSubDomains` binds every future subdomain to HTTPS — including any that a partner, a staging host or a mail vendor might later need.
 
 Two years of `max-age` on a domain whose DNS is not yet decided is a commitment made before the thing it commits.
@@ -501,6 +575,9 @@ Severity at launch: Low
 Surface:            3.4
 Status:             Confirmed
 ```
+
+> **Triage: FIXED** · `f3e4691`
+> `Permissions-Policy`, COOP and CORP added.
 
 **What it is.** No `Permissions-Policy`, so the page does not deny browser features it never uses. No `Cross-Origin-Opener-Policy` or `Cross-Origin-Resource-Policy`. Low impact on a site with no third-party frames, no camera use and no cross-origin embedding — but they are free.
 
@@ -529,6 +606,9 @@ Surface:            3.6
 Status:             Confirmed
 ```
 
+> **Triage: FIXED** · `15c5748`
+> CI builds from a clean `.next` and never caches it; the route smoke check would have caught the original symptom.
+
 **What it is.** Found by accident during this audit. After `npm ci` replaced `node_modules` and a build ran over an existing `.next`, exactly two routes — `/en/about` and `/am` — returned 404 in production while their prerendered HTML existed on disk. `rm -rf .next` and a clean rebuild restored all 30. Deterministic across repeated requests and server restarts, so not a caching artefact.
 
 I could not determine the mechanism, and it may be a Next bug rather than anything in this codebase. It is recorded because a build that silently serves 404s for real pages is the kind of thing that reaches production through a cached CI directory.
@@ -549,6 +629,9 @@ Severity at launch: Low
 Surface:            3.6
 Status:             Confirmed
 ```
+
+> **Triage: FIXED** · `9e4ed2b`
+> Same-major patch bumps. The three high advisories are unchanged and still accepted.
 
 **What it is.** `npm audit` reports **3 high**, all as documented in `SECURITY.md` and all still accurately assessed — `postcss` and `sharp` nested inside Next 15, fixable only by Next 16. I re-verified both non-exploitability claims: no CSS from outside the repo is ever compiled, and there is no `next/image` usage and no raster asset anywhere in the project.
 
@@ -575,6 +658,9 @@ Surface:            3.4
 Status:             Confirmed
 ```
 
+> **Triage: ACCEPTED — no change** · —
+> Canonical work from Amendment 04 already mitigates the SEO consequence. Revisit only if these appear in real traffic logs.
+
 **What it is.** `/en/./about` and `/en/%2e/about` both serve the About page with HTTP 200 rather than redirecting. Duplicate URLs for the same content.
 
 **Evidence.** Both return the About page. Both correctly emit `canonical: /en/about`, which is what keeps this Informational — the canonical work from Amendment 04 already mitigates the SEO consequence. `/en/about/` correctly 308-redirects, and `/en//about` 308-redirects.
@@ -593,6 +679,9 @@ Severity at launch: Low
 Surface:            3.1
 Status:             Confirmed
 ```
+
+> **Triage: FIXED** · `2f31fd8`
+> Consent requires the literal checkbox value and is recorded as a timestamped boolean.
 
 **What it is.** `checked()` tests only `data.get(key) != null`, so any present entry satisfies consent — including a file upload or an arbitrary string, not just a checkbox value.
 
