@@ -2,6 +2,7 @@
 
 import { headers } from 'next/headers';
 import { clientKey, rateLimit } from '@/lib/rate-limit';
+import { spreadsheetSafeRecord } from '@/lib/spreadsheet-safe';
 import {
   checked,
   isPlausiblePhone,
@@ -72,7 +73,16 @@ export async function submitWaitlist(
   }
 
   const reference = waitlistReference();
-  const submission = { reference, ...values, submittedAt: new Date().toISOString() };
+
+  // Escaped at the delivery boundary, never at validation: the value the seller
+  // typed is kept intact, and only the copy crossing into a spreadsheet-shaped
+  // destination is neutralised. See src/lib/spreadsheet-safe.ts for why, and for
+  // the note that this is wrong if the destination stops being a spreadsheet.
+  const submission = {
+    reference,
+    ...spreadsheetSafeRecord(values),
+    submittedAt: new Date().toISOString()
+  };
 
   const webhook = process.env.WAITLIST_WEBHOOK_URL;
   try {
