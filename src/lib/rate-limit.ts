@@ -41,14 +41,34 @@ export function rateLimit(
 }
 
 /**
- * Cloudflare sets `cf-connecting-ip` and it cannot be spoofed by the client at
- * the edge. `x-forwarded-for` is the fallback for local development and any
- * other proxy; its first entry is the closest thing to a client address.
+ * The identity a limit is counted against.
+ *
+ * **Only `cf-connecting-ip` is trusted.** Cloudflare sets it at the edge and
+ * strips any client-supplied copy, so it cannot be forged from outside.
+ *
+ * There used to be an `x-forwarded-for` fallback. It defeated the limiter
+ * completely: that header is attacker-controlled, so one extra header per
+ * request bought a fresh identity every time. Measured during audit 01 (F-04) --
+ * 30 of 30 submissions accepted with the header rotated, against 5 of 12
+ * without it. It is gone, and it should not come back.
+ *
+ * When no trusted identity is present the client is unidentifiable, so every
+ * such request shares one bucket and they collectively get the ordinary
+ * allowance. Failing closed is the right default for a form that accepts five
+ * submissions per ten minutes; failing open is what the old fallback did.
  */
 export function clientKey(headers: Headers, scope: string): string {
-  const ip =
-    headers.get('cf-connecting-ip') ??
-    headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
-    'unknown';
-  return `${scope}:${ip}`;
+  const trusted = headers.get('cf-connecting-ip');
+  if (trusted) return `${scope}:${trusted}`;
+
+  // Local development never sits behind Cloudflare, so without this every dev
+  // request would share the unidentified bucket and the form would lock after
+  // five submissions. Keyed on NODE_ENV explicitly rather than on the absence of
+  // a header, so the loosening cannot silently apply in production.
+  if (process.env.NODE_ENV === 'development') {
+    const forwarded = headers.get('x-forwarded-for')?.split(',')[0]?.trim();
+    return `${scope}:dev:${forwarded ?? 'local'}`;
+  }
+
+  return `${scope}:unidentified`;
 }
