@@ -114,10 +114,17 @@ export async function submitWaitlist(
   // typed is kept intact, and only the copy crossing into a spreadsheet-shaped
   // destination is neutralised. See src/lib/spreadsheet-safe.ts for why, and for
   // the note that this is wrong if the destination stops being a spreadsheet.
+  const submittedAt = new Date().toISOString();
   const submission = {
     reference,
     ...spreadsheetSafeRecord(values),
-    submittedAt: new Date().toISOString()
+    // Recorded explicitly rather than left implicit in the presence of a field.
+    // Consent is a legal record under Proclamation 1321/2024, and a reviewer
+    // should be able to see it in the row rather than infer it from the fact
+    // that the row exists.
+    consent: true,
+    consentAt: submittedAt,
+    submittedAt
   };
 
   const webhook = process.env.WAITLIST_WEBHOOK_URL;

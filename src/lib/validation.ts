@@ -16,8 +16,20 @@ export function str(data: FormData, key: string): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
+/**
+ * Whether a checkbox was ticked.
+ *
+ * This used to be `data.get(key) != null`, which counted any present entry --
+ * including a file upload or an arbitrary string (security audit 01, F-19).
+ * Consent is a legal record under Proclamation 1321/2024, so what counts as
+ * having given it should be exact rather than inferred from field presence.
+ *
+ * An unchecked HTML checkbox submits nothing at all; a checked one submits its
+ * `value`, defaulting to `on`. Anything else did not come from the checkbox.
+ */
 export function checked(data: FormData, key: string): boolean {
-  return data.get(key) != null;
+  const value = data.get(key);
+  return typeof value === 'string' && value === 'on';
 }
 
 /** Deliberately permissive -- enough to catch a typo, not enough to reject a real address. */
