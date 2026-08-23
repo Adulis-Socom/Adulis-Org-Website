@@ -1,0 +1,185 @@
+# Amendments to apply to the Adulis Website Build Specification
+
+**Source of these changes:** Build Amendment 01, 23 August 2026, §2, §4 and §10.5.
+
+> **Why this file exists.** The build specification is not held in this
+> repository — it was supplied as a prompt. These are the exact edits to apply to
+> the master document, written so they can be transcribed without re-deriving
+> them. **Delete this file once the master document carries them**, or move the
+> specification into `docs/` so it can be amended in place and this indirection
+> disappears.
+
+---
+
+## 1 · Part 1 — manifest goes from 46 to 50 files
+
+Four files were discovered during the build to be load-bearing rather than
+optional. Add them to the manifest with these reasons, so a future rebuild does
+not rediscover them the hard way.
+
+```
+src/app/layout.tsx
+src/app/[locale]/[...rest]/page.tsx
+.eslintrc.json
+package-lock.json
+```
+
+| File | Why it is required |
+|---|---|
+| `src/app/layout.tsx` | Next's App Router requires a root layout. The manifest's own `src/app/not-found.tsx` returned its own `<html>` without one, which is why `/en/no-such-page` returned **500**. It is a pass-through: the real document is built in `[locale]/layout.tsx`. |
+| `src/app/[locale]/[...rest]/page.tsx` | Without a catch-all calling `notFound()`, an unmatched `/en/...` falls through to the unlocalised root fallback, `[locale]/not-found.tsx` never renders, and W20 is dead code. |
+| `.eslintrc.json` | `next lint` with no config drops into an interactive prompt, which hangs CI. |
+| `package-lock.json` | `npm ci` requires it. |
+
+**Note on the count.** Amendment 01 §2 sets the manifest at **50**, counting the
+four build files above. Three documentation files have since been added under
+Amendment 01 §5 and §9 — `SECURITY.md`, `docs/manual-qa.md` and this file —
+bringing the repository to **53 tracked files**. Part 9's file-count check should
+assert the number the manifest actually lists, and be updated whenever a file is
+added rather than being treated as a fixed constant.
+
+---
+
+## 2 · Part 4 — next-intl APIs move to v4
+
+The specification was written against next-intl v3. The project is now on
+**4.13.7**. Replace the v3 guidance with the following.
+
+**Import paths are unchanged.** `defineRouting` from `next-intl/routing`,
+`createNavigation` from `next-intl/navigation`, the default export of
+`next-intl/middleware`, and `getRequestConfig` / `getTranslations` /
+`getMessages` / `setRequestLocale` from `next-intl/server` all survive the
+migration under the same names.
+
+### `src/i18n/routing.ts`
+
+Unchanged from the v3 text, except that it now also declares the `AM_ENABLED`
+flag (§3 below). `localePrefix: 'always'` and `localeDetection: false` are both
+still valid v4 options and still do what the specification intends —
+`localeDetection: false` disables negotiation from the `accept-language` header
+*and* from any cookie left by a previous visit.
+
+> Do **not** substitute `localeCookie: false` here. It is a different option
+> controlling only whether the preference cookie is written, and it would leave
+> `accept-language` negotiation switched on — so `/` would stop resolving
+> deterministically to `/en`.
+
+### `src/i18n/request.ts`
+
+Unchanged. `getRequestConfig`, the awaited `requestLocale`, and returning
+`{locale, messages, timeZone}` all behave as before, and the recursive
+`merge(base, override)` English fallback is untouched.
+
+> `requestLocale` is marked deprecated in v4 in favour of `next/root-params`.
+> That API requires Next 16. **Stay on `requestLocale`** until the Next 16
+> upgrade is taken deliberately.
+
+### `[locale]/layout.tsx` — the one behavioural change
+
+`NextIntlClientProvider` now inherits `messages`, `formats` and `locale` from
+`i18n/request.ts` when it is rendered from a Server Component.
+
+```diff
+-import {getMessages, getTranslations, setRequestLocale} from 'next-intl/server';
++import {getTranslations, setRequestLocale} from 'next-intl/server';
+...
+-  const messages = await getMessages();
+-  <NextIntlClientProvider messages={messages}>
++  <NextIntlClientProvider>
+```
+
+Pass `messages={null}` to opt out of the inheritance. Everything else about the
+provider is unchanged.
+
+### Other v4 changes, and why they do not apply here
+
+| v4 change | Applies? |
+|---|---|
+| `AppConfig` type augmentation for `Messages`, `Formats`, `Locale` | Available, **not adopted**. Optional; would enable strict message-key typing. |
+| Locale cookie now a session cookie, only set on an explicit switch | Moot — `localeDetection: false` means no cookie is written at all. Verified. |
+| `format.relativeTime` may need an explicit `now` in Client Components | Not used. |
+| Domain routing now requires per-domain `locales` | Not used. |
+| ESM-only output; TypeScript ≥ 5; React ≥ 17 JSX transform | Already satisfied — TypeScript 5.7.3, React 19, `next.config.mjs`. |
+
+---
+
+## 3 · Part 4 — record the `AM_ENABLED` flag
+
+Add to the `src/i18n/routing.ts` description:
+
+> Declare `export const AM_ENABLED = false;` in this module.
+>
+> **INVARIANT — the flag is read from this one module. It is never duplicated
+> into a component, an environment variable, or a conditional in a page.**
+>
+> While `false`: the language switcher is not rendered on any surface; `/am/*`
+> still resolves so URLs stay stable and translation can land incrementally;
+> `/am/*` is `noindex` regardless of `NEXT_PUBLIC_SITE_URL`, and only `/en` is
+> advertised in `alternates.languages`; the English fallback is unaffected.
+>
+> It may be set `true` only when all three hold: `am.json` contains
+> human-approved translations for every key in `en.json`; Ge'ez layout validation
+> has run against those real strings; and the Ethiopic micro-subset for the
+> switcher label is implemented.
+
+---
+
+## 4 · Part 7 — Header component
+
+Amend the Header description:
+
+> The language switcher is rendered **only when `AM_ENABLED` is true**, in both
+> the desktop bar and the mobile panel. Import the flag from
+> `@/i18n/routing`; do not re-derive it.
+
+No other component changes. `LanguageSwitcher`, `Footer`, `ui.tsx`,
+`ShopPreview`, `WaitlistForm`, `DeleteAccountFlow` and `TierTwoStub` are
+unaffected by the v4 migration.
+
+---
+
+## 5 · Part 8 — layout metadata
+
+Amend the `[locale]/layout.tsx` description:
+
+> `robots: {index: false, follow: false}` whenever `NEXT_PUBLIC_SITE_URL` is
+> unset **or the locale is `am` while `AM_ENABLED` is false**.
+> `alternates.languages` lists only locales actually on offer.
+
+---
+
+## 6 · Part 9 — add to the verification list
+
+Add these checks:
+
+```
+- [ ] `/en/no-such-page` returns 404, and renders the localised W20 inside the
+      normal header and footer -- not the unlocalised root fallback
+- [ ] `/` redirects to `/en` under `Accept-Language: am`, `am-ET` and `en` alike
+- [ ] No `Set-Cookie` header is issued for locale
+- [ ] `/am` carries `robots: noindex` even when `NEXT_PUBLIC_SITE_URL` is set
+- [ ] No language switcher is rendered anywhere while `AM_ENABLED` is false
+- [ ] A key present in `am.json` renders its Amharic value while its siblings
+      fall back to English -- proving the merge is per key, not per object
+- [ ] No raw message key path renders in either locale
+```
+
+And amend the file-count check to read the number the manifest lists, rather
+than the literal `46`.
+
+---
+
+## 7 · Part 2 — dependency versions
+
+Update the `package.json` block to the versions actually shipped, and keep the
+note that they are a starting point:
+
+| Package | Was | Now | Why |
+|---|---|---|---|
+| `next` | 15.1.6 | **15.5.23** | Critical advisory set, including an authorization bypass in middleware — and locale routing on this site *is* middleware |
+| `next-intl` | 3.26.3 | **4.13.7** | Open redirect with no fix in the v3 line |
+| `eslint` | 9.18.0 | **9.39.5** | ReDoS in `@eslint/plugin-kit` |
+| `eslint-config-next` | 15.1.6 | **15.5.23** | Track `next` |
+| `postcss` | 8.5.1 | **8.5.26** | Advisory set in ≤ 8.5.22 |
+
+Cross-reference `SECURITY.md` for the two advisories knowingly left open.
