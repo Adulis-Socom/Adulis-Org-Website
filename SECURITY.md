@@ -87,6 +87,59 @@ flat-ESLint-config migration, since `next lint` is removed in 16.
 
 ---
 
+## The Content-Security-Policy decision, and when to revisit it
+
+The policy shipped in `next.config.mjs` is strict everywhere **except
+`script-src`, which carries `'unsafe-inline'`**.
+
+### Why
+
+Next emits 17 inline `<script>` blocks per page for its RSC bootstrap. Removing
+`'unsafe-inline'` requires a per-request nonce, and a per-request nonce
+deoptimises all 30 statically prerendered pages. That is a measurable, universal
+cost on a site whose binding constraint is first paint on a low-end Android over
+a slow connection — traded against a hypothetical XSS on a site with **no
+injection sink**: no `dangerouslySetInnerHTML`, no `eval`, no third-party script,
+and no user-generated content rendered anywhere.
+
+`'unsafe-inline'` on `script-src` is weak. The directives that limit *damage* are
+the strict ones, and they all hold: `connect-src 'self'` and `form-action 'self'`
+block exfiltration, `base-uri 'none'` blocks base-tag injection, and
+`object-src 'none'` and `frame-ancestors 'none'` close the rest. On a site whose
+only asset is a list of seller phone numbers, those are the ones that matter.
+
+`font-src 'self'` is sufficient because `next/font` downloads at build time — ten
+`.woff2` files are emitted to `/_next/static/media` and no Google origin is
+contacted at runtime. This was expected to be the hard part of the policy and
+turned out to be free.
+
+### ⚠ Revisit trigger — the condition that expires this decision
+
+**Reopen this the moment any user-supplied content is rendered into a page.**
+
+Today nothing is. The waitlist echoes submitted values back into form inputs,
+which React escapes. Tier 2 adds two more forms with the same property. The day
+that changes — a public storefront, a review, a report-content submission
+displayed back, any reflected content at all — `'unsafe-inline'` stops being
+defensible and the nonce cost becomes worth paying.
+
+A decision whose expiry condition is not written down is a decision nobody
+revisits. This is that condition.
+
+### The third option, if the trigger fires
+
+Build-time hashes written into a Cloudflare Pages `_headers` file give strict
+`script-src` **and** static rendering — both, with no nonce. It is real work: the
+hashes are per-page, and they break whenever Next changes its bootstrap. Too
+expensive for the threat today, but it is the path if the trigger above fires,
+and a `_headers` file will be needed for that deployment anyway.
+
+Note that a `_headers` file would also **supersede the `headers()` block in
+`next.config.mjs`** on Cloudflare Pages. Whoever configures that deployment must
+port every header across, not just the CSP.
+
+---
+
 ## Standing rules
 
 These are properties of the site, not of its dependencies. Breaking one is a
