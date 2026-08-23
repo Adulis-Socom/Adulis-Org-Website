@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Nothing here needs write access to anything.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      # The build refuses to run without a delivery destination (scripts/check-env.mjs).
+      # CI is not deploying anything, so it opts out explicitly rather than
+      # carrying a fake webhook URL that could be mistaken for a real one.
+      ALLOW_UNDELIVERED_WAITLIST: '1'
+      # Left unset deliberately elsewhere, but the route smoke check needs an
+      # origin to build absolute URLs against.
+      NEXT_PUBLIC_SITE_URL: http://localhost:3999
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Do NOT cache .next. Security audit 01 F-16: a build over a stale .next
+      # silently served 404 for two real routes whose prerendered HTML existed
+      # on disk, and `next build` reported success. Always build clean.
+      - name: Ensure a clean build directory
+        run: rm -rf .next
+
+      - name: Translation catalogues
+        run: npm run check:i18n
+
+      - name: Copy invariants
+        run: npm run check:copy
+
+      - name: Types
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Route smoke check
+        run: npm run check:routes
+
+      - name: No secrets in the diff
+        run: |
+          if git grep -InE "(ghp_|gho_|ghu_|ghs_|ghr_|github_pat_)[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----" -- . ; then
+            echo "::error::A token-shaped string is present in the tree."
+            exit 1
+          fi
+          echo "no token-shaped strings"
+
+      - name: Dependency advisories (report only)
+        # Does not fail the build. The three outstanding highs are accepted and
+        # documented in SECURITY.md, and only Next 16 resolves them. This step
+        # exists so a NEW advisory is visible in the log rather than silent.
+        run: npm audit || true

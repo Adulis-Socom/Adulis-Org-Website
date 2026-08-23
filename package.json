@@ -10,7 +10,9 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "check:i18n": "node scripts/check-i18n.mjs",
-    "check:env": "node scripts/check-env.mjs"
+    "check:env": "node scripts/check-env.mjs",
+    "check:copy": "node scripts/check-copy.mjs",
+    "check:routes": "node scripts/check-routes.mjs"
   },
   "dependencies": {
     "next": "15.5.23",
