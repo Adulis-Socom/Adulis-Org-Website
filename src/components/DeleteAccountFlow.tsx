@@ -173,17 +173,6 @@ export function DeleteAccountFlow() {
             <span className="field-help tnum">{t('otp.resendIn', { seconds: cooldown })}</span>
           )}
         </form>
-
-        {/* DEMO AFFORDANCE -- REMOVE when the real obligation lookup is wired.
-            The blocked branch is otherwise unreachable for review, and it is the
-            branch an app-store reviewer is most likely to ask about. */}
-        <button
-          type="button"
-          className="note mt-6 underline underline-offset-4"
-          onClick={() => go('blocked')}
-        >
-          Preview the blocked state
-        </button>
       </div>
     );
   }
@@ -249,6 +238,10 @@ export function DeleteAccountFlow() {
     );
   }
 
+  // Reachable only from a server response that says deletion is blocked. There is
+  // deliberately no client-side transition into this state: it renders a seller's
+  // outstanding orders, payments and claims, and nothing in the browser should be
+  // able to put the page here. The demo button that used to do so is gone.
   if (step === 'blocked') {
     const items = t.raw('blocked.items') as BlockedItem[];
 
