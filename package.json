@@ -5,11 +5,12 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "prebuild": "npm run check:i18n",
+    "prebuild": "npm run check:i18n && npm run check:env",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "check:i18n": "node scripts/check-i18n.mjs"
+    "check:i18n": "node scripts/check-i18n.mjs",
+    "check:env": "node scripts/check-env.mjs"
   },
   "dependencies": {
     "next": "15.5.23",

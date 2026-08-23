@@ -85,20 +85,44 @@ export async function submitWaitlist(
   };
 
   const webhook = process.env.WAITLIST_WEBHOOK_URL;
-  try {
-    if (webhook) {
-      const response = await fetch(webhook, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(submission)
-      });
-      if (!response.ok) throw new Error(`Webhook responded ${response.status}`);
-    } else {
-      // No destination configured. The applicant still gets a reference number,
-      // but nobody receives the application -- see the README checklist.
-      console.info('[waitlist] no WAITLIST_WEBHOOK_URL set; submission not delivered', submission);
+
+  // No destination configured. This used to log the submission and return a
+  // reference number anyway, which meant the site's only conversion failed
+  // silently in both directions: the applicant believed they had applied, and no
+  // founder ever saw it. A reference number is a promise that the application
+  // exists somewhere, so it is only ever issued after delivery succeeds.
+  //
+  // `npm run build` refuses to produce a build without a destination
+  // (scripts/check-env.mjs), so in practice this branch is reachable only in
+  // development or under an explicit opt-out.
+  if (!webhook) {
+    if (process.env.NODE_ENV === 'development') {
+      // Development keeps a console path, but the reference is visibly marked so
+      // it can never be mistaken for a delivered application. The submission body
+      // is deliberately NOT logged -- it is personal data under Proclamation
+      // 1321/2024 and runtime logs are not a destination anybody has assessed.
+      console.info(
+        `[waitlist] DEV: no WAITLIST_WEBHOOK_URL set. Submission ${reference} was NOT delivered. ` +
+          `${Object.keys(values).length} fields captured, body not logged.`
+      );
+      return { ok: true, errors: {}, values: {}, reference: `DEV-NOT-DELIVERED-${reference}` };
     }
+
+    console.error('[waitlist] no WAITLIST_WEBHOOK_URL configured; refusing the submission');
+    return { ok: false, errors: { _form: 'unexpected' }, values };
+  }
+
+  try {
+    const response = await fetch(webhook, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(submission)
+    });
+    if (!response.ok) throw new Error(`Webhook responded ${response.status}`);
   } catch (error) {
+    // The error, never the submission. A failed fetch does not carry the URL
+    // (verified in audit 01, R-07), but the body would carry the applicant's
+    // name and phone number.
     console.error('[waitlist] delivery failed', error);
     return { ok: false, errors: { _form: 'unexpected' }, values };
   }
