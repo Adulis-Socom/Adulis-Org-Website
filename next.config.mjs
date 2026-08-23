@@ -24,7 +24,34 @@ const nextConfig = {
           {
             key: 'Strict-Transport-Security',
             value: 'max-age=63072000; includeSubDomains; preload'
-          }
+          },
+          // Deny every browser feature, because the site uses none of them.
+          //
+          // `camera=()` is correct and is not an oversight: QR scanning at
+          // handoff happens in the buyer app, not on this site. Do not relax it
+          // here when that feature is built.
+          {
+            key: 'Permissions-Policy',
+            value: [
+              'accelerometer=()',
+              'autoplay=()',
+              'camera=()',
+              'display-capture=()',
+              'encrypted-media=()',
+              'fullscreen=()',
+              'geolocation=()',
+              'gyroscope=()',
+              'magnetometer=()',
+              'microphone=()',
+              'midi=()',
+              'payment=()',
+              'picture-in-picture=()',
+              'usb=()',
+              'xr-spatial-tracking=()'
+            ].join(', ')
+          },
+          { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
+          { key: 'Cross-Origin-Resource-Policy', value: 'same-origin' }
         ]
       }
     ];
