@@ -1,0 +1,7 @@
+{
+  "_note": "PROVISIONAL AND DELIBERATELY INCOMPLETE. English is the base catalogue; any key absent from this file falls back to the English string automatically (see the deep merge in src/i18n/request.ts), so a partial file renders a working page rather than raw key paths. The Amharic carried over from the v4.1 wireframes was machine output that had never been reviewed by a native speaker, and it must be replaced wholesale rather than extended. Do not add machine-translated strings here: Ge'ez layout validation is a launch gate (ADU-PROJ-01 v9.0 section 12, ADU-WEB-01 section 8.3) and it cannot be performed against machine output, because the string lengths are not trustworthy. See messages/README.md.",
+
+  "nav": {
+    "languageSwitch": "EN / አማርኛ"
+  }
+}
