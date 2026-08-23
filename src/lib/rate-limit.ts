@@ -1,13 +1,23 @@
 /**
- * In-memory fixed-window rate limiter.
+ * In-memory fixed-window rate limiter. **This is the backstop, not the primary
+ * control. Do not delete it, and do not promote it back.**
  *
- * !! This does NOT survive a restart and does NOT coordinate across instances.
- * On Cloudflare Pages every request may be served by a different isolate, so in
- * production this limits almost nothing. Replace it with Cloudflare KV or a
- * Durable Object behind this same interface before the site is reachable.
+ * The primary control is Cloudflare's edge rate-limiting rules, configured in
+ * the dashboard. That is the right layer for a form taking five submissions per
+ * ten minutes: a refused request never reaches a function at all. It also closes
+ * something this limiter cannot — a request refused here still costs a full page
+ * render, measured at 66 req/s and a 33 KB response for traffic that is being
+ * turned away anyway (security audit 01, F-12).
  *
- * It is here so that the forms are rate limited by construction rather than by
- * intention, and so that swapping the backend is a one-file change.
+ * This stays for any environment that is not behind Cloudflare: local
+ * development, a preview host, or anywhere the origin is reachable directly.
+ * With the F-04 and F-11 fixes applied it fails closed and evicts correctly.
+ *
+ * It is still per-process, so on Cloudflare each isolate keeps its own map and
+ * the effective allowance multiplies by the number of live isolates (F-05, open
+ * and not testable without a deployment). That is acceptable for a backstop in a
+ * way it would not be for a primary control — which is exactly why the primary
+ * moved to the edge rather than to KV.
  */
 type Window = { count: number; resetAt: number };
 

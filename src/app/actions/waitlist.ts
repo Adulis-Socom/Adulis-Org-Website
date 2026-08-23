@@ -62,7 +62,14 @@ export async function submitWaitlist(
 
   // Honeypot. A bot that fills every field gets a success screen and goes away;
   // telling it what it tripped on only teaches it to avoid the trap next time.
+  //
+  // This returns before the rate limiter, so honeypot traffic is unmetered. That
+  // is fine for load -- the path does less work than a 404 -- but it also made
+  // bot volume invisible, since nothing counted it (security audit 01, R-06).
+  // One line, no submission body: the founders should be able to tell whether
+  // the site is being hit at all.
   if (str(data, 'company')) {
+    console.info('[waitlist] honeypot triggered; submission discarded');
     return { ok: true, errors: {}, values: {}, reference: waitlistReference() };
   }
 
