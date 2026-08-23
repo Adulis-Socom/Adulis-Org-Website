@@ -70,6 +70,22 @@ export function rateLimit(
  * 30 of 30 submissions accepted with the header rotated, against 5 of 12
  * without it. It is gone, and it should not come back.
  *
+ * !! OPERATIONAL CONSEQUENCE, worth knowing before it wastes an afternoon.
+ * Nothing that is not behind Cloudflare sends `cf-connecting-ip` -- not CI, not
+ * Playwright, not a local harness, not a staging box with a direct origin. In a
+ * production build every such request therefore shares the single
+ * `waitlist:unidentified` bucket, and the fifth submission in ten minutes is the
+ * last one that works.
+ *
+ * This was not anticipated when the fail-closed change was written, and it
+ * nearly caused this fix to be reverted: the first full QA run showed the F-13
+ * no-JS gate failing in WebKit, which is exactly the symptom that gate watches
+ * for. The cause was this bucket, not the Origin header. `tests/qa/fixtures.ts`
+ * now gives each test its own identity.
+ *
+ * If an automated environment starts refusing submissions for no clear reason,
+ * check this first.
+ *
  * When no trusted identity is present the client is unidentifiable, so every
  * such request shares one bucket and they collectively get the ordinary
  * allowance. Failing closed is the right default for a form that accepts five

@@ -6,10 +6,17 @@
 **Run:** `npm run qa`
 
 > **Verification only. Nothing was fixed**, per §5.4. The one permitted exception — an F-13 revert — was **not triggered**: the gate passed.
+>
+> ## Triaged in Build Amendment 09
+>
+> **Q-02 fixed** (`/70` opacity dropped) — axe is now **64 of 64 contexts clean, zero violations**.
+> **Q-01 partly fixed** — the header wordmark is padded to 44px; the consent checkbox is accepted with a comment; **four `.link-arrow` instances await a ruling** and were deliberately left alone (see "Q-01 triage" below).
+>
+> **Suite after triage: 273 passed · 16 failed · 1 skipped.** Every remaining failure is one of the five known targets. The original finding text below is unchanged.
 
 ---
 
-## Result
+## Result — as first reported
 
 **215 passed · 74 failed · 1 skipped**, across 30 pages × 2 engines.
 
@@ -68,6 +75,62 @@ Fixed:     No — reported per §5.4
 
 **Depends on.** Nothing technical. Whether the invariant applies to inline text links is a founder call, and it is the difference between a one-line fix and a six-element one.
 
+### Q-01 triage — Amendment 09 §3.2
+
+> **Worth restating, because it changes the urgency:** the 44×44 invariant in
+> ADU-WEB-01 §10 is stricter than the standard the site claims. WCAG 2.1 AA does
+> not require it — target size at 44px is AAA, and AA (2.5.8, WCAG 2.2) asks for
+> 24×24. These are violations of our own rule, not accessibility failures.
+
+**Fixed — the header wordmark.** `inline-flex` + `min-h-[44px]`, `Header.tsx`.
+It was 60×24 on all 30 pages and is the home link, the one a person reaches for
+when lost. This alone removed 60 of the 74 original failures.
+
+**Accepted — the consent checkbox, 20×20.** The `<label>` is correctly
+associated, so the real target is the whole consent line. Enlarging the box
+would make it the only oversized control on the form. Commented in
+`WaitlistForm.tsx` so it can be closed quickly at the next audit rather than
+re-investigated.
+
+**Awaiting a ruling — four instances of one class.** Not fixed, per §3.2.
+
+They are **all `.link-arrow`**, so this is one class to decide about, not four
+elements. Each renders `display: block` because it is a flex item, which is why
+the "inline links are text, not targets" exemption does not catch them.
+
+| # | Page(s) | Size | Source | What it does |
+|---|---|---|---|---|
+| 1 | `/` (both locales) | 276×24 | `ui.tsx:61`, inside `.door` | **The buyer door** — the single marked crossing from the seller-weighted home page to the buyer side. ADU-WEB-01 §2.1 makes this the one navigational decision on the page |
+| 2 | `/for-buyers` (both locales) | 276×24 | `ui.tsx:61`, inside `.door` | The reverse door, back to the seller side |
+| 3 | `/trust-and-safety` (both locales) | 158×24 | `page.tsx:93`, inside `p.mt-4.flex` | "Refunds & Disputes →" — routes a buyer with a problem to the policy |
+| 4 | `/trust-and-safety` (both locales) | 125×24 | `page.tsx:96`, inside `p.mt-4.flex` | "Report content →" — an app-store-required reporting route |
+
+**The catch that makes this a decision rather than a fix.** `.link-arrow` has a
+**fifth** usage, and it is genuinely inline: the Privacy link inside the waitlist
+consent `<label>` (`WaitlistForm.tsx:237`), measuring 62×16 with
+`display: inline`. It is correctly *not* reported, because a link inside a
+sentence is text rather than a tap target and WCAG exempts it.
+
+So a blanket `min-height` on `.link-arrow` fixes all four **and** turns that
+inline link into a 44px-tall element inside a sentence, disturbing the consent
+line's layout.
+
+Options, not chosen:
+
+- **`min-h-[44px]` + `inline-flex` on `.link-arrow`.** One line, fixes all four.
+  Costs the consent line's inline flow.
+- **Split the class** — `.link-arrow` stays inline-safe, a new `.link-arrow-block`
+  carries the target size, and the four call sites move to it. Correct, and four
+  files instead of one.
+- **Vertical padding only** (`py-2.5`), which reaches 44px through padding rather
+  than `min-height`. Least disruptive to the inline case, but still affects it.
+- **Accept all four** on the grounds that they are inline-styled text links that
+  happen to sit in a flex container, and narrow the invariant to controls.
+  A specification change to ADU-WEB-01 §10, not a code change.
+
+**Depends on.** Whether ADU-WEB-01 §10's 44×44 applies to text links or only to
+controls. That is the actual question, and it decides all four at once.
+
 ---
 
 ## Q-02 — Colour contrast 3.02:1 on placeholder labels
@@ -94,8 +157,14 @@ Element has insufficient color contrast of 3.02
 
 **Where.** 8 distinct nodes across 6 pages plus the menu-open state: the shop-preview image slot on `/`, the three category slots on `/how-it-works`, and the three founder photo slots on `/about` — in both locales.
 
-**Fix options.** Not chosen.
-- Drop the `/70` opacity. One character. Contrast becomes roughly 6.4:1.
+### Q-02 triage — FIXED, Amendment 09 §3.1
+
+The `/70` was dropped in `globals.css`. Re-scanned: **64 of 64 contexts clean,
+zero axe violations across the whole suite, both engines.** The class carries a
+comment recording why the opacity is not to come back.
+
+**Fix options.** Not chosen at the time of the report.
+- Drop the `/70` opacity. One character. Contrast becomes roughly 6.4:1. ← taken
 - Raise the font size above 18.66px, which changes the AA threshold to 3:1 and would pass at 3.02 — technically compliant, uncomfortably marginal, and it changes the visual design.
 - Accept until real imagery lands, since these are lo-fi placeholders that will be replaced. **The risk in that:** the placeholders ship if photography is late, and the `.placeholder-media` class is also used for anything else that needs a media slot.
 

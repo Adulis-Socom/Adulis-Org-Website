@@ -254,6 +254,37 @@ the result looks like a company a seller would trust their business to.
 
 ---
 
+## Known properties that are not defects
+
+Written down so they are recognised rather than re-investigated.
+
+**Safari does not Tab to links.** WebKit omits `<a>` elements from the Tab order
+by default — Safari's Full Keyboard Access setting, off unless a person turns it
+on. Verified directly: chromium tabs skip-link → wordmark → menu button → anchor
+CTA → form fields; webkit goes straight to the menu button and then the fields,
+reaching no link at all.
+
+The consequence for this site: **on Safari with default settings, the skip link
+and every in-page link are unreachable by Tab.** Buttons, inputs and selects are
+reachable normally, so the waitlist form is fully operable. Nothing here is fixable
+in the site — it is an OS and browser setting — but it is worth a line if an
+accessibility statement is ever published, and it is why the automated
+skip-link check is chromium-only.
+
+- [ ] **HUMAN**: confirm the skip link and in-page links work in Safari with
+      *Full Keyboard Access* enabled (System Settings → Keyboard)
+
+**Automated environments share one rate-limit bucket.** `clientKey()` trusts only
+`cf-connecting-ip` and fails closed without it, so CI, Playwright, a local
+harness, or any staging box not behind Cloudflare all share the single
+`waitlist:unidentified` bucket — the fifth submission in ten minutes is the last
+one that works. If a QA run or a staging environment starts refusing submissions
+with no obvious cause, this is almost always why. It nearly caused a correct
+security fix to be reverted once already. Details in
+[`tests/qa/README.md`](../tests/qa/README.md).
+
+---
+
 ## Already verified — do not re-do
 
 Confirmed programmatically during the build:

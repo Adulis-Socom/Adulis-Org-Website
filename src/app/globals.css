@@ -202,10 +202,13 @@
     @apply h-2 rounded bg-surface-sunken;
   }
 
+  /* text-ink-muted at full opacity, not /70. At 70% the label measured 3.02:1
+     against the sunken background, below the 4.5:1 AA floor for 11px text, and
+     it was the only axe violation in the whole suite (QA report 01, Q-02). */
   .placeholder-media {
     @apply relative flex items-center justify-center rounded border border-line
            bg-surface-sunken text-micro font-semibold uppercase tracking-wider
-           text-ink-muted/70;
+           text-ink-muted;
     background-image:
       linear-gradient(to top right, transparent calc(50% - 0.5px),
         theme('colors.line.DEFAULT') 50%, transparent calc(50% + 0.5px)),

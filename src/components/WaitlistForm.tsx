@@ -218,6 +218,12 @@ export function WaitlistForm() {
       </Field>
 
       <div className="field">
+        {/* The input measures 20x20, under the 44x44 invariant, and that is
+            accepted rather than a finding: the label is correctly associated, so
+            the real target is the whole consent line, which is far larger.
+            Enlarging the box itself would make it the only oversized control on
+            the form. Re-reported by every audit that measures the raw element —
+            this comment is here so it can be closed quickly next time. */}
         <div className="flex items-start gap-3">
           <input
             id="consent"

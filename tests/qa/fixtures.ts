@@ -20,21 +20,38 @@ import { test as base } from '@playwright/test';
  * across the whole run, and the audit already measured the limiter's real
  * behaviour separately.
  */
-let counter = 0;
+/**
+ * Derived from the test's own identity, not from a counter.
+ *
+ * A module-level counter looked fine and was not: Playwright restarts the worker
+ * process after a failing test, which resets module state, so identities repeat
+ * and colliding tests starve each other again. That surfaced as one webkit
+ * keyboard test failing in the full run and passing in isolation — the same
+ * shape of confusion the counter was added to prevent.
+ *
+ * Hashing the project name, file and title gives a stable, unique address per
+ * test that survives worker restarts and does not depend on execution order.
+ */
+function identityFor(project: string, file: string, title: string): string {
+  let h = 2166136261;
+  for (const ch of `${project}|${file}|${title}`) {
+    h ^= ch.charCodeAt(0);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  // 10.x.y.z — private range, three octets of entropy, never .0 or .255.
+  const a = ((h >>> 16) % 254) + 1;
+  const b = ((h >>> 8) & 0xff) % 254 + 1;
+  const c = (h & 0xff) % 254 + 1;
+  return `10.${a}.${b}.${c}`;
+}
 
-export const test = base.extend<{ rateLimitIdentity: string }>({
-  rateLimitIdentity: async ({}, use) => {
-    counter += 1;
-    await use(`198.51.100.${counter % 250}`);
-  },
-
-  context: async ({ browser, contextOptions, rateLimitIdentity }, use, testInfo) => {
-    const unique = `10.${testInfo.workerIndex % 250}.${(counter >> 8) % 250}.${counter % 250}`;
+export const test = base.extend({
+  context: async ({ browser, contextOptions }, use, testInfo) => {
     const context = await browser.newContext({
       ...contextOptions,
       extraHTTPHeaders: {
         ...(contextOptions.extraHTTPHeaders ?? {}),
-        'cf-connecting-ip': unique
+        'cf-connecting-ip': identityFor(testInfo.project.name, testInfo.file, testInfo.title)
       }
     });
     await use(context);
