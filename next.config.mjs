@@ -21,9 +21,14 @@ const nextConfig = {
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          // `preload` is deliberately absent. It asks browsers to bake the
+          // domain into their built-in HSTS list, which takes months to reverse
+          // and binds every future subdomain to HTTPS -- a commitment that
+          // cannot sensibly be made before the domain and its subdomain plan
+          // exist. Adding it is a launch checklist item in README.md.
           {
             key: 'Strict-Transport-Security',
-            value: 'max-age=63072000; includeSubDomains; preload'
+            value: 'max-age=63072000; includeSubDomains'
           },
           // Deny every browser feature, because the site uses none of them.
           //
