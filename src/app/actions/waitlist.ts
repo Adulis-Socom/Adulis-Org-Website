@@ -66,7 +66,24 @@ export async function submitWaitlist(
     return { ok: true, errors: {}, values: {}, reference: waitlistReference() };
   }
 
-  const { allowed } = rateLimit(clientKey(await headers(), 'waitlist'), { limit: 5 });
+  const requestHeaders = await headers();
+
+  // Next already refuses a server action whose Origin disagrees with Host, which
+  // is what closes browser CSRF. It accepts a request with no Origin at all,
+  // though, so any non-browser client could invoke this directly with no token
+  // (security audit 01, F-13). Every real browser sends Origin on a POST, so
+  // requiring it costs nothing and closes that path.
+  //
+  // !! If the no-JavaScript form ever stops working in a real browser, this is
+  // the first thing to revert. Some browsers have historically omitted Origin on
+  // same-origin form POSTs, and that is exactly the no-JS path. There is a check
+  // for it in docs/manual-qa.md; the real abuse control here is rate limiting,
+  // not this.
+  if (!requestHeaders.get('origin')) {
+    return { ok: false, errors: { _form: 'unexpected' }, values };
+  }
+
+  const { allowed } = rateLimit(clientKey(requestHeaders, 'waitlist'), { limit: 5 });
   if (!allowed) {
     return { ok: false, errors: { _form: 'rateLimited' }, values };
   }

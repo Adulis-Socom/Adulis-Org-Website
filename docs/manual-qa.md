@@ -89,6 +89,18 @@ Turn JavaScript off in the browser and reload — do not just block a script.
 - [ ] Footer links to Terms, Privacy, Report content and Delete my account all
       work
 
+⚠ **This section now gates a revert.** The waitlist action rejects a request with
+no `Origin` header (security audit 01, F-13). Every current browser sends
+`Origin` on a POST, but some have historically omitted it on **same-origin form
+POSTs** — which is exactly the no-JavaScript path above.
+
+- [ ] With JavaScript disabled, a valid submission **succeeds** in **Safari**
+- [ ] With JavaScript disabled, a valid submission **succeeds** in **Chrome**
+- [ ] If either fails with the generic "Something went wrong on our side" error,
+      **revert the `Origin` check** in `src/app/actions/waitlist.ts` and say so.
+      The real abuse control is rate limiting; that check is hardening, and it is
+      not worth breaking the no-JS path for.
+
 ## 4a · Translation workflow — `npm run check:i18n`
 
 Not a browser check, but it belongs to whoever does the Amharic work rather than
