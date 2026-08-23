@@ -127,8 +127,29 @@
     @apply w-full;
   }
 
+  /* Two classes because there are two roles, and the role decides whether the
+     44x44 invariant applies (ADU-WEB-01 §10).
+
+     .link-arrow        — a link INLINE within a sentence. Exempt from 44x44:
+                          its size is constrained by the line-height of the text
+                          around it, which is the same exemption WCAG 2.1 SC
+                          2.5.5 and WCAG 2.2 SC 2.5.8 carry. Currently the
+                          Privacy link inside the waitlist consent label.
+
+     .link-arrow-target — a STANDALONE link that happens to be styled as text.
+                          A target, so it takes the 44px minimum. The two
+                          audience doors and the two Trust & Safety routes.
+
+     Deliberately not one class with a blanket min-height: that would reach 44px
+     by disturbing the inline case, which is the one usage that should not
+     change. Choosing between these two is choosing a role, which is the
+     decision a future developer should be making consciously. */
   .link-arrow {
     @apply font-semibold text-ink underline-offset-4 hover:underline;
+  }
+
+  .link-arrow-target {
+    @apply link-arrow inline-flex min-h-[44px] items-center;
   }
 
   .form-column {

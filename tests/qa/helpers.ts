@@ -122,6 +122,30 @@ export async function smallTargets(page: Page, min = 44) {
       const isInlineLink =
         el.tagName === 'A' && style.display === 'inline' && (el.textContent ?? '').length > 0;
       if (isInlineLink) continue;
+
+      // A form control with an associated label is activated by clicking the
+      // label too, so the real target is the union of the two. Measuring the
+      // raw <input> understates it — the consent checkbox is 20x20 while its
+      // effective target is the whole consent line. Ruled accepted in Build
+      // Amendment 09 §3.2; encoded here so the harness agrees with the ruling
+      // rather than re-reporting it every run.
+      let effective = { width: r.width, height: r.height };
+      if (el.id) {
+        const label = document.querySelector<HTMLElement>(`label[for="${CSS.escape(el.id)}"]`);
+        if (label) {
+          const lr = label.getBoundingClientRect();
+          if (lr.width > 0 || lr.height > 0) {
+            const top = Math.min(r.top, lr.top);
+            const left = Math.min(r.left, lr.left);
+            effective = {
+              width: Math.max(r.right, lr.right) - left,
+              height: Math.max(r.bottom, lr.bottom) - top
+            };
+          }
+        }
+      }
+      if (effective.width >= m && effective.height >= m) continue;
+
       if (r.width < m || r.height < m) {
         const id = el.id ? `#${el.id}` : '';
         bad.push({

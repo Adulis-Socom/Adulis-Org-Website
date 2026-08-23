@@ -12,7 +12,9 @@
 > **Q-02 fixed** (`/70` opacity dropped) — axe is now **64 of 64 contexts clean, zero violations**.
 > **Q-01 partly fixed** — the header wordmark is padded to 44px; the consent checkbox is accepted with a comment; **four `.link-arrow` instances await a ruling** and were deliberately left alone (see "Q-01 triage" below).
 >
-> **Suite after triage: 273 passed · 16 failed · 1 skipped.** Every remaining failure is one of the five known targets. The original finding text below is unchanged.
+> **Q-01 closed in Amendment 10** — all four `.link-arrow` instances fixed via a second class, the inline consent link left exempt.
+>
+> **Suite: 289 passed · 0 failed · 1 skipped.** Zero undersized targets, zero axe violations, zero overflow. The one skip is the documented WebKit link-tabbing limitation. The original finding text below is unchanged.
 
 ---
 

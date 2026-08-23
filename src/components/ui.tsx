@@ -58,7 +58,7 @@ export function DoorBand({
   return (
     <div className="door flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <h2 className="text-h3 text-ink">{title}</h2>
-      <Link href={href} className="link-arrow">
+      <Link href={href} className="link-arrow-target">
         {linkLabel}
       </Link>
     </div>

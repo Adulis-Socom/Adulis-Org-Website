@@ -70,21 +70,35 @@ export function rateLimit(
  * 30 of 30 submissions accepted with the header rotated, against 5 of 12
  * without it. It is gone, and it should not come back.
  *
- * !! OPERATIONAL CONSEQUENCE, worth knowing before it wastes an afternoon.
- * Nothing that is not behind Cloudflare sends `cf-connecting-ip` -- not CI, not
- * Playwright, not a local harness, not a staging box with a direct origin. In a
- * production build every such request therefore shares the single
+ * !! CHECK THIS FIRST when an automated environment refuses submissions.
+ *
+ * It has already been misdiagnosed twice, and once it nearly caused this
+ * correct security fix to be reverted. It is not a defect -- failing closed is
+ * the right behaviour -- but it carries a standing tax on any environment that
+ * is not behind Cloudflare, and that tax has now been paid three times.
+ *
+ * The mechanism: nothing outside Cloudflare sends `cf-connecting-ip` -- not CI,
+ * not Playwright, not a local harness, not a staging box with a direct origin.
+ * In a production build every such request therefore shares the single
  * `waitlist:unidentified` bucket, and the fifth submission in ten minutes is the
- * last one that works.
+ * last one that works. The symptom is a generic error or an unexplained refusal,
+ * on whichever test happens to run sixth.
  *
- * This was not anticipated when the fail-closed change was written, and it
- * nearly caused this fix to be reverted: the first full QA run showed the F-13
- * no-JS gate failing in WebKit, which is exactly the symptom that gate watches
- * for. The cause was this bucket, not the Origin header. `tests/qa/fixtures.ts`
- * now gives each test its own identity.
+ * The three times, so the pattern is recognisable:
  *
- * If an automated environment starts refusing submissions for no clear reason,
- * check this first.
+ *   1. The first full QA run showed the F-13 no-JS gate failing in WebKit --
+ *      exactly the symptom that gate exists to watch for. Reverting F-13 there
+ *      would have looked correct and been wrong. The recorded
+ *      `originHeaderPresent: true` is what settled it: the Origin header had
+ *      been sent perfectly well, and rate limiting was the cause.
+ *   2. A webkit keyboard test then failed in a full run and passed in isolation,
+ *      because the per-test identity came from a module counter that Playwright
+ *      resets when it restarts a worker after a failure.
+ *   3. Every run before `tests/qa/fixtures.ts` existed, silently.
+ *
+ * `tests/qa/fixtures.ts` now derives a unique identity per test by hashing its
+ * project, file and title, which is stable across worker restarts. Any new
+ * harness needs the same thing. See `tests/qa/README.md`.
  *
  * When no trusted identity is present the client is unidentifiable, so every
  * such request shares one bucket and they collectively get the ordinary

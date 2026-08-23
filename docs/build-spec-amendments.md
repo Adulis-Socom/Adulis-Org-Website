@@ -275,6 +275,47 @@ than the literal `46`.
 
 ---
 
+## 6A · ADU-WEB-01 §10 — the touch-target invariant needs its exemption
+
+**Source:** Build Amendment 10 §2.4. This one amends **ADU-WEB-01**, not the
+build specification — the founders hold that document, so it is recorded here
+for transcription.
+
+§10 currently reads only:
+
+> **INVARIANT — minimum 44×44px touch targets.**
+
+That sentence is what produced the Q-01 question: taken literally it fails a link
+sitting inside a sentence, whose height is set by the surrounding line-height and
+cannot be changed without disturbing the text. Replace it with:
+
+> **INVARIANT — minimum 44×44px touch targets for any standalone interactive
+> element.** A link inline within a sentence is exempt, since its size is
+> constrained by the line-height of the text around it — the same exemption
+> carried by WCAG 2.1 SC 2.5.5 and WCAG 2.2 SC 2.5.8. The test is the role, not
+> the element type: a standalone `<a>` is a target; a `<button>` inside a
+> paragraph is not exempt merely for being a button.
+
+**How the codebase expresses this**, so the rule and the code stay legible
+together:
+
+| Class | Role | 44×44 |
+|---|---|---|
+| `.link-arrow` | A link inline within a sentence | Exempt |
+| `.link-arrow-target` | A standalone link styled as text | Applies |
+
+Choosing between them is choosing a role. There is deliberately **no** blanket
+`min-height` on `.link-arrow`: that would reach 44px by disturbing the one usage
+that should not change.
+
+Worth noting for context: at 24px the four affected links already cleared WCAG
+2.2 AA's 24×24 minimum. They were fixed because 44×44 is Adulis's own stricter
+invariant, and because two of them earn it on their job — the buyer door is the
+single marked crossing between the site's two audiences (ADU-WEB-01 §2.1), and
+Report content is an app-store requirement a reviewer will tap on a phone.
+
+---
+
 ## 7 · Part 2 — dependency versions
 
 Update the `package.json` block to the versions actually shipped, and keep the
