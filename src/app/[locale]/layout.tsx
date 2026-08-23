@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
-import { routing, type Locale } from '@/i18n/routing';
+import { AM_ENABLED, routing, type Locale } from '@/i18n/routing';
 import { inter, notoEthiopic } from '@/lib/fonts';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -20,6 +20,11 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
+  // /am resolves so that URLs stay stable and translation can land key by key,
+  // but it must not be indexed while it is serving English fallback text.
+  const localeIsOffered = locale !== 'am' || AM_ENABLED;
+  const indexable = Boolean(siteUrl) && localeIsOffered;
+
   return {
     metadataBase: new URL(siteUrl ?? 'http://localhost:3000'),
     title: {
@@ -29,12 +34,18 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
     description: t('defaultDescription'),
     alternates: {
       canonical: `/${locale}`,
-      languages: Object.fromEntries(routing.locales.map((code) => [code, `/${code}`]))
+      // Only advertise locales actually on offer, or search engines are told
+      // about an Amharic tree that is not Amharic yet.
+      languages: Object.fromEntries(
+        routing.locales
+          .filter((code) => code !== 'am' || AM_ENABLED)
+          .map((code) => [code, `/${code}`])
+      )
     },
     // No domain is decided yet. Until NEXT_PUBLIC_SITE_URL is set deliberately,
     // every page is noindex: a pre-launch build indexed under the Adulis name is
     // public use of a name whose IP registration is not complete.
-    robots: siteUrl ? undefined : { index: false, follow: false }
+    robots: indexable ? undefined : { index: false, follow: false }
   };
 }
 

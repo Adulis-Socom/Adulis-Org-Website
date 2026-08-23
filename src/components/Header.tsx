@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
-import { Link, usePathname } from '@/i18n/routing';
+import { AM_ENABLED, Link, usePathname } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
 import { primaryNav, WAITLIST_HREF } from '@/lib/nav';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -65,7 +65,9 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <LanguageSwitcher locale={locale} />
+          {/* Hidden until the Amharic catalogue is human-translated. Offering a
+              language that resolves to English is a broken promise. */}
+          {AM_ENABLED && <LanguageSwitcher locale={locale} />}
 
           <Link href={WAITLIST_HREF} className="btn-primary hidden lg:inline-flex">
             {t('waitlistCta')}
@@ -100,11 +102,13 @@ export function Header() {
               ))}
             </ul>
 
-            <div className="mt-4 flex items-center justify-between gap-4 border-t border-line pt-4">
-              <LanguageSwitcher locale={locale} />
-            </div>
+            {AM_ENABLED && (
+              <div className="mt-4 flex items-center justify-between gap-4 border-t border-line pt-4">
+                <LanguageSwitcher locale={locale} />
+              </div>
+            )}
 
-            <Link href={WAITLIST_HREF} className="btn-primary btn-block mt-3">
+            <Link href={WAITLIST_HREF} className="btn-primary btn-block mt-4">
               {t('waitlistCta')}
             </Link>
           </nav>
