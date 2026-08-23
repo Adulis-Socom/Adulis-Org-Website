@@ -37,6 +37,7 @@ npm run dev        # http://localhost:3000 → redirects to /en
 npm run build      # production build
 npm run typecheck  # tsc --noEmit
 npm run lint       # next lint
+npm run check:i18n # partial-array guard — also runs automatically before build
 ```
 
 Copy `.env.example` to `.env.local` before deploying anywhere real. Leaving

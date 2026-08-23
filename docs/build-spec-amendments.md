@@ -32,11 +32,18 @@ package-lock.json
 | `package-lock.json` | `npm ci` requires it. |
 
 **Note on the count.** Amendment 01 §2 sets the manifest at **50**, counting the
-four build files above. Three documentation files have since been added under
-Amendment 01 §5 and §9 — `SECURITY.md`, `docs/manual-qa.md` and this file —
-bringing the repository to **53 tracked files**. Part 9's file-count check should
-assert the number the manifest actually lists, and be updated whenever a file is
-added rather than being treated as a fixed constant.
+four build files above. Added since:
+
+| File | Source |
+|---|---|
+| `SECURITY.md` | Amendment 01 §5 |
+| `docs/manual-qa.md` | Amendment 01 §9 |
+| `docs/build-spec-amendments.md` | Amendment 01 §10.5 (this file) |
+| `scripts/check-i18n.mjs` | Amendment 02 §3.2 |
+
+**54 tracked files.** Part 9's file-count check should assert the number the
+manifest actually lists, and be updated whenever a file is added rather than
+being treated as a fixed constant.
 
 ---
 
@@ -63,6 +70,20 @@ still valid v4 options and still do what the specification intends —
 > controlling only whether the preference cookie is written, and it would leave
 > `accept-language` negotiation switched on — so `/` would stop resolving
 > deterministically to `/en`.
+
+**`localeDetection` is confirmed live in v4, not an ignored leftover.** Three
+independent checks, worth re-running at the next major upgrade:
+
+1. `defineRouting` rejects unknown options — passing a made-up key fails with
+   `TS2353`, and the error enumerates the accepted set including
+   `localeDetection?: boolean`.
+2. `dist/.../routing/config.js` defaults it: `localeDetection: e.localeDetection ?? !0`.
+3. `dist/.../middleware/resolveLocale.js` gates **both** detection paths on it —
+   `!i && e.localeDetection && (i = c(e, t))` for the cookie and
+   `!i && e.localeDetection && (i = a(o, e.locales, e.defaultLocale))` for
+   `accept-language` — falling through to `i || (i = e.defaultLocale)`.
+
+That last line is what produces the deterministic `/` → `/en`.
 
 ### `src/i18n/request.ts`
 

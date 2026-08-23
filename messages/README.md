@@ -39,7 +39,14 @@ mode, not a bug — but it does mean **the Ge'ez layout pass cannot be run yet**
    check every button label and every form label after translating — those are
    where expansion shows first.
 5. **Arrays are replaced, never merged entry by entry.** An array key in
-   `am.json` overrides the whole English array. Translate all of its entries or
-   leave the key out; a half-translated array cannot be reviewed.
+   `am.json` overrides the whole English array. Translate **all** of its entries
+   or leave the key out entirely — a partially translated array silently drops
+   the entries you did not get to, because the English ones are not merged back
+   in.
+
+   `npm run check:i18n` enforces this and runs automatically before
+   `npm run build`. It fails with the path and both lengths. `en.json` holds
+   twelve arrays, so this will fire during the translation work — it is a
+   guard rail, not a bug.
 6. **Highest priority for review**, per ADU-PRD-01 §23.1: every button label,
    every form label and validation message, and the delete-account flow.
