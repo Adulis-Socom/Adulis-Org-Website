@@ -12,7 +12,9 @@
     "check:i18n": "node scripts/check-i18n.mjs",
     "check:env": "node scripts/check-env.mjs",
     "check:copy": "node scripts/check-copy.mjs",
-    "check:routes": "node scripts/check-routes.mjs"
+    "check:routes": "node scripts/check-routes.mjs",
+    "qa": "playwright test",
+    "qa:report": "playwright show-report"
   },
   "dependencies": {
     "next": "15.5.23",
@@ -21,6 +23,8 @@
     "react-dom": "19.2.8"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.62.1",
     "@types/node": "22.19.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.4",

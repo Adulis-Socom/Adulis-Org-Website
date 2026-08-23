@@ -75,3 +75,51 @@ jobs:
         # documented in SECURITY.md, and only Next 16 resolves them. This step
         # exists so a NEW advisory is visible in the log rather than silent.
         run: npm audit || true
+
+  # Separate job, and deliberately non-blocking on introduction: it is expected
+  # to fail on Q-01 (touch targets) and Q-02 (colour contrast) until those are
+  # triaged. It reports rather than gates. Flip `continue-on-error` to false
+  # once those two are closed — a QA suite nobody has to pass is a QA suite
+  # nobody fixes.
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+
+    env:
+      ALLOW_UNDELIVERED_WAITLIST: '1'
+      NEXT_PUBLIC_SITE_URL: http://localhost:3210
+      WAITLIST_WEBHOOK_URL: http://localhost:4556/
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Install browser engines
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Build
+        run: rm -rf .next && npm run build
+
+      - name: Start the local delivery sink
+        run: node tests/qa/sink.mjs &
+
+      - name: QA suite
+        run: npm run qa
+
+      - name: Upload screenshots and artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-artefacts
+          path: |
+            tests/qa/screenshots/
+            tests/qa/.artifacts/
+          retention-days: 14
