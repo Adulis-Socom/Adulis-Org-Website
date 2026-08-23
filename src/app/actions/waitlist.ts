@@ -15,6 +15,28 @@ import {
 const PLATFORMS = ['tiktok', 'instagram'] as const;
 
 /**
+ * Maximum accepted length per field.
+ *
+ * Before these existed the only bound was Next's default 1 MB server-action body
+ * cap — a framework default nobody chose. A 900,000-character name was validated,
+ * logged and delivered (security audit 01, F-09).
+ *
+ * `followers` is a length bound, not a threshold. Sixteen digits allows a count
+ * far larger than any real audience, so it cannot act as a minimum or a rejection
+ * path on audience size — the invariant that there is no follower threshold is
+ * untouched.
+ */
+const MAX_LENGTH: Record<string, number> = {
+  fullName: 100,
+  phone: 32,
+  handle: 64,
+  secondHandle: 64,
+  followers: 16,
+  sells: 100,
+  city: 100
+};
+
+/**
  * There is no rejection path here, and that is deliberate.
  *
  * Every applicant is accepted onto the waitlist and reviewed by hand. Follower
@@ -51,22 +73,36 @@ export async function submitWaitlist(
 
   const errors: FieldErrors = {};
 
-  if (!values.fullName) errors.fullName = 'fullNameRequired';
-
-  if (!values.phone) errors.phone = 'phoneRequired';
-  else if (!isPlausiblePhone(values.phone)) errors.phone = 'phoneInvalid';
-
-  if (!PLATFORMS.includes(values.platform as (typeof PLATFORMS)[number])) {
-    errors.platform = 'platformRequired';
+  // Length first, so an oversized field reports that rather than passing a
+  // presence check and being delivered.
+  for (const [field, max] of Object.entries(MAX_LENGTH)) {
+    if (values[field as keyof typeof values].length > max) {
+      errors[field] = `${field}TooLong`;
+    }
   }
 
-  if (!values.handle) errors.handle = 'handleRequired';
-  if (!values.sells) errors.sells = 'sellsRequired';
-  if (!values.city) errors.city = 'cityRequired';
-  if (!checked(data, 'consent')) errors.consent = 'consentRequired';
+  // Length is the more specific complaint, so it is not overwritten by a
+  // presence or format check on the same field.
+  const set = (field: string, key: string) => {
+    if (!errors[field]) errors[field] = key;
+  };
 
-  // Note the absence: `followers` is never validated. It is optional, it is
-  // never compared against a threshold, and no value of it can fail a submission.
+  if (!values.fullName) set('fullName', 'fullNameRequired');
+
+  if (!values.phone) set('phone', 'phoneRequired');
+  else if (!isPlausiblePhone(values.phone)) set('phone', 'phoneInvalid');
+
+  if (!PLATFORMS.includes(values.platform as (typeof PLATFORMS)[number])) {
+    set('platform', 'platformRequired');
+  }
+
+  if (!values.handle) set('handle', 'handleRequired');
+  if (!values.sells) set('sells', 'sellsRequired');
+  if (!values.city) set('city', 'cityRequired');
+  if (!checked(data, 'consent')) set('consent', 'consentRequired');
+
+  // `followers` still has no threshold and no format rule. The only thing that
+  // can fail it is the length bound above, which is far too large to act as one.
 
   if (Object.keys(errors).length > 0) {
     return { ok: false, errors, values };

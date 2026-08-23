@@ -205,7 +205,14 @@
       "cityRequired": "Enter your city.",
       "consentRequired": "Confirm you understand how Adulis uses this information.",
       "rateLimited": "Too many applications from this connection. Try again later.",
-      "unexpected": "Something went wrong on our side. Your details were not saved — try again."
+      "unexpected": "Something went wrong on our side. Your details were not saved — try again.",
+      "fullNameTooLong": "Enter a name of 100 characters or fewer.",
+      "phoneTooLong": "Enter a phone number of 32 characters or fewer.",
+      "handleTooLong": "Enter a handle of 64 characters or fewer.",
+      "secondHandleTooLong": "Enter a handle of 64 characters or fewer.",
+      "followersTooLong": "Enter a follower count of 16 digits or fewer.",
+      "sellsTooLong": "Describe what you sell in 100 characters or fewer.",
+      "cityTooLong": "Enter a city name of 100 characters or fewer."
     },
     "success": {
       "title": "You are on the waitlist.",

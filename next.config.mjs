@@ -6,6 +6,13 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  experimental: {
+    // Backstop under the per-field caps in the waitlist action. The framework
+    // default is 1 MB, which is a default nobody chose -- a 900,000-character
+    // name was accepted, validated and delivered before the caps existed
+    // (security audit 01, F-09). The real form posts about 1.3 KB.
+    serverActions: { bodySizeLimit: '64kb' }
+  },
   async headers() {
     return [
       {
