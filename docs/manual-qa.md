@@ -89,6 +89,25 @@ Turn JavaScript off in the browser and reload — do not just block a script.
 - [ ] Footer links to Terms, Privacy, Report content and Delete my account all
       work
 
+## 4a · Translation workflow — `npm run check:i18n`
+
+Not a browser check, but it belongs to whoever does the Amharic work rather than
+to whoever runs the QA pass.
+
+```bash
+npm run check:i18n     # after every edit to messages/am.json
+```
+
+Arrays in `am.json` replace the English array wholesale rather than merging entry
+by entry, so a **partially** translated list silently drops the entries nobody
+got to. This is the guard. It names the path and both lengths. Full details and
+an example of the output are in [`messages/README.md`](../messages/README.md).
+
+- [ ] Translator has run `npm run check:i18n` and it passes
+- [ ] It was run **during** the work, not only at the end — it also runs
+      automatically before `npm run build`, but that is the backstop, not the
+      workflow
+
 ## 5 · Missing-glyph (tofu) check
 
 **Currently moot — `/am` renders English because `AM_ENABLED` is `false`.**

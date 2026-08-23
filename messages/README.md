@@ -23,6 +23,43 @@ Until a human-translated catalogue arrives, `/am` renders English text under an
 `/am` prefix with the language switcher working. That is the intended failure
 mode, not a bug — but it does mean **the Ge'ez layout pass cannot be run yet**.
 
+## Run this after every edit to `am.json`
+
+```bash
+npm run check:i18n
+```
+
+**Do this as you go, not at the end.** It takes about a second, and it catches
+the one mistake that is otherwise invisible: a partially translated list.
+
+Arrays are replaced wholesale, never merged entry by entry (see rule 5). So if
+you translate three of the five `howItWorks.steps`, the other two do not fall
+back to English — **they disappear from the page**, with no error anywhere.
+
+What it prints when that happens:
+
+```
+i18n: am.json has 1 problem(s):
+
+  howItWorks.steps
+    3 entries, but en.json has 5
+    Arrays are replaced wholesale, not merged entry by entry, so the
+    missing entries would disappear from the page. Translate all of them,
+    or remove the key entirely and let it fall back to English.
+
+i18n check failed.
+```
+
+Either finish the list or delete the key — a key that is not there falls back to
+English cleanly, and that is a perfectly good intermediate state.
+
+It also runs automatically before `npm run build`, so a partial array can never
+reach a deployment. That is the backstop; running it yourself is how you find out
+while you still remember what you were doing.
+
+`en.json` has twelve arrays, so expect this to fire during the translation work.
+It is a guard rail, not a bug.
+
 ## Rules when translating
 
 1. **Never concatenate fragments.** Every string is a complete sentence with
