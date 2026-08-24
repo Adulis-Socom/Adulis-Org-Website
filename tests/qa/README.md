@@ -3,12 +3,16 @@
 Playwright, chromium and webkit, against a **production** build. `npm run qa`.
 
 ```bash
-node tests/qa/sink.mjs &                              # local delivery sink
 WAITLIST_WEBHOOK_URL=http://localhost:4556/ npm run build
-npm run qa                                            # both engines
-npm run qa -- --project=chromium                      # one engine
-npm run qa -- tests/qa/nojs.spec.ts                   # one spec
+npm run qa                            # both engines
+npm run qa -- --project=chromium      # one engine
+npm run qa -- tests/qa/nojs.spec.ts   # one spec
 ```
+
+Playwright starts both the production server and the local delivery sink itself
+(the `webServer` array in `playwright.config.ts`), so there is nothing to launch
+by hand. The build still needs `WAITLIST_WEBHOOK_URL` because `check:env` gates
+on it — point it at the sink port, or use `ALLOW_UNDELIVERED_WAITLIST=1`.
 
 Results and reasoning: [`docs/qa-report-01.md`](../../docs/qa-report-01.md).
 What still needs a person: [`docs/manual-qa.md`](../../docs/manual-qa.md).

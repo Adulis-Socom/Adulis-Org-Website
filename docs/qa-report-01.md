@@ -1,4 +1,7 @@
-# QA report 01 — automated pass
+
+
+Playwright starts both the production server and the local delivery sink itself,
+so nothing needs launching by hand.# QA report 01 — automated pass
 
 **Target:** `test/qa-automation`, branched from `fix/security-triage` · **Date:** 23 August 2026
 **Scope:** Build Amendment 08 §2.1–2.9
