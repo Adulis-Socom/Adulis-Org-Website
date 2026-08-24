@@ -136,5 +136,12 @@ jobs:
             tests/qa/screenshots/
             tests/qa/.artifacts/
             tests/qa/.results.json
-          if-no-files-found: warn
+          # Required. `.artifacts/` and `.results.json` are dot-prefixed, and
+          # upload-artifact excludes hidden files by default — the first
+          # successful upload carried all 60 screenshots and silently none of
+          # the measurement data, which is the half that explains a failure.
+          include-hidden-files: true
+          # The screenshots are the point of this artifact. If they are absent
+          # something went wrong upstream and the job should say so, not shrug.
+          if-no-files-found: error
           retention-days: 14
