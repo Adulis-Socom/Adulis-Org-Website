@@ -45,7 +45,13 @@ export function Header() {
   return (
     <header className="border-b border-line bg-surface">
       <div className="container-page flex items-center justify-between gap-4 py-3">
-        <Link href={ROUTES.home} className="text-h3 font-bold tracking-tight text-ink">
+        {/* inline-flex + min-h-[44px] rather than bare text: this is the home
+            link, the one a person reaches for when lost, and it measured 60x24
+            against the 44x44 invariant in ADU-WEB-01 §10 (QA report 01, Q-01). */}
+        <Link
+          href={ROUTES.home}
+          className="inline-flex min-h-[44px] items-center text-h3 font-bold tracking-tight text-ink"
+        >
           ADULIS
         </Link>
 

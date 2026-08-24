@@ -205,7 +205,14 @@
       "cityRequired": "Enter your city.",
       "consentRequired": "Confirm you understand how Adulis uses this information.",
       "rateLimited": "Too many applications from this connection. Try again later.",
-      "unexpected": "Something went wrong on our side. Your details were not saved — try again."
+      "unexpected": "Something went wrong on our side. Your details were not saved — try again.",
+      "fullNameTooLong": "Enter a name of 100 characters or fewer.",
+      "phoneTooLong": "Enter a phone number of 32 characters or fewer.",
+      "handleTooLong": "Enter a handle of 64 characters or fewer.",
+      "secondHandleTooLong": "Enter a handle of 64 characters or fewer.",
+      "followersTooLong": "Enter a follower count of 16 digits or fewer.",
+      "sellsTooLong": "Describe what you sell in 100 characters or fewer.",
+      "cityTooLong": "Enter a city name of 100 characters or fewer."
     },
     "success": {
       "title": "You are on the waitlist.",
@@ -295,7 +302,11 @@
       }
     ],
     "ladderHeading": "How trust is earned",
-    "ladder": ["New", "Established", "Trusted"],
+    "ladder": [
+      "New",
+      "Established",
+      "Trusted"
+    ],
     "ladderNote": "A level is earned, never bought. No subscription tier, payment or advertising spend moves a seller up. Levels fall as well as rise. Thresholds are undecided.",
     "publishHeading": "What we publish",
     "published": [
@@ -397,9 +408,18 @@
       "title": "We can't delete this account yet.",
       "intro": "These need to be resolved first:",
       "items": [
-        { "title": "2 orders awaiting handoff", "action": "complete or cancel these in the app" },
-        { "title": "1 payment awaiting your confirmation", "action": "confirm or reject it in the app" },
-        { "title": "1 open claim", "action": "this closes when the claim is resolved" }
+        {
+          "title": "2 orders awaiting handoff",
+          "action": "complete or cancel these in the app"
+        },
+        {
+          "title": "1 payment awaiting your confirmation",
+          "action": "confirm or reject it in the app"
+        },
+        {
+          "title": "1 open claim",
+          "action": "this closes when the claim is resolved"
+        }
       ],
       "note": "Once these are clear, come back and start again.",
       "home": "Back to home"
@@ -408,6 +428,11 @@
       "title": "Your account has been deleted.",
       "body": "Reviews and transactional records are retained in anonymised form, and moderation records are kept in full.",
       "home": "Go home"
+    },
+    "manual": {
+      "title": "How to request deletion",
+      "body": "Deletion is handled by a person, not by a form on this page. Contact Adulis from the phone number on your account and ask for your account to be deleted. We confirm when it is done, and everything described above applies.",
+      "cta": "Contact Adulis →"
     }
   },
   "notFound": {

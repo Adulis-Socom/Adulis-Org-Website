@@ -1,8 +1,27 @@
 # Manual QA checklist
 
-Six checks that cannot be run without a browser and a real device. They were
-**not** performed during the initial build — no browser was available — and they
-block merging this branch.
+> ## Much of this is now automated — run `npm run qa` first
+>
+> Build Amendment 08 installed Playwright and automated everything in this
+> checklist that a browser engine can establish. Results are in
+> [`docs/qa-report-01.md`](./qa-report-01.md).
+>
+> **Automated, both chromium and webkit** — do not re-do by hand:
+> §1 overflow at 360px · §2 mobile menu · §3 keyboard and focus · §4 JavaScript
+> disabled · §6 axe WCAG 2.1 AA · §7 client-component namespaces · plus new
+> checks for security headers and font loading.
+>
+> **Still human, and not covered by any of it** — §1's real-device pass, §4's
+> real-Safari confirmation, §5 the tofu check, §6's Lighthouse, §8 the deployed
+> headers, and judging whether the screenshots look right. Each is marked
+> **HUMAN** below.
+>
+> Two findings are open from the automated pass and are **expected failures**
+> until triaged: undersized touch targets (Q-01) and one colour-contrast
+> violation (Q-02).
+
+The sections below keep their original wording. Anything marked **AUTOMATED** is
+covered by `npm run qa`; anything marked **HUMAN** still needs a person.
 
 Do not mark anything here done from a desktop browser window resized to look
 like a phone. The product's target seller is on a low-end Android over a slow
@@ -30,7 +49,7 @@ Both locales for each: `/en/...` and `/am/...`.
 
 ---
 
-## 1 · 360px pass
+## 1 · 360px pass  —  **AUTOMATED** (overflow) + **HUMAN** (real device)
 
 **On a real low-end Android**, not a desktop emulator.
 
@@ -42,7 +61,7 @@ Both locales for each: `/en/...` and `/am/...`.
 - [ ] No text is clipped, truncated or overlapping
 - [ ] The For Sellers waitlist form is usable one-handed; no input is cut off
 
-## 2 · Mobile menu
+## 2 · Mobile menu  —  **AUTOMATED**
 
 At 360px, on every page.
 
@@ -58,7 +77,7 @@ At 360px, on every page.
       `false` in `src/i18n/routing.ts`. Confirm no switcher appears anywhere —
       header, panel or footer
 
-## 3 · Keyboard only
+## 3 · Keyboard only  —  **AUTOMATED** (chromium) + **HUMAN** (Safari, Full Keyboard Access)
 
 Unplug the mouse. Tab through every route.
 
@@ -75,7 +94,7 @@ Unplug the mouse. Tab through every route.
 - [ ] On `/delete-account`, the whole flow is operable by keyboard, including the
       confirm checkbox and Cancel
 
-## 4 · JavaScript disabled
+## 4 · JavaScript disabled  —  **AUTOMATED** (both engines) + **HUMAN** (real Safari)
 
 Turn JavaScript off in the browser and reload — do not just block a script.
 
@@ -88,6 +107,18 @@ Turn JavaScript off in the browser and reload — do not just block a script.
 - [ ] A valid submission returns the success state with a reference number
 - [ ] Footer links to Terms, Privacy, Report content and Delete my account all
       work
+
+⚠ **This section now gates a revert.** The waitlist action rejects a request with
+no `Origin` header (security audit 01, F-13). Every current browser sends
+`Origin` on a POST, but some have historically omitted it on **same-origin form
+POSTs** — which is exactly the no-JavaScript path above.
+
+- [ ] With JavaScript disabled, a valid submission **succeeds** in **Safari**
+- [ ] With JavaScript disabled, a valid submission **succeeds** in **Chrome**
+- [ ] If either fails with the generic "Something went wrong on our side" error,
+      **revert the `Origin` check** in `src/app/actions/waitlist.ts` and say so.
+      The real abuse control is rate limiting; that check is hardening, and it is
+      not worth breaking the no-JS path for.
 
 ## 4a · Translation workflow — `npm run check:i18n`
 
@@ -108,7 +139,7 @@ an example of the output are in [`messages/README.md`](../messages/README.md).
       automatically before `npm run build`, but that is the backstop, not the
       workflow
 
-## 5 · Missing-glyph (tofu) check
+## 5 · Missing-glyph (tofu) check  —  **HUMAN**, and moot until AM_ENABLED flips
 
 **Currently moot — `/am` renders English because `AM_ENABLED` is `false`.**
 
@@ -129,7 +160,7 @@ On **every** Amharic page:
       break, no truncated button, no clipped label. Not placeholder text —
       realistic Amharic, at 40% expansion over English
 
-## 6 · axe / Lighthouse
+## 6 · axe / Lighthouse  —  **AUTOMATED** (axe) + **HUMAN** (Lighthouse on a real device)
 
 Every route, both locales. Target **WCAG 2.1 AA**.
 
@@ -153,7 +184,7 @@ Every route, both locales. Target **WCAG 2.1 AA**.
 
 - [ ] Record the Lighthouse numbers in the PR, not just pass or fail
 
-## 7 · Client-component message namespaces
+## 7 · Client-component message namespaces  —  **AUTOMATED**
 
 The provider sends only three namespaces to the browser — `nav`, `waitlist` and
 `deleteAccount` (see `CLIENT_NAMESPACES` in
@@ -181,6 +212,76 @@ Walk these with the console open. **Any `MISSING_MESSAGE` error is a failure.**
       field appears with its help text
 - [ ] Mobile menu open and closed on any route
 - [ ] No `MISSING_MESSAGE` anywhere in the console on any route
+
+## 8 · Headers as actually deployed  —  **HUMAN**, at deployment
+
+`npm run qa` proves all eight security headers arrive from `next start`. It
+**cannot** prove they arrive from Cloudflare Pages. Whether `headers()` in
+`next.config.mjs` survives depends on the adapter, and there is no `_headers`
+file in this repo.
+
+Assuming the adapter translates it is the same shape of mistake as the canonical
+bug: correct locally, absent at launch, invisible until someone looks.
+
+Against the deployed URL, once one exists:
+
+```bash
+curl -sS -D - -o /dev/null https://<domain>/en | grep -iE \
+  '^(content-security-policy|permissions-policy|cross-origin-|x-frame-options|x-content-type-options|referrer-policy|strict-transport-security):'
+```
+
+- [ ] `Content-Security-Policy` present, with all ten directives
+- [ ] `Permissions-Policy`, `Cross-Origin-Opener-Policy`,
+      `Cross-Origin-Resource-Policy` present
+- [ ] `X-Content-Type-Options`, `X-Frame-Options`, `Referrer-Policy` present
+- [ ] `Strict-Transport-Security` present **without** `preload`
+- [ ] If any are missing, port them into a Cloudflare Pages `_headers` file —
+      and note that a `_headers` file **supersedes** the `next.config.mjs` block
+      entirely, so every header must be carried across, not just the missing one
+      ([`SECURITY.md`](../SECURITY.md))
+
+## 9 · Do the screenshots look right  —  **HUMAN**
+
+`npm run qa` writes 60 full-page screenshots to `tests/qa/screenshots/`, one per
+route per engine. Automation proves nothing overflows; it cannot judge whether
+the result looks like a company a seller would trust their business to.
+
+- [ ] Walk the screenshots. Flag anything that is technically correct and still
+      looks wrong: cramped spacing, an orphaned heading, a placeholder that reads
+      as a broken image, a card that looks empty
+- [ ] Check the pages a seller actually decides on — `/`, `/for-sellers`,
+      `/trust-and-safety` — with more care than the rest
+
+---
+
+## Known properties that are not defects
+
+Written down so they are recognised rather than re-investigated.
+
+**Safari does not Tab to links.** WebKit omits `<a>` elements from the Tab order
+by default — Safari's Full Keyboard Access setting, off unless a person turns it
+on. Verified directly: chromium tabs skip-link → wordmark → menu button → anchor
+CTA → form fields; webkit goes straight to the menu button and then the fields,
+reaching no link at all.
+
+The consequence for this site: **on Safari with default settings, the skip link
+and every in-page link are unreachable by Tab.** Buttons, inputs and selects are
+reachable normally, so the waitlist form is fully operable. Nothing here is fixable
+in the site — it is an OS and browser setting — but it is worth a line if an
+accessibility statement is ever published, and it is why the automated
+skip-link check is chromium-only.
+
+- [ ] **HUMAN**: confirm the skip link and in-page links work in Safari with
+      *Full Keyboard Access* enabled (System Settings → Keyboard)
+
+**Automated environments share one rate-limit bucket.** `clientKey()` trusts only
+`cf-connecting-ip` and fails closed without it, so CI, Playwright, a local
+harness, or any staging box not behind Cloudflare all share the single
+`waitlist:unidentified` bucket — the fifth submission in ten minutes is the last
+one that works. If a QA run or a staging environment starts refusing submissions
+with no obvious cause, this is almost always why. It nearly caused a correct
+security fix to be reverted once already. Details in
+[`tests/qa/README.md`](../tests/qa/README.md).
 
 ---
 

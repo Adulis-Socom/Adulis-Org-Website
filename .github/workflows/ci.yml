@@ -1,0 +1,147 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Nothing here needs write access to anything.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    env:
+      # The build refuses to run without a delivery destination (scripts/check-env.mjs).
+      # CI is not deploying anything, so it opts out explicitly rather than
+      # carrying a fake webhook URL that could be mistaken for a real one.
+      ALLOW_UNDELIVERED_WAITLIST: '1'
+      # Left unset deliberately elsewhere, but the route smoke check needs an
+      # origin to build absolute URLs against.
+      NEXT_PUBLIC_SITE_URL: http://localhost:3999
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Do NOT cache .next. Security audit 01 F-16: a build over a stale .next
+      # silently served 404 for two real routes whose prerendered HTML existed
+      # on disk, and `next build` reported success. Always build clean.
+      - name: Ensure a clean build directory
+        run: rm -rf .next
+
+      - name: Translation catalogues
+        run: npm run check:i18n
+
+      - name: Copy invariants
+        run: npm run check:copy
+
+      - name: Types
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+      - name: Route smoke check
+        run: npm run check:routes
+
+      - name: No secrets in the diff
+        run: |
+          if git grep -InE "(ghp_|gho_|ghu_|ghs_|ghr_|github_pat_)[A-Za-z0-9_]{20,}|AKIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----" -- . ; then
+            echo "::error::A token-shaped string is present in the tree."
+            exit 1
+          fi
+          echo "no token-shaped strings"
+
+      - name: Dependency advisories (report only)
+        # Does not fail the build. The three outstanding highs are accepted and
+        # documented in SECURITY.md, and only Next 16 resolves them. This step
+        # exists so a NEW advisory is visible in the log rather than silent.
+        run: npm audit || true
+
+  # Separate job, and deliberately non-blocking on introduction. Flip
+  # `continue-on-error` to false once the suite has been green for a few runs —
+  # a QA suite nobody has to pass is a QA suite nobody fixes.
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    continue-on-error: true
+
+    env:
+      ALLOW_UNDELIVERED_WAITLIST: '1'
+      QA_PORT: '3210'
+      QA_SINK_PORT: '4556'
+      NEXT_PUBLIC_SITE_URL: http://localhost:3210
+      # The build gate needs a destination. Playwright starts the sink itself
+      # (see the webServer array in playwright.config.ts), so this points at it.
+      WAITLIST_WEBHOOK_URL: http://localhost:4556/
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Cached separately from node_modules: the binaries are ~500 MB and are
+      # keyed on the Playwright version, which changes far less often than the
+      # dependency tree. Without this the download runs on every single job.
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      # --with-deps installs the system libraries WebKit and Chromium need on a
+      # bare ubuntu runner. Without it the engines install but fail to launch.
+      # Always run it: on a cache hit it is a fast no-op for the binaries but
+      # still installs the apt packages, which are not cached.
+      - name: Install browser engines
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Build
+        run: rm -rf .next && npm run build
+
+      - name: QA suite
+        run: npm run qa
+
+      - name: Upload screenshots and artefacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: qa-artefacts
+          path: |
+            tests/qa/screenshots/
+            tests/qa/.artifacts/
+            tests/qa/.results.json
+          # Required. `.artifacts/` and `.results.json` are dot-prefixed, and
+          # upload-artifact excludes hidden files by default — the first
+          # successful upload carried all 60 screenshots and silently none of
+          # the measurement data, which is the half that explains a failure.
+          include-hidden-files: true
+          # The screenshots are the point of this artifact. If they are absent
+          # something went wrong upstream and the job should say so, not shrug.
+          if-no-files-found: error
+          retention-days: 14

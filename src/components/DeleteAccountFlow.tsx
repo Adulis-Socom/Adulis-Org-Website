@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { isPlausiblePhone } from '@/lib/validation';
 import { ROUTES } from '@/lib/routes';
+import { DELETION_FLOW_ENABLED } from '@/lib/flags';
 
 type Step = 'explain' | 'phone' | 'otp' | 'confirm' | 'blocked' | 'success';
 
@@ -16,14 +17,20 @@ const RESEND_SECONDS = 30;
  * The account-deletion path required by both app stores before either app may be
  * submitted. It ships with the website, not with the app.
  *
- * !! The OTP here is MOCKED. Nothing is sent and nothing is checked. Before this
- * page is reachable the code must be issued and verified server-side, with
- * strict per-phone and per-IP rate limits, and the "Preview the blocked state"
- * button below must be removed.
+ * **Gated on `DELETION_FLOW_ENABLED`, which is `false`.** The store requirement
+ * is that a person can find and understand the deletion path — not that a flow
+ * authenticates against a backend that does not exist. So the explanation ships
+ * and the interactive flow does not.
  *
- * This flow proves identity for the deletion request alone. It issues no
- * session and grants access to no other surface, and the copy on the phone step
- * says so -- there is no web sign-in anywhere on this site.
+ * Everything below the flag check is the mocked flow, kept because it is the
+ * shape the real one will take. It is unreachable while the flag is false. The
+ * OTP in it is mocked: nothing is sent and nothing is checked. See
+ * `src/lib/flags.ts` for the seven conditions that must hold before the flag can
+ * be flipped, and `docs/deletion-flow-design.md` for the design itself.
+ *
+ * When it is live, this flow proves identity for the deletion request alone. It
+ * issues no session and grants access to no other surface, and the copy on the
+ * phone step says so — there is no web sign-in anywhere on this site.
  */
 export function DeleteAccountFlow() {
   const t = useTranslations('deleteAccount');
@@ -44,6 +51,35 @@ export function DeleteAccountFlow() {
     setError(null);
     setStep(next);
   };
+
+  // The explanation, then the manual route. No phone entry, no OTP, no confirm,
+  // no blocked state. The wording must not imply a self-service path exists.
+  if (!DELETION_FLOW_ENABLED) {
+    return (
+      <div className="form-column">
+        <h1 className="page-title">{t('heading')}</h1>
+
+        <div className="mt-6 space-y-4">
+          <div className="card">
+            <h2 className="card-title">{t('explain.buyerTitle')}</h2>
+            <p className="card-body">{t('explain.buyerBody')}</p>
+          </div>
+          <div className="card">
+            <h2 className="card-title">{t('explain.sellerTitle')}</h2>
+            <p className="card-body">{t('explain.sellerBody')}</p>
+          </div>
+        </div>
+
+        <div className="card-sunken mt-6">
+          <h2 className="section-title">{t('manual.title')}</h2>
+          <p className="card-body max-w-prose">{t('manual.body')}</p>
+          <Link href={ROUTES.contact} className="btn-primary mt-4">
+            {t('manual.cta')}
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (step === 'explain') {
     return (
@@ -173,17 +209,6 @@ export function DeleteAccountFlow() {
             <span className="field-help tnum">{t('otp.resendIn', { seconds: cooldown })}</span>
           )}
         </form>
-
-        {/* DEMO AFFORDANCE -- REMOVE when the real obligation lookup is wired.
-            The blocked branch is otherwise unreachable for review, and it is the
-            branch an app-store reviewer is most likely to ask about. */}
-        <button
-          type="button"
-          className="note mt-6 underline underline-offset-4"
-          onClick={() => go('blocked')}
-        >
-          Preview the blocked state
-        </button>
       </div>
     );
   }
@@ -249,6 +274,10 @@ export function DeleteAccountFlow() {
     );
   }
 
+  // Reachable only from a server response that says deletion is blocked. There is
+  // deliberately no client-side transition into this state: it renders a seller's
+  // outstanding orders, payments and claims, and nothing in the browser should be
+  // able to put the page here. The demo button that used to do so is gone.
   if (step === 'blocked') {
     const items = t.raw('blocked.items') as BlockedItem[];
 

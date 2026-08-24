@@ -198,6 +198,14 @@ otherwise wonder why.
 
 - [ ] **Domain.** Blocks the contact email, `NEXT_PUBLIC_SITE_URL`, and later the
       App Links / Universal Links domain association.
+- [ ] **Add `preload` back to the HSTS header** in `next.config.mjs`, once the
+      domain and its subdomain plan exist. It was removed because it is a
+      months-to-reverse commitment that binds every future subdomain to HTTPS,
+      and it was being asserted by a site with no domain (security audit 01,
+      F-14). `max-age` and `includeSubDomains` still ship.
+- [ ] **Set `WAITLIST_WEBHOOK_URL`.** `npm run build` refuses without it — the
+      waitlist is the only conversion, and a build that cannot deliver is not
+      deployable.
 - [ ] **Human-translated Amharic catalogue**, then flip `AM_ENABLED`. Ge'ez
       layout validation is a launch gate and cannot be performed against machine
       output.

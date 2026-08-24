@@ -8,3 +8,8 @@ out
 next-env.d.ts
 .vercel
 .wrangler
+tests/qa/screenshots
+tests/qa/.artifacts
+tests/qa/.results.json
+playwright-report
+test-results

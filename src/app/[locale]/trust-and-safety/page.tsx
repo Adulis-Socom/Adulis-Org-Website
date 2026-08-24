@@ -90,10 +90,10 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
           <h2 className="section-title">{t('wrongTitle')}</h2>
           <p className="card-body max-w-prose">{t('wrongBody')}</p>
           <p className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-            <Link href={ROUTES.refunds} className="link-arrow">
+            <Link href={ROUTES.refunds} className="link-arrow-target">
               {t('refundsLink')}
             </Link>
-            <Link href={ROUTES.report} className="link-arrow">
+            <Link href={ROUTES.report} className="link-arrow-target">
               {t('reportLink')}
             </Link>
           </p>

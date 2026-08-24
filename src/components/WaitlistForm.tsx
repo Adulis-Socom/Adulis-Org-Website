@@ -7,12 +7,19 @@ import { submitWaitlist } from '@/app/actions/waitlist';
 import { emptyFormState } from '@/lib/validation';
 import { ROUTES, WAITLIST_HREF } from '@/lib/routes';
 
-/** Order matters: the error summary lists fields in the order they appear. */
+/**
+ * Order matters: the error summary lists fields in the order they appear on the
+ * page, so the links run top to bottom. The two optional fields are here because
+ * they can now fail a length check even though they can never fail a presence
+ * one — an error with no link in the summary is unreachable by keyboard.
+ */
 const FIELD_ORDER = [
   'fullName',
   'phone',
   'platform',
   'handle',
+  'secondHandle',
+  'followers',
   'sells',
   'city',
   'consent'
@@ -155,6 +162,7 @@ export function WaitlistForm() {
           id="secondHandle"
           label={t('fields.secondHandle')}
           help={t('fields.secondHandleHelp')}
+          error={err('secondHandle')}
         >
           <input
             id="secondHandle"
@@ -162,14 +170,19 @@ export function WaitlistForm() {
             type="text"
             defaultValue={state.values.secondHandle}
             placeholder={t('fields.secondHandlePlaceholder')}
-            className="input"
+            className={`input ${err('secondHandle') ? 'input-invalid' : ''}`}
           />
         </Field>
       )}
 
       {/* No threshold, no minimum, no rejection. Captured to inform the
           decision the beta exists to make. */}
-      <Field id="followers" label={t('fields.followers')} help={t('fields.followersHelp')}>
+      <Field
+        id="followers"
+        label={t('fields.followers')}
+        help={t('fields.followersHelp')}
+        error={err('followers')}
+      >
         <input
           id="followers"
           name="followers"
@@ -177,7 +190,7 @@ export function WaitlistForm() {
           inputMode="numeric"
           defaultValue={state.values.followers}
           placeholder={t('fields.followersPlaceholder')}
-          className="input tnum"
+          className={`input tnum ${err('followers') ? 'input-invalid' : ''}`}
         />
       </Field>
 
@@ -205,6 +218,12 @@ export function WaitlistForm() {
       </Field>
 
       <div className="field">
+        {/* The input measures 20x20, under the 44x44 invariant, and that is
+            accepted rather than a finding: the label is correctly associated, so
+            the real target is the whole consent line, which is far larger.
+            Enlarging the box itself would make it the only oversized control on
+            the form. Re-reported by every audit that measures the raw element —
+            this comment is here so it can be closed quickly next time. */}
         <div className="flex items-start gap-3">
           <input
             id="consent"
