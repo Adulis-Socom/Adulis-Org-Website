@@ -32,6 +32,11 @@ test.describe('§2.1 runtime console', () => {
     const trigger = page.locator('header button[aria-controls]');
     await trigger.click();
     await expect(page.locator('header nav >> visible=true').last()).toBeVisible();
+    // Opening the panel puts six prefetchable links in the viewport. Let them
+    // settle before navigating, so the suite is not gratuitously cancelling
+    // its own prefetches -- that noise is filtered in helpers.ts, but not
+    // provoking it in the first place keeps the filter narrow.
+    await page.waitForLoadState('networkidle');
     await page.keyboard.press('Escape');
 
     // Every waitlist field — WaitlistForm is a client component using `waitlist`.

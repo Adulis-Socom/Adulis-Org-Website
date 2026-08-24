@@ -52,8 +52,20 @@ export function collectProblems(page: Page) {
       /Minified React error|Warning: .*(did not match|Hydration)/i.test(text) ||
       kind === 'pageerror' ||
       kind === 'error';
-    // Favicon 404s and similar network noise are not what this is looking for.
-    const isNoise = /favicon|net::ERR_ABORTED.*favicon/i.test(text);
+    const isNoise =
+      // Favicon 404s and similar network noise are not what this is looking for.
+      /favicon|net::ERR_ABORTED.*favicon/i.test(text) ||
+      // Next cancels in-flight RSC prefetches when a navigation starts, logs
+      // this, and falls back to a full browser navigation. It is self-healing
+      // by design and a real person triggers it any time they tap a link while
+      // a prefetch is still running.
+      //
+      // It surfaced only on CI, in webkit: opening the mobile menu prefetches
+      // all six nav links, and the test navigated away before they settled.
+      // Deliberately matched on the whole message rather than on "Failed to
+      // fetch" alone, so a genuine failed request still trips the check.
+      /Failed to fetch RSC payload for .*Falling back to browser navigation/i.test(text);
+
     if (isProblem && !isNoise) problems.push({ kind, text });
   };
 
