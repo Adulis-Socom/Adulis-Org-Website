@@ -270,4 +270,26 @@ npm run qa -- --project=chromium  # one engine
 
 Playwright starts both the production server and the local delivery sink itself, so nothing needs launching by hand.
 
-`npm run qa` runs in CI as a separate job, currently `continue-on-error: true`. That was set when the suite was expected to fail on Q-01 and Q-02; **both are now closed and the suite is green, so this can be flipped to blocking** once it has been green across a few runs.
+## The `qa` job is a blocking gate
+
+**Blocking as of `8765ac1`.** It runs in parallel with `verify` — there is no
+`needs:` between them — so CI wall time is the longer of the two, about 8.7
+minutes, not the sum.
+
+> If a genuine flake ever blocks an urgent merge, re-add
+> `continue-on-error: true` **as its own commit with a reason**, and remove it
+> again once the flake is fixed. Do not disable a check silently — a gate that is
+> quietly bypassed is worse than one that was never added, because it still reads
+> as protection.
+
+**What earned the gate.** The suite has produced three failures and all three
+were real defects, with zero flakes:
+
+| Failure | What it actually was |
+|---|---|
+| Both CI jobs dead in 13 s | `package-lock.json` out of sync — a missing nested `@swc/helpers` peer entry left behind by the F-17 bumps |
+| One webkit test | The console detector counting a cancelled RSC prefetch as an error. Not a site defect, but a real defect in the check |
+| Artifact missing its data | `upload-artifact` excludes hidden files by default, so all seven `.jsonl` files and `results.json` were dropped while the upload reported success |
+
+The second and third are the interesting ones: neither was a bug in the website,
+and both were bugs that would have quietly degraded the suite's own value.
