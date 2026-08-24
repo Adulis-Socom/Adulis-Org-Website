@@ -1,0 +1,219 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Fallbacks for the two next/font variables, so a font failure degrades to a
+     real system stack rather than to an unstyled serif. Latin first: an
+     Ethiopic-only family has no Latin or numeral glyphs. */
+  :root {
+    --font-inter: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-ethiopic: 'Noto Sans Ethiopic', 'Nyala', serif;
+  }
+
+  body {
+    @apply bg-surface text-ink-soft font-sans text-body antialiased;
+  }
+
+  /* Figures are read as evidence throughout this product -- completed handoff
+     counts, stock timestamps, reference numbers. Proportional digits shuffle
+     them line to line. */
+  .tnum,
+  table {
+    font-variant-numeric: tabular-nums;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply text-ink font-semibold text-balance;
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-ink ring-offset-2 ring-offset-surface rounded;
+  }
+
+  ::selection {
+    @apply bg-ink text-surface;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-container px-gutter md:px-gutter-lg;
+  }
+
+  /* Sections size to their content. Amharic runs roughly 40% longer than
+     English, so a fixed height would hide the overflow instead of revealing it. */
+  .section {
+    @apply py-8 md:py-10;
+  }
+
+  .section-tight {
+    @apply py-5 md:py-6;
+  }
+
+  .card {
+    @apply rounded border border-line bg-surface p-4 md:p-5;
+  }
+
+  .card-sunken {
+    @apply rounded border border-line bg-surface-sunken p-4 md:p-5;
+  }
+
+  .card-tint {
+    @apply rounded border border-line bg-surface-tint p-4 md:p-5;
+  }
+
+  /* The one band on a page that changes audience -- seller side to buyer side,
+     or back. The heavy border is what marks it as a door rather than a card. */
+  .door {
+    @apply rounded border-2 border-line-strong bg-surface p-4 md:p-5;
+  }
+
+  .card-title {
+    @apply text-h3 text-ink;
+  }
+
+  .card-body {
+    @apply mt-1 text-body text-ink-muted;
+  }
+
+  .display,
+  .page-title {
+    @apply text-h1 md:text-display text-ink font-bold;
+  }
+
+  .section-title {
+    @apply text-h2 text-ink;
+  }
+
+  .lede {
+    @apply mt-2 max-w-prose text-body text-ink-muted;
+  }
+
+  .note {
+    @apply text-small text-ink-muted;
+  }
+
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded px-5 py-2.5 text-body font-semibold transition-colors;
+  }
+
+  .btn-primary {
+    @apply btn bg-ink text-surface hover:bg-ink-soft;
+  }
+
+  .btn-secondary {
+    @apply btn border border-line bg-surface text-ink hover:bg-surface-sunken;
+  }
+
+  .btn-danger {
+    @apply btn bg-danger text-surface hover:brightness-110;
+  }
+
+  .btn-block {
+    @apply w-full;
+  }
+
+  .link-arrow {
+    @apply font-semibold text-ink underline-offset-4 hover:underline;
+  }
+
+  .form-column {
+    @apply w-full max-w-form;
+  }
+
+  .field {
+    @apply mt-4 first:mt-0;
+  }
+
+  .label {
+    @apply block text-small font-semibold text-ink;
+  }
+
+  .label-optional {
+    @apply font-normal text-ink-muted;
+  }
+
+  .input,
+  .select,
+  .textarea {
+    @apply mt-1.5 block min-h-[44px] w-full rounded border border-line bg-surface px-3 py-2.5 text-body text-ink placeholder:text-ink-muted/60;
+  }
+
+  .textarea {
+    @apply min-h-[120px] resize-y;
+  }
+
+  .input-invalid {
+    @apply border-danger;
+  }
+
+  /* Every validation message gets its own vertical space. In Amharic a message
+     set tight against its label collides with it. */
+  .field-error {
+    @apply mt-1.5 block text-small font-medium text-danger;
+  }
+
+  .field-help {
+    @apply mt-1.5 block text-small text-ink-muted;
+  }
+
+  .error-summary {
+    @apply rounded border border-danger-border bg-danger-bg p-4;
+  }
+
+  .checkbox {
+    @apply mt-0.5 h-5 w-5 shrink-0 rounded border-line text-ink;
+  }
+
+  .badge-beta {
+    @apply inline-flex items-center rounded-pill bg-beta-bg px-2.5 py-1 text-micro font-semibold uppercase tracking-wider text-beta-fg;
+  }
+
+  /* Illustrative seller cards only -- the home hero and the How-it-works shop
+     mock. Never the trust ladder: New, Established and Trusted are real level
+     names, and only their thresholds are undecided. */
+  .badge-example {
+    @apply inline-flex items-center rounded bg-surface-sunken px-2 py-0.5 text-micro font-semibold uppercase tracking-wider text-ink-muted;
+  }
+
+  .badge-level {
+    @apply text-small font-semibold text-ink;
+  }
+
+  .placeholder-flag {
+    @apply rounded border border-dashed border-beta-fg/40 bg-beta-bg/40 px-2 py-1 text-small text-beta-fg;
+  }
+
+  .placeholder-line {
+    @apply h-2 rounded bg-surface-sunken;
+  }
+
+  .placeholder-media {
+    @apply relative flex items-center justify-center rounded border border-line
+           bg-surface-sunken text-micro font-semibold uppercase tracking-wider
+           text-ink-muted/70;
+    background-image:
+      linear-gradient(to top right, transparent calc(50% - 0.5px),
+        theme('colors.line.DEFAULT') 50%, transparent calc(50% + 0.5px)),
+      linear-gradient(to bottom right, transparent calc(50% - 0.5px),
+        theme('colors.line.DEFAULT') 50%, transparent calc(50% + 0.5px));
+  }
+
+  .skip-link {
+    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-ink focus:px-4 focus:py-2 focus:text-surface;
+  }
+}
