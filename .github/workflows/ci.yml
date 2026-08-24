@@ -76,13 +76,22 @@ jobs:
         # exists so a NEW advisory is visible in the log rather than silent.
         run: npm audit || true
 
-  # Separate job, and deliberately non-blocking on introduction. Flip
-  # `continue-on-error` to false once the suite has been green for a few runs —
-  # a QA suite nobody has to pass is a QA suite nobody fixes.
+  # Blocking. It was non-blocking while it was being introduced; the record that
+  # earned the gate is three failures, all three real defects — a lockfile out of
+  # sync, a console detector counting cancelled prefetches, and upload-artifact
+  # silently dropping every dot-prefixed file — and zero flakes.
+  #
+  # If a genuine flake ever blocks an urgent merge, re-add
+  # `continue-on-error: true` AS ITS OWN COMMIT WITH A REASON, and remove it
+  # again once the flake is fixed. Do not disable this silently: a gate that is
+  # quietly bypassed is worse than one that was never added, because it still
+  # reads as protection. See docs/qa-report-01.md.
+  #
+  # Runs in parallel with `verify` — no `needs:` between them — so wall time is
+  # the longer of the two (~8.7 min), not the sum.
   qa:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    continue-on-error: true
 
     env:
       ALLOW_UNDELIVERED_WAITLIST: '1'
