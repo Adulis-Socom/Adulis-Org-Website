@@ -129,7 +129,13 @@ test.describe('§2.8 security headers', () => {
     page.on('requestfailed', (r) => failed.push(`${r.url()} <- ${r.failure()?.errorText ?? ''}`));
     await page.goto('/en/for-sellers', { waitUntil: 'load' });
     await page.waitForTimeout(1500);
-    const real = failed.filter((f) => !/favicon/i.test(f));
+    // An aborted request is a cancellation, not a failure. Next prefetches RSC
+    // payloads for links in view and cancels them when the page tears down, which
+    // surfaced as a one-off failure in a full run and passed in isolation.
+    //
+    // Filtering aborts does not weaken the guard: the bug this test exists for
+    // produces "SSL connect error" on stylesheets and chunks, never an abort.
+    const real = failed.filter((f) => !/favicon/i.test(f) && !/ERR_ABORTED|cancelled|canceled/i.test(f));
     expect(real, `failed subresource requests:\n${real.slice(0, 6).join('\n')}`).toEqual([]);
   });
 

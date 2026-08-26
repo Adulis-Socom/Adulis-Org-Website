@@ -18,7 +18,7 @@ const CHECKS = [
   {
     name: 'no buyer-protection claim',
     why: 'There is no escrow. ADU-WEB-01 §3.1.',
-    dirs: ['src', 'messages'],
+    dirs: ['src'],
     pattern: /protects buyers|buyer protection|guaranteed|confirms receipt/i
   },
   {
@@ -31,19 +31,19 @@ const CHECKS = [
   {
     name: 'arrows are real glyphs',
     why: 'ASCII > and v are not arrows. ADU-WEB-01 §5.4.',
-    dirs: ['messages'],
+    dirs: ['src/messages'],
     pattern: /"[^"]*\. >"|waitlist v"/
   },
   {
     name: 'no follower threshold',
     why: 'Every applicant is accepted and reviewed. ADU-WEB-01 §3.3.',
-    dirs: ['src', 'messages'],
+    dirs: ['src'],
     pattern: /\b5,?000\b|\b2,?500\b/
   },
   {
     name: 'no subscription pricing',
     why: 'Pricing is not public during the controlled beta. ADU-WEB-01 §3.3.',
-    dirs: ['src', 'messages'],
+    dirs: ['src'],
     pattern: /\$\d/
   }
 ];

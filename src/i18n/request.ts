@@ -1,8 +1,8 @@
 import type { AbstractIntlMessages } from 'next-intl';
 import { getRequestConfig } from 'next-intl/server';
 import { routing, type Locale } from './routing';
-import en from '../../messages/en.json';
-import am from '../../messages/am.json';
+import en from '../messages/en.json';
+import am from '../messages/am.json';
 
 type Dict = Record<string, unknown>;
 

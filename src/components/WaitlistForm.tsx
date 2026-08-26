@@ -3,7 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
-import { submitWaitlist } from '@/app/actions/waitlist';
+import { submitWaitlist } from '@/actions/waitlist';
 import { emptyFormState } from '@/lib/validation';
 import { ROUTES, WAITLIST_HREF } from '@/lib/routes';
 

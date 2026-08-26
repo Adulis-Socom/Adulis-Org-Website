@@ -18,7 +18,7 @@ export type Locale = (typeof locales)[number];
  *   - /am/* is noindex regardless of NEXT_PUBLIC_SITE_URL
  *   - the English fallback in request.ts continues to work unchanged
  *
- * It is false because `messages/am.json` holds no approved translations, and a
+ * It is false because `src/messages/am.json` holds no approved translations, and a
  * person who taps አማርኛ and is served English learns something true about how
  * carefully this was built. Better to offer nothing than to break the promise.
  *

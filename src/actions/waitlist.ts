@@ -1,7 +1,7 @@
 'use server';
 
 import { headers } from 'next/headers';
-import { clientKey, rateLimit } from '@/lib/rate-limit';
+import { clientKey, rateLimit } from '@/lib/ratelimit';
 import { spreadsheetSafeRecord } from '@/lib/spreadsheet-safe';
 import {
   checked,
