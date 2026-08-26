@@ -140,6 +140,36 @@ guard it, including one that compares each response's inline scripts against tha
 same response's header nonce, and one that loads a page in a real browser and
 fails on any CSP violation.
 
+### `force-dynamic` is over-broad, accepted knowingly
+
+The fix is applied to the whole locale layout, so **every** page renders per
+request. Only the form routes genuinely need that. The static content pages —
+About, Help, Terms, Privacy, Seller terms, Refunds, Prohibited products, Report
+content — never need per-request rendering and are paying for it anyway.
+
+This is accepted rather than optimised, because the measurement that would
+justify optimising has not been taken. The binding constraint is first paint on a
+low-end Android in Addis over a slow connection, and nobody has measured it on
+that device. Optimising against an unmeasured constraint is guessing, and the
+current solution works and is tested.
+
+**Recorded cost:** 30 prerendered pages to 0; edge-cacheable to not; per-request
+Worker CPU on every page view, which touches the project's cost ceilings.
+
+**Revisit trigger:** if measured first paint on the target device exceeds budget.
+
+**The fix is then one of these two, and never removing the nonce:**
+
+1. **Edge-side nonce injection** — a Worker that rewrites the nonce into cached
+   static HTML on the way out. Keeps static generation and the edge cache.
+2. **Build-time script hashes** in a Cloudflare Pages `_headers` file. Keeps
+   static generation, but the hashes are per-page and break whenever Next changes
+   its bootstrap.
+
+Removing the nonce is not on that list. The reason it exists — seller storefronts
+rendering seller- and buyer-written text on this origin — does not go away
+because the page got slow.
+
 ### What is no longer needed
 
 `style-src` was expected to need `'unsafe-inline'`. It does not — with the nonce,

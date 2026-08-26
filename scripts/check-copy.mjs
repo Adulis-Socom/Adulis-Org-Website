@@ -43,6 +43,17 @@ const CHECKS = [
 
 const SKIP_DIRS = new Set(['node_modules', '.next', '.git']);
 
+/**
+ * Only text files carry copy.
+ *
+ * Without this, the committed Ethiopic font subset gets scanned as if it were
+ * source: 2,648 bytes of compressed glyph outlines contain a `$` next to a digit
+ * often enough that the "no subscription pricing" rule failed on a font file.
+ * The message was a line of mojibake, which is not a useful thing to hand
+ * somebody at 9am.
+ */
+const TEXT_FILE = /\.(ts|tsx|js|jsx|mjs|cjs|json|css|md|txt|html)$/;
+
 function walk(dir, acc = []) {
   let entries;
   try {
@@ -83,6 +94,7 @@ for (const check of CHECKS) {
   const hits = [];
   for (const dir of check.dirs) {
     for (const file of walk(join(ROOT, dir))) {
+      if (!TEXT_FILE.test(file)) continue;
       const raw = readFileSync(file, 'utf8');
       const body = file.endsWith('.json') ? raw : stripComments(raw);
       body.split('\n').forEach((line, i) => {

@@ -60,7 +60,8 @@ Copy `.env.example` to `.env.local` before deploying anywhere real. Leaving
 ### The font stack is load-bearing
 
 ```
-font-family: var(--font-inter), var(--font-ethiopic), system-ui, sans-serif;
+font-family: var(--font-inter, system-ui), var(--font-ethiopic-switcher, Nyala),
+             var(--font-ethiopic, Nyala), system-ui, sans-serif;
 ```
 
 An earlier wireframe round applied an **Ethiopic-only** family. It has no Latin
@@ -70,8 +71,32 @@ product exists to show. Because the Ge'ez itself looked correct, a reviewer who
 does not read Amharic would not have noticed. Latin must come first and Ethiopic
 must be the fallback.
 
-Each face declares its own `unicode-range`, so the Ethiopic file is fetched only
+Each face declares its own `unicode-range`, so an Ethiopic file is fetched only
 when Ge'ez glyphs actually appear.
+
+**There are two Ethiopic faces, not one.** The full face is **198,028 bytes**,
+and the only Ge'ez on an English page is the language switcher's own
+four-character label:
+
+| Face | Size | Where |
+|---|---|---|
+| Switcher subset | **2,648 B** | Global. Covers exactly `አማርኛ` — U+121B, U+122D, U+129B, U+12A0 |
+| Full Ethiopic | 198,028 B | Applied only when `locale === 'am'` |
+
+Measured on `/en` with the switcher visible: **246,460 font bytes before the
+split, 51,080 after.**
+
+The subset is **generated from the labels in [src/lib/nav.ts](src/lib/nav.ts)** by
+`npm run check:font`, never from a hand-written codepoint list, and the build
+fails if the two drift. A hand-written list is a silent failure — the glyphs it
+misses render as boxes and nothing errors. The ruling that commissioned this gave
+`U+123B` for `ኛ`; the correct value is `U+129B`, and `U+123B` is `ሻ`.
+
+A useful side effect: on an English route only those four glyphs can resolve, so
+any other Ge'ez appearing there renders as a box. That is the signal you want.
+
+⚠ Two ways this broke, both invisible in review — see
+[`docs/engineering-notes.md`](docs/engineering-notes.md) before touching it.
 
 ---
 
@@ -191,6 +216,20 @@ every key in `en.json`; Ge'ez layout validation has run against those real
 strings; and the Ethiopic micro-subset is implemented (issue #2).
 
 ---
+
+## Traps that have already cost time
+
+Before changing the CSP, the fonts, or anything in the build pipeline, read
+[`docs/engineering-notes.md`](docs/engineering-notes.md). Every entry there is a
+case where the obvious reading of the evidence was false — a build badge that
+reports the opposite of the truth, a CSP that passes every server-side check
+while blocking every script, a font fallback that downloads 198 KB through a line
+meant to avoid it.
+
+The shortest one, because it decides how you test: **any CSP or font change
+re-runs the WebKit suite, not only Chromium.** A directive that Chromium exempts
+on localhost failed 74 tests in WebKit and logged nothing that looked like a
+header problem.
 
 ## Decisions taken during this build
 
