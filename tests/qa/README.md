@@ -53,7 +53,7 @@ none of them.
 
 ### 2. Everything in an automated environment shares one rate-limit bucket
 
-`clientKey()` in `src/lib/rate-limit.ts` trusts **only** `cf-connecting-ip`, and
+`clientKey()` in `src/lib/ratelimit/index.ts` trusts **only** `cf-connecting-ip`, and
 fails closed when it is absent (audit 01, F-04). Nothing in CI, in Playwright, in
 a local harness, or on a staging box that is not behind Cloudflare sends that
 header — so in a production build **every such request shares the single

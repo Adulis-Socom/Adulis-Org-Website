@@ -4,7 +4,7 @@ import { useEffect, useId, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { AM_ENABLED, Link, usePathname } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
-import { primaryNav, ROUTES, WAITLIST_HREF } from '@/lib/nav';
+import { primaryNav, ROUTES, WAITLIST_HREF, sellerConsoleLink } from '@/lib/nav';
 import { LanguageSwitcher } from './LanguageSwitcher';
 
 /**
@@ -75,6 +75,15 @@ export function Header() {
               language that resolves to English is a broken promise. */}
           {AM_ENABLED && <LanguageSwitcher locale={locale} />}
 
+          {/* A plain anchor, not next-intl's Link: this is a different origin,
+              and Link would prefix the locale onto an absolute URL. */}
+          <a
+            href={sellerConsoleLink.href}
+            className="hidden min-h-[44px] items-center text-small font-medium text-ink-muted hover:text-ink lg:inline-flex"
+          >
+            {t(sellerConsoleLink.key)}
+          </a>
+
           <Link href={WAITLIST_HREF} className="btn-primary hidden lg:inline-flex">
             {t('waitlistCta')}
           </Link>
@@ -113,6 +122,13 @@ export function Header() {
                 <LanguageSwitcher locale={locale} />
               </div>
             )}
+
+            <a
+              href={sellerConsoleLink.href}
+              className="mt-4 flex min-h-[44px] items-center rounded border border-line px-4 py-3 text-body font-medium text-ink"
+            >
+              {t(sellerConsoleLink.key)}
+            </a>
 
             <Link href={WAITLIST_HREF} className="btn-primary btn-block mt-4">
               {t('waitlistCta')}

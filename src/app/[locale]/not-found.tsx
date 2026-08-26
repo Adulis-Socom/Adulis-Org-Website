@@ -9,14 +9,14 @@ export default function LocaleNotFound() {
     <div className="container-page section">
       <p className="tnum text-display font-bold text-ink-muted">{t('code')}</p>
       <h1 className="page-title mt-2">{t('heading')}</h1>
-      <p className="lede">{t('body')}</p>
 
+      {/* W20 is deliberately spare: the code, one sentence, one way out. The
+          earlier revision added a body line and a second button to Help; the
+          final wireframe set removed both, and a 404 is not the place to offer
+          a reader a menu. */}
       <div className="mt-6 flex flex-wrap gap-3">
         <Link href={ROUTES.home} className="btn-primary">
           {t('home')}
-        </Link>
-        <Link href={ROUTES.help} className="btn-secondary">
-          {t('help')}
         </Link>
       </div>
     </div>

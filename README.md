@@ -60,7 +60,8 @@ Copy `.env.example` to `.env.local` before deploying anywhere real. Leaving
 ### The font stack is load-bearing
 
 ```
-font-family: var(--font-inter), var(--font-ethiopic), system-ui, sans-serif;
+font-family: var(--font-inter, system-ui), var(--font-ethiopic-switcher, Nyala),
+             var(--font-ethiopic, Nyala), system-ui, sans-serif;
 ```
 
 An earlier wireframe round applied an **Ethiopic-only** family. It has no Latin
@@ -70,8 +71,32 @@ product exists to show. Because the Ge'ez itself looked correct, a reviewer who
 does not read Amharic would not have noticed. Latin must come first and Ethiopic
 must be the fallback.
 
-Each face declares its own `unicode-range`, so the Ethiopic file is fetched only
+Each face declares its own `unicode-range`, so an Ethiopic file is fetched only
 when Ge'ez glyphs actually appear.
+
+**There are two Ethiopic faces, not one.** The full face is **198,028 bytes**,
+and the only Ge'ez on an English page is the language switcher's own
+four-character label:
+
+| Face | Size | Where |
+|---|---|---|
+| Switcher subset | **2,648 B** | Global. Covers exactly `አማርኛ` — U+121B, U+122D, U+129B, U+12A0 |
+| Full Ethiopic | 198,028 B | Applied only when `locale === 'am'` |
+
+Measured on `/en` with the switcher visible: **246,460 font bytes before the
+split, 51,080 after.**
+
+The subset is **generated from the labels in [src/lib/nav.ts](src/lib/nav.ts)** by
+`npm run check:font`, never from a hand-written codepoint list, and the build
+fails if the two drift. A hand-written list is a silent failure — the glyphs it
+misses render as boxes and nothing errors. The ruling that commissioned this gave
+`U+123B` for `ኛ`; the correct value is `U+129B`, and `U+123B` is `ሻ`.
+
+A useful side effect: on an English route only those four glyphs can resolve, so
+any other Ge'ez appearing there renders as a box. That is the signal you want.
+
+⚠ Two ways this broke, both invisible in review — see
+[`docs/engineering-notes.md`](docs/engineering-notes.md) before touching it.
 
 ---
 
@@ -85,12 +110,12 @@ both locales.
 | Wireframe | Route | Notes |
 |---|---|---|
 | W01 | `/` | Seller hero, three value cards, buyer door, cohort block |
-| W02 | `/how-it-works` | Five steps, shop preview, paste sequence, money block |
+| W02 | `/how-it-works` | Five steps, three example shop previews, finding-the-seller-again, money boundary |
 | W03 | `/for-sellers` | Full pitch page, waitlist form at `#waitlist` |
 | W23 | `/for-buyers` | Buyer page, store badges disabled, "what Adulis does not do" |
 | W04 | `/trust-and-safety` | Boundaries, verification, ladder, published stats, claims |
 | W05 | `/prohibited-products` | Twelve categories, one statement below |
-| W17 | `/about` | Origin story with the 50-vs-5 comparison, three founders |
+| W17 | `/about` | Origin story, three founders, company status |
 | W22 | `/delete-account` | Five states plus the blocked branch |
 | W20 | `[locale]/not-found` | Localised 404 |
 
@@ -110,38 +135,63 @@ problem, not a cosmetic one.
 These come from the product documents, not from taste. Each one costs money or
 credibility if ignored.
 
-1. **No web sign-in.** No account, no cart, no reserve, no chat, no reviews on
-   the web. The one exception is `/delete-account`, which proves identity by
-   phone OTP for that request only, issues no session, and says so in its own
-   copy. Never add a "Log in" link, in any language, in any menu.
-2. **No pricing anywhere.** Pricing is not public during the controlled beta.
-3. **No follower threshold.** No number, no minimum, no guide. There is no
+1. **The only sign-in affordance is one outbound link to the seller console.**
+   This site has no same-origin sign-in route, no session, no cookie-based
+   identity, and no buyer-facing sign-in language. Buyers never sign in on the
+   web — no account, no cart, no reserve, no chat, no reviews. `/delete-account`
+   proves identity by phone OTP for that request only, issues no session, and
+   says so in its own copy.
+
+   The header's **Log in** link is an outbound link to the seller console on a
+   different origin, declared once as `sellerConsoleLink` in
+   [src/lib/nav.ts](src/lib/nav.ts). It appears on every route, including
+   `/delete-account`, because navigation is defined once and read identically by
+   the header, the mobile menu and the footer; the no-sign-in rule on that page
+   governs the page body, not the global chrome.
+
+   `npm run check:copy` enforces this in three parts: the wording appears nowhere
+   but that one declaration and its one catalogue key, no `/login`-shaped route
+   exists in the app tree, and the link's `href` resolves to the console origin
+   from the environment rather than a literal.
+
+   > ⚠ This reverses ADU-WEB-01 §4.1, per ADU-ARCH-01 v2.0 §9 — the seller
+   > console now exists as a real authenticated surface on its own origin. The
+   > earlier blanket ban was written when it did not, so a Log in link led
+   > nowhere. **ADU-WEB-01 is still at v1.0 and still carries the reversed text
+   > as binding.** Until it is written back to v1.1, the specification and this
+   > repository disagree, and the check is what runs.
+2. **No table scrolls horizontally.** Every table stacks into cards below `md`.
+   A sideways-scrolling table is unusable at 360px, and a scrollable region with
+   no focusable content fails WCAG 2.1 SC 2.1.1 — it cannot be scrolled by
+   keyboard at all. Enforced by `npm run check:copy`.
+3. **No pricing anywhere.** Pricing is not public during the controlled beta.
+4. **No follower threshold.** No number, no minimum, no guide. There is no
    rejection path on follower count — every applicant is accepted onto the list
    and reviewed. The count is captured as an *input* to the decision the beta
    exists to make.
-4. **Never claim Adulis protects buyers.** There is no escrow. Buyer protection
+5. **Never claim Adulis protects buyers.** There is no escrow. Buyer protection
    is the gap that waits on the NBE licence. Never "buyer protection",
    "guaranteed", or "safe purchase".
-5. **Never label a seller.** No "scammer", "risky", "unproven". Only counted
+6. **Never label a seller.** No "scammer", "risky", "unproven". Only counted
    facts from Adulis's own records.
-6. **The buyer scans a QR code at handoff.** Never "confirms receipt" — that is
+7. **The buyer scans a QR code at handoff.** Never "confirms receipt" — that is
    a weaker, separate tier that does not count toward trust level.
-7. **No per-post product link.** TikTok and Instagram do not allow one. The
+8. **No per-post product link.** TikTok and Instagram do not allow one. The
    seller's Adulis link lives in their bio.
-8. **`EXAMPLE` tags mark illustrative seller cards only.** Never the real trust
+9. **`EXAMPLE` tags mark illustrative seller cards only.** Never the real trust
    ladder — New, Established and Trusted are the actual level names; only the
    thresholds are undecided.
-9. **Latin-first font stack.** See above. No element gets an Ethiopic-only
+10. **Latin-first font stack.** See above. No element gets an Ethiopic-only
    family.
-10. **No fixed heights.** Every container sizes to its content, so Amharic
+11. **No fixed heights.** Every container sizes to its content, so Amharic
     expands rather than overflowing.
-11. **Submit buttons are always enabled.** A disabled button cannot take
+12. **Submit buttons are always enabled.** A disabled button cannot take
     keyboard focus, so a keyboard user gets no way to trigger validation.
-12. **Error summaries are lists of links**, each moving focus to the field it
+13. **Error summaries are lists of links**, each moving focus to the field it
     names — never a single sentence.
-13. **Arrows are real glyphs** — `→` and `↓`, never `>` or `v`.
-14. **Do not machine-translate `messages/am.json`.** Missing keys fall back to
-    English by design. See `messages/README.md`.
+14. **Arrows are real glyphs** — `→` and `↓`, never `>` or `v`.
+15. **Do not machine-translate `src/messages/am.json`.** Missing keys fall back to
+    English by design. See `src/messages/README.md`.
 
 ---
 
@@ -151,7 +201,7 @@ credibility if ignored.
 it is the single source of truth — never duplicate it into a component, an
 environment variable or a page.
 
-`messages/am.json` holds no approved translations. The Amharic carried from the
+`src/messages/am.json` holds no approved translations. The Amharic carried from the
 v4.1 wireframes was unreviewed machine output, and invariant 14 forbids
 regenerating it. Rather than serve English under an Amharic switcher — a broken
 promise on a site whose doctrine is that every claim is one Adulis can stand
@@ -170,6 +220,33 @@ every key in `en.json`; Ge'ez layout validation has run against those real
 strings; and the Ethiopic micro-subset is implemented (issue #2).
 
 ---
+
+## Where the copy comes from
+
+**`src/messages/en.json` is the single source of truth for copy.** It was seeded
+once from the final reviewed wireframe set; from that point the wireframes govern
+**layout** and the catalogue governs **words**.
+
+Do not take copy from a wireframe again. Copy living in two reviewed artifacts
+means every correction needs two edits by two different processes, and they
+drift — which is exactly what produced the reconciliation in
+[`docs/copy-reconciliation-01.md`](docs/copy-reconciliation-01.md), where only 94
+of 295 strings had survived unchanged. That document is historical; its "Gaps and
+questions" section is not, and lists five things still needing a decision.
+
+## Traps that have already cost time
+
+Before changing the CSP, the fonts, or anything in the build pipeline, read
+[`docs/engineering-notes.md`](docs/engineering-notes.md). Every entry there is a
+case where the obvious reading of the evidence was false — a build badge that
+reports the opposite of the truth, a CSP that passes every server-side check
+while blocking every script, a font fallback that downloads 198 KB through a line
+meant to avoid it.
+
+The shortest one, because it decides how you test: **any CSP or font change
+re-runs the WebKit suite, not only Chromium.** A directive that Chromium exempts
+on localhost failed 74 tests in WebKit and logged nothing that looked like a
+header problem.
 
 ## Decisions taken during this build
 
@@ -251,7 +328,7 @@ otherwise wonder why.
 
 ## Conventions
 
-- Copy lives in `messages/*.json`, never in components. English is the base;
+- Copy lives in `src/messages/*.json`, never in components. English is the base;
   Amharic is a partial catalogue that falls back to English key by key.
 - Arrows are real glyphs — `→` and `↓`, never `>` and `v`. Inter covers them.
 - Navigation is defined once in `src/lib/nav.ts`. Header, mobile menu and footer

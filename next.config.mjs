@@ -3,44 +3,18 @@ import createNextIntlPlugin from 'next-intl/plugin';
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 /**
- * Content-Security-Policy.
+ * Content-Security-Policy lives in `src/middleware.ts`, not here.
  *
- * Strict everywhere except `script-src`, which carries `'unsafe-inline'`.
+ * It carries a per-request nonce on `script-src`, and a value that changes per
+ * request cannot be expressed in a static config. The reasoning for the nonce,
+ * and for dropping the `'unsafe-inline'` this file used to carry, is documented
+ * at the top of the middleware.
  *
- * Next emits 17 inline <script> blocks per page for the RSC bootstrap. Removing
- * `'unsafe-inline'` needs a per-request nonce, and a per-request nonce
- * deoptimises all 30 statically prerendered pages -- against a site whose
- * binding constraint is first paint on a low-end Android over a slow connection,
- * and which has no injection sink at all: no dangerouslySetInnerHTML, no eval,
- * no third-party script, no user-generated content rendered anywhere.
- *
- * What the strict directives still buy, if an XSS ever did exist: `connect-src`
- * and `form-action` block exfiltration, and `base-uri` blocks base-tag
- * injection. Those are the ones that matter when the asset worth stealing is a
- * list of seller phone numbers.
- *
- * `font-src 'self'` is enough because next/font downloads at build time -- ten
- * .woff2 files are emitted to /_next/static/media and no Google origin is
- * contacted at runtime. Verified in security audit 01 (F-10).
- *
- * ⚠ REVISIT THE MOMENT ANY USER-SUPPLIED CONTENT IS RENDERED INTO A PAGE.
- * Today nothing is: the waitlist echoes values into form inputs, which React
- * escapes. A storefront, a review, or any reflected content changes that, and
- * 'unsafe-inline' stops being defensible. The trigger and the build-time-hash
- * alternative are recorded in SECURITY.md.
+ * The headers below stay here on purpose. The middleware matcher excludes
+ * `/_next/*` and anything with a dot in the path, so headers set there never
+ * reach the static asset responses. `nosniff` in particular is worth having on a
+ * .woff2 and a .js chunk, which is exactly what that matcher skips.
  */
-const CSP = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
-  "style-src 'self'",
-  "font-src 'self'",
-  "img-src 'self' data:",
-  "connect-src 'self'",
-  "frame-ancestors 'none'",
-  "base-uri 'none'",
-  "form-action 'self'",
-  "object-src 'none'"
-].join('; ');
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -58,7 +32,6 @@ const nextConfig = {
       {
         source: '/:path*',
         headers: [
-          { key: 'Content-Security-Policy', value: CSP },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },

@@ -20,8 +20,11 @@ export default async function ForSellersPage({ params }: LocaleParams) {
 
   const t = await getTranslations('forSellers');
   const waitlist = await getTranslations('waitlist');
+  const nav = await getTranslations('nav');
   const problems = t.raw('problems') as Item[];
   const benefits = t.raw('benefits') as Item[];
+  const sequence = t.raw('sequence') as Item[];
+  const next = t.raw('next') as Item[];
 
   return (
     <div className="container-page">
@@ -31,7 +34,7 @@ export default async function ForSellersPage({ params }: LocaleParams) {
 
         {/* A button, not a bold text link. This is the page's only job. */}
         <a href="#waitlist" className="btn-secondary mt-6">
-          {t('anchorCta')}
+          {nav('waitlistCta')}
         </a>
       </section>
 
@@ -51,26 +54,48 @@ export default async function ForSellersPage({ params }: LocaleParams) {
             <InfoCard key={item.title} title={item.title} body={item.body} variant="sunken" />
           ))}
         </div>
-      </section>
 
-      <section className="section-tight">
-        <div className="card">
-          <h2 className="section-title">{t('notDoTitle')}</h2>
-          <p className="card-body max-w-prose">{t('notDoBody')}</p>
+        {/* One line inside an existing block, not a new section. This is the
+            conversion page and every extra block costs.
+            Framed as "What you handle" rather than as a disclaimer: a seller
+            reading a list of things the platform will not do on a recruitment
+            page reads defensiveness, and this is a job description. The
+            substance is the one obligation that genuinely surprises people --
+            the seller, not Adulis, decides whether a payment is real. A seller
+            who does not know that before applying eventually confirms a forged
+            receipt and finds out at the worst possible moment. */}
+        <div className="card-tint mt-4">
+          <h3 className="card-title">{t('handleTitle')}</h3>
+          <p className="card-body max-w-prose">{t('handleBody')}</p>
         </div>
       </section>
 
       <section className="section-tight">
-        <div className="card-sunken">
-          <h2 className="section-title">{t('betaTitle')}</h2>
-          <p className="card-body max-w-prose">{t('betaBody')}</p>
+        <SectionTitle>{t('sequenceHeading')}</SectionTitle>
+        <div className="grid gap-4 md:grid-cols-3">
+          {sequence.map((item) => (
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="tint" />
+          ))}
         </div>
+        {/* Kept verbatim from the specification. An earlier revision blanked this
+            and Build Amendment 01 §7 ruled the specification right and the site
+            wrong: the commercial sequence is stated, the prices are not. */}
+        <p className="card-body mt-4 max-w-prose">{t('sequenceNote')}</p>
       </section>
 
       <section id="waitlist" className="mt-12 scroll-mt-8 border-t border-line pb-4 pt-10">
         <h2 className="section-title">{waitlist('heading')}</h2>
         <p className="lede mb-6">{waitlist('sub')}</p>
         <WaitlistForm />
+      </section>
+
+      <section className="section-tight pb-12">
+        <SectionTitle>{t('nextHeading')}</SectionTitle>
+        <div className="grid gap-4 md:grid-cols-3">
+          {next.map((item) => (
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="sunken" />
+          ))}
+        </div>
       </section>
     </div>
   );

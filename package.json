@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "prebuild": "npm run check:i18n && npm run check:env",
+    "prebuild": "npm run check:i18n && npm run check:encoding && npm run check:font && npm run check:copy && npm run check:env",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -14,7 +14,9 @@
     "check:copy": "node scripts/check-copy.mjs",
     "check:routes": "node scripts/check-routes.mjs",
     "qa": "playwright test",
-    "qa:report": "playwright show-report"
+    "qa:report": "playwright show-report",
+    "check:font": "node scripts/build-ethiopic-subset.mjs",
+    "check:encoding": "node scripts/check-encoding.mjs"
   },
   "dependencies": {
     "next": "15.5.23",

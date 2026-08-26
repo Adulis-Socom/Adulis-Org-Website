@@ -30,7 +30,6 @@ const EXPECTED: Record<string, RegExp> = {
 
 const CSP_DIRECTIVES = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
   "style-src 'self'",
   "font-src 'self'",
   "img-src 'self' data:",
@@ -56,12 +55,111 @@ test.describe('§2.8 security headers', () => {
     expect(missing, `header problems:\n${missing.slice(0, 20).join('\n')}`).toEqual([]);
   });
 
-  test('CSP carries every directive from Amendment 07 §4', async ({ request }) => {
+  test('CSP carries every directive', async ({ request }) => {
     const res = await request.get('/en');
     const csp = res.headers()['content-security-policy'] ?? '';
     record('headers.jsonl', { csp, all: res.headers() });
     const absent = CSP_DIRECTIVES.filter((d) => !csp.includes(d));
     expect(absent, `CSP missing directives: ${absent.join(' | ')}\ngot: ${csp}`).toEqual([]);
+  });
+
+  test("script-src carries a nonce and no 'unsafe-inline'", async ({ request }) => {
+    const csp = (await request.get('/en')).headers()['content-security-policy'] ?? '';
+    const scriptSrc = (csp.split(';').find((d) => d.trim().startsWith('script-src')) ?? '').trim();
+    expect(scriptSrc, `script-src was "${scriptSrc}"`).toMatch(/'nonce-[A-Za-z0-9+/=]{16,}'/);
+    expect(scriptSrc, `script-src was "${scriptSrc}"`).not.toContain("'unsafe-inline'");
+    expect(scriptSrc, `script-src was "${scriptSrc}"`).not.toContain("'unsafe-eval'");
+  });
+
+  test('the nonce is per-request, not a build constant', async ({ request }) => {
+    const nonceOf = async () => {
+      const csp = (await request.get('/en')).headers()['content-security-policy'] ?? '';
+      return (csp.match(/'nonce-([A-Za-z0-9+/=]+)'/) ?? [])[1] ?? '';
+    };
+    const a = await nonceOf();
+    const b = await nonceOf();
+    expect(a, 'no nonce in CSP').not.toBe('');
+    expect(a, 'the same nonce came back twice - it is baked in, not generated').not.toBe(b);
+  });
+
+  /**
+   * The guard for `export const dynamic = 'force-dynamic'` in the locale layout.
+   *
+   * Remove that line and every server-side check here still passes: the header
+   * keeps its nonce, the directives are all present. But the prerendered HTML
+   * carries no nonce attribute, so under `'strict-dynamic'` the browser blocks
+   * every script and the site silently stops working. Measured before the line
+   * existed: 0 of 29 script tags nonced. This test is the only thing standing
+   * between that change and production.
+   */
+  test('every inline script carries the nonce from its own response', async ({ request }) => {
+    for (const url of ['/en', '/am', '/en/for-sellers']) {
+      const res = await request.get(url);
+      const csp = res.headers()['content-security-policy'] ?? '';
+      const headerNonce = (csp.match(/'nonce-([A-Za-z0-9+/=]+)'/) ?? [])[1] ?? '';
+      const html = await res.text();
+      const scripts = html.match(/<script(?![a-zA-Z])[^>]*>/g) ?? [];
+      const inline = scripts.filter((t) => !/ src=/.test(t));
+      expect(inline.length, `${url} served no inline scripts at all`).toBeGreaterThan(0);
+      const unnonced = inline.filter((t) => !t.includes(`nonce="${headerNonce}"`));
+      expect(
+        unnonced.length,
+        `${url}: ${unnonced.length} of ${inline.length} inline scripts lack the response nonce. ` +
+          `Has force-dynamic been removed from the locale layout?\nfirst: ${unnonced[0] ?? ''}`
+      ).toBe(0);
+    }
+  });
+
+  /**
+   * The guard for `upgrade-insecure-requests`, which must not be sent on http.
+   *
+   * That directive rewrites http subresource URLs to https. Over http://localhost
+   * nothing is listening on https, so every stylesheet and chunk fails with an
+   * SSL error -- and **no CSP violation is logged**, because nothing was blocked
+   * by policy; the requests were reissued to a port that is not there. Chromium
+   * exempts localhost and showed nothing at all. WebKit does not, and 74 tests
+   * failed with symptoms that look like layout and hydration bugs: a 36px menu
+   * trigger, aria-expanded stuck at false.
+   *
+   * Asserting on requests rather than on console output is the point. The
+   * violation test above passed throughout.
+   */
+  test('every subresource actually loads', async ({ page }) => {
+    const failed: string[] = [];
+    page.on('requestfailed', (r) => failed.push(`${r.url()} <- ${r.failure()?.errorText ?? ''}`));
+    await page.goto('/en/for-sellers', { waitUntil: 'load' });
+    await page.waitForTimeout(1500);
+    // An aborted request is a cancellation, not a failure. Next prefetches RSC
+    // payloads for links in view and cancels them when the page tears down, which
+    // surfaced as a one-off failure in a full run and passed in isolation.
+    //
+    // Filtering aborts does not weaken the guard: the bug this test exists for
+    // produces "SSL connect error" on stylesheets and chunks, never an abort.
+    const real = failed.filter((f) => !/favicon/i.test(f) && !/ERR_ABORTED|cancelled|canceled/i.test(f));
+    expect(real, `failed subresource requests:\n${real.slice(0, 6).join('\n')}`).toEqual([]);
+  });
+
+  test('upgrade-insecure-requests is absent over http', async ({ request, baseURL }) => {
+    const csp = (await request.get('/en')).headers()['content-security-policy'] ?? '';
+    if ((baseURL ?? '').startsWith('https:')) {
+      expect(csp).toContain('upgrade-insecure-requests');
+    } else {
+      expect(csp, 'sent over http, where it breaks every subresource').not.toContain(
+        'upgrade-insecure-requests'
+      );
+    }
+  });
+
+  test('a real browser reports no CSP violation', async ({ page }) => {
+    const violations: string[] = [];
+    page.on('console', (m) => {
+      if (/Content Security Policy|Refused to (execute|load|apply)/i.test(m.text())) violations.push(m.text());
+    });
+    page.on('pageerror', (e) => {
+      if (/Content Security Policy/i.test(e.message)) violations.push(e.message);
+    });
+    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    expect(violations, `CSP violations:\n${violations.join('\n')}`).toEqual([]);
   });
 
   test('HSTS does NOT carry preload', async ({ request }) => {
@@ -101,12 +199,54 @@ test.describe('§2.9 fonts', () => {
         ethiopicFacesLoaded: loadedEthiopic
       });
 
+      // The subset face is legitimate and will load on English routes as soon as
+      // AM_ENABLED flips, because the switcher label is Ge'ez. What must never
+      // load is the full 198 KB face. Assert on that, not on "any Ethiopic".
+      const fullFace = loadedEthiopic.filter((f) => !/switcher/i.test(f.family));
       expect(
-        loadedEthiopic,
-        `/${locale} loaded an Ethiopic face:\n${JSON.stringify(loadedEthiopic, null, 2)}`
+        fullFace,
+        `/${locale} loaded the FULL Ethiopic face:\n${JSON.stringify(fullFace, null, 2)}`
       ).toEqual([]);
     });
   }
+
+  /**
+   * The byte budget, which is what the two-face split actually buys.
+   *
+   * The full Ethiopic face is 198,028 bytes and the switcher subset is 2,648.
+   * Before the split, an English page with the switcher visible pulled 246,460
+   * bytes of font; after it, 51,080.
+   *
+   * This failed once for a reason no amount of reading would have found: a
+   * `:root` fallback in globals.css named 'Noto Sans Ethiopic', which is the
+   * real family name next/font/google registers, so the "fallback" matched the
+   * webfont and every English page downloaded the whole face. The route-scoped
+   * variable was working perfectly the entire time.
+   */
+  test('English routes stay inside the font byte budget', async ({ page }) => {
+    const sizes: { url: string; bytes: number }[] = [];
+    page.on('response', async (r) => {
+      if (!/\.(woff2?|ttf|otf)(\?|$)/.test(r.url())) return;
+      try {
+        sizes.push({ url: r.url().split('/').pop() ?? '', bytes: (await r.body()).length });
+      } catch {
+        /* body already discarded; ignore */
+      }
+    });
+    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(1200);
+
+    const total = sizes.reduce((a, s) => a + s.bytes, 0);
+    const biggest = sizes.reduce((a, s) => Math.max(a, s.bytes), 0);
+    record('fonts.jsonl', { budget: true, total, files: sizes });
+
+    // Any single file near 198 KB is the full Ethiopic face by another name.
+    expect(
+      biggest,
+      `largest font file was ${biggest} bytes — the full Ethiopic face is 198,028`
+    ).toBeLessThan(100_000);
+    expect(total, `total font bytes on /en: ${total}\n${JSON.stringify(sizes)}`).toBeLessThan(80_000);
+  });
 
   test('no Google Fonts origin is contacted at runtime', async ({ page }) => {
     const external: string[] = [];

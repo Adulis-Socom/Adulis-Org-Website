@@ -132,7 +132,7 @@ npm run check:i18n     # after every edit to messages/am.json
 Arrays in `am.json` replace the English array wholesale rather than merging entry
 by entry, so a **partially** translated list silently drops the entries nobody
 got to. This is the guard. It names the path and both lengths. Full details and
-an example of the output are in [`messages/README.md`](../messages/README.md).
+an example of the output are in [`src/messages/README.md`](../src/messages/README.md).
 
 - [ ] Translator has run `npm run check:i18n` and it passes
 - [ ] It was run **during** the work, not only at the end — it also runs

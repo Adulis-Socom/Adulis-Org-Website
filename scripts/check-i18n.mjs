@@ -23,7 +23,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const MESSAGES_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'messages');
+const MESSAGES_DIR = join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'messages');
 const BASE_LOCALE = 'en';
 
 const read = (locale) =>
