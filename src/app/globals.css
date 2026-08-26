@@ -7,8 +7,19 @@
      real system stack rather than to an unstyled serif. Latin first: an
      Ethiopic-only family has no Latin or numeral glyphs. */
   :root {
-    --font-inter: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    --font-ethiopic: 'Noto Sans Ethiopic', 'Nyala', serif;
+    /* ⚠ Do not define --font-inter or --font-ethiopic* here.
+       next/font sets them on a class on <html>. A `:root` declaration has the
+       same specificity and, depending on stylesheet order, silently wins --
+       which meant the Ethiopic subset was never used at all: the switcher
+       rendered from a locally installed Nyala on the reviewer's Windows machine
+       and would have been four missing-glyph boxes on the low-end Android this
+       site is built for.
+       Naming 'Noto Sans Ethiopic' here was worse still. next/font/local mangles
+       its family name, but next/font/google keeps the real one, so that
+       "fallback" matched the 198 KB webfont and every English page downloaded
+       the entire face through it.
+       Fallbacks now live inside var() in tailwind.config.ts, where they apply
+       only when the variable is genuinely absent. */
   }
 
   body {

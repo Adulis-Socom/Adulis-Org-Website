@@ -39,8 +39,25 @@ const config: Config = {
         pill: '999px'
       },
       fontFamily: {
-        // Latin first, Ethiopic as fallback. Never reorder these -- see src/lib/fonts.ts.
-        sans: ['var(--font-inter)', 'var(--font-ethiopic)', 'system-ui', 'sans-serif']
+        // Latin first, then the four-glyph switcher subset, then the full
+        // Ethiopic face -- which is only defined on Amharic routes.
+        //
+        // Never reorder these. The switcher subset must come before the full
+        // face so the 2,648-byte file wins for the switcher's own label, and
+        // both must come after Latin so digits and platform names are not drawn
+        // by a font that has no glyphs for them. See src/lib/fonts.ts.
+        // Each var() carries its own fallback. Without one, an undefined custom
+        // property makes the whole font-family declaration invalid at
+        // computed-value time -- and --font-ethiopic IS undefined on English
+        // routes by design, so the bare form would break the stack on 15 of the
+        // 30 pages.
+        sans: [
+          'var(--font-inter, system-ui)',
+          'var(--font-ethiopic-switcher, Nyala)',
+          'var(--font-ethiopic, Nyala)',
+          'system-ui',
+          'sans-serif'
+        ]
       },
       fontSize: {
         // name: [size, { lineHeight, letterSpacing }]

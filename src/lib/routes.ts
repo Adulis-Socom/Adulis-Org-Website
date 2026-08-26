@@ -35,3 +35,19 @@ export type RoutePath = (typeof ROUTES)[RouteKey];
 
 /** The waitlist form lives on the For Sellers page, at an anchor. */
 export const WAITLIST_HREF = `${ROUTES.forSellers}#waitlist` as const;
+
+/**
+ * The seller console. A different origin, and the only sign-in affordance that
+ * exists anywhere on this site.
+ *
+ * Not in ROUTES on purpose. Everything in ROUTES is locale-relative and gets a
+ * locale prefix; this is absolute, external, and must never be handed to
+ * next-intl's `Link` -- that would produce `/en/https://...`.
+ *
+ * Read from the environment rather than written here because the console's
+ * hostname is not this repository's to decide, and a placeholder that ships is
+ * worse than a build that fails. `scripts/check-env.mjs` refuses a production
+ * build without it. The development fallback is deliberately obvious.
+ */
+export const SELLER_CONSOLE_URL =
+  process.env.NEXT_PUBLIC_SELLER_CONSOLE_URL ?? 'https://console.invalid/';

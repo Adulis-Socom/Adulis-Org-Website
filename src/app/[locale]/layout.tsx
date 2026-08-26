@@ -4,7 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing, type Locale } from '@/i18n/routing';
 import { buildPageMetadata } from '@/lib/metadata';
-import { inter, notoEthiopic } from '@/lib/fonts';
+import { inter, ethiopicSwitcher, notoEthiopic } from '@/lib/fonts';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import '../globals.css';
@@ -110,7 +110,15 @@ export default async function LocaleLayout({
   );
 
   return (
-    <html lang={locale} className={`${inter.variable} ${notoEthiopic.variable}`}>
+    // Face A (the four switcher glyphs) is global and costs 2,648 bytes.
+    // Face B (the full 198,028-byte Ethiopic face) is applied only on Amharic
+    // routes, so an English page can never pull it -- see src/lib/fonts.ts.
+    <html
+      lang={locale}
+      className={`${inter.variable} ${ethiopicSwitcher.variable}${
+        locale === 'am' ? ` ${notoEthiopic.variable}` : ''
+      }`}
+    >
       <body className="flex min-h-screen flex-col">
         <NextIntlClientProvider messages={clientMessages}>
           <a href="#main" className="skip-link">

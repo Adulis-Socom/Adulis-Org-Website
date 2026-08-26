@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/routing';
 import { locales, type Locale } from '@/i18n/routing';
+import { LOCALE_LABELS } from '@/lib/nav';
 
 /**
  * Two plain links to the current path in each locale, so switching language
@@ -11,10 +12,10 @@ import { locales, type Locale } from '@/i18n/routing';
  * Both scripts are shown at all times. A switcher that shows only the language
  * you are not currently in is ambiguous in every direction.
  */
-const LABELS: Record<Locale, string> = {
-  en: 'EN',
-  am: 'አማርኛ'
-};
+// Labels live in src/lib/nav.ts because a build step derives the Ethiopic font
+// subset from them. Restating them here would let the two drift, and the drift
+// shows up as a missing-glyph box rather than as an error.
+const LABELS = LOCALE_LABELS;
 
 export function LanguageSwitcher({ locale }: { locale: Locale }) {
   const t = useTranslations('nav');

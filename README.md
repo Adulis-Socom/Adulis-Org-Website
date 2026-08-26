@@ -110,10 +110,31 @@ problem, not a cosmetic one.
 These come from the product documents, not from taste. Each one costs money or
 credibility if ignored.
 
-1. **No web sign-in.** No account, no cart, no reserve, no chat, no reviews on
-   the web. The one exception is `/delete-account`, which proves identity by
-   phone OTP for that request only, issues no session, and says so in its own
-   copy. Never add a "Log in" link, in any language, in any menu.
+1. **The only sign-in affordance is one outbound link to the seller console.**
+   This site has no same-origin sign-in route, no session, no cookie-based
+   identity, and no buyer-facing sign-in language. Buyers never sign in on the
+   web — no account, no cart, no reserve, no chat, no reviews. `/delete-account`
+   proves identity by phone OTP for that request only, issues no session, and
+   says so in its own copy.
+
+   The header's **Log in** link is an outbound link to the seller console on a
+   different origin, declared once as `sellerConsoleLink` in
+   [src/lib/nav.ts](src/lib/nav.ts). It appears on every route, including
+   `/delete-account`, because navigation is defined once and read identically by
+   the header, the mobile menu and the footer; the no-sign-in rule on that page
+   governs the page body, not the global chrome.
+
+   `npm run check:copy` enforces this in three parts: the wording appears nowhere
+   but that one declaration and its one catalogue key, no `/login`-shaped route
+   exists in the app tree, and the link's `href` resolves to the console origin
+   from the environment rather than a literal.
+
+   > ⚠ This reverses ADU-WEB-01 §4.1, per ADU-ARCH-01 v2.0 §9 — the seller
+   > console now exists as a real authenticated surface on its own origin. The
+   > earlier blanket ban was written when it did not, so a Log in link led
+   > nowhere. **ADU-WEB-01 is still at v1.0 and still carries the reversed text
+   > as binding.** Until it is written back to v1.1, the specification and this
+   > repository disagree, and the check is what runs.
 2. **No pricing anywhere.** Pricing is not public during the controlled beta.
 3. **No follower threshold.** No number, no minimum, no guide. There is no
    rejection path on follower count — every applicant is accepted onto the list

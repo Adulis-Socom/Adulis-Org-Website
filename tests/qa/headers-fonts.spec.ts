@@ -199,12 +199,54 @@ test.describe('§2.9 fonts', () => {
         ethiopicFacesLoaded: loadedEthiopic
       });
 
+      // The subset face is legitimate and will load on English routes as soon as
+      // AM_ENABLED flips, because the switcher label is Ge'ez. What must never
+      // load is the full 198 KB face. Assert on that, not on "any Ethiopic".
+      const fullFace = loadedEthiopic.filter((f) => !/switcher/i.test(f.family));
       expect(
-        loadedEthiopic,
-        `/${locale} loaded an Ethiopic face:\n${JSON.stringify(loadedEthiopic, null, 2)}`
+        fullFace,
+        `/${locale} loaded the FULL Ethiopic face:\n${JSON.stringify(fullFace, null, 2)}`
       ).toEqual([]);
     });
   }
+
+  /**
+   * The byte budget, which is what the two-face split actually buys.
+   *
+   * The full Ethiopic face is 198,028 bytes and the switcher subset is 2,648.
+   * Before the split, an English page with the switcher visible pulled 246,460
+   * bytes of font; after it, 51,080.
+   *
+   * This failed once for a reason no amount of reading would have found: a
+   * `:root` fallback in globals.css named 'Noto Sans Ethiopic', which is the
+   * real family name next/font/google registers, so the "fallback" matched the
+   * webfont and every English page downloaded the whole face. The route-scoped
+   * variable was working perfectly the entire time.
+   */
+  test('English routes stay inside the font byte budget', async ({ page }) => {
+    const sizes: { url: string; bytes: number }[] = [];
+    page.on('response', async (r) => {
+      if (!/\.(woff2?|ttf|otf)(\?|$)/.test(r.url())) return;
+      try {
+        sizes.push({ url: r.url().split('/').pop() ?? '', bytes: (await r.body()).length });
+      } catch {
+        /* body already discarded; ignore */
+      }
+    });
+    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(1200);
+
+    const total = sizes.reduce((a, s) => a + s.bytes, 0);
+    const biggest = sizes.reduce((a, s) => Math.max(a, s.bytes), 0);
+    record('fonts.jsonl', { budget: true, total, files: sizes });
+
+    // Any single file near 198 KB is the full Ethiopic face by another name.
+    expect(
+      biggest,
+      `largest font file was ${biggest} bytes — the full Ethiopic face is 198,028`
+    ).toBeLessThan(100_000);
+    expect(total, `total font bytes on /en: ${total}\n${JSON.stringify(sizes)}`).toBeLessThan(80_000);
+  });
 
   test('no Google Fonts origin is contacted at runtime', async ({ page }) => {
     const external: string[] = [];
