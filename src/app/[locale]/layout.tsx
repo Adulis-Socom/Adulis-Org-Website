@@ -9,6 +9,34 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import '../globals.css';
 
+/**
+ * Every page under this layout renders per request. This is not a preference.
+ *
+ * The CSP in src/middleware.ts puts a fresh nonce on `script-src` for each
+ * response. A nonce baked into a prerendered HTML file is the same nonce for
+ * every visitor forever, which is not a nonce -- and Next will not stamp one
+ * onto prerendered markup at all. Measured directly before this line was added:
+ * with static prerendering, 0 of 29 <script> tags carried the nonce, so under
+ * `'strict-dynamic'` (which makes browsers ignore `'self'`) every script on the
+ * site was blocked. With per-request rendering, 23 of 23 carry it and 30 pages
+ * load with zero CSP violations.
+ *
+ * Cost, measured locally on this machine, static vs dynamic:
+ *   prerendered HTML files   30  ->  0
+ *   median TTFB            5 ms  ->  13 ms
+ * The larger cost is not the milliseconds: prerendered pages can be served from
+ * edge cache, and these cannot. Every request now runs a full RSC render.
+ *
+ * ⚠ The build's route table still prints these as `●  (SSG)`. That marker
+ * reflects `generateStaticParams` being present, not actual prerendering -- the
+ * .html files are genuinely gone. Do not read the table as evidence this line
+ * stopped working; check `.next/server/app` for .html files instead.
+ *
+ * Removing this line silently breaks the entire site in the browser while every
+ * server-side check continues to pass. The QA suite guards it.
+ */
+export const dynamic = 'force-dynamic';
+
 type LocaleParams = { params: Promise<{ locale: string }> };
 
 /**

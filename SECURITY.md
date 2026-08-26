@@ -87,56 +87,79 @@ flat-ESLint-config migration, since `next lint` is removed in 16.
 
 ---
 
-## The Content-Security-Policy decision, and when to revisit it
+## The Content-Security-Policy decision, and why it was reversed
 
-The policy shipped in `next.config.mjs` is strict everywhere **except
-`script-src`, which carries `'unsafe-inline'`**.
+The policy lives in **`src/middleware.ts`**, not `next.config.mjs`. It carries a
+**per-request nonce** on `script-src` and `style-src`, and no `'unsafe-inline'`
+anywhere.
 
-### Why
+### The original decision, and the trigger that expired it
 
-Next emits 17 inline `<script>` blocks per page for its RSC bootstrap. Removing
-`'unsafe-inline'` requires a per-request nonce, and a per-request nonce
-deoptimises all 30 statically prerendered pages. That is a measurable, universal
-cost on a site whose binding constraint is first paint on a low-end Android over
-a slow connection — traded against a hypothetical XSS on a site with **no
-injection sink**: no `dangerouslySetInnerHTML`, no `eval`, no third-party script,
-and no user-generated content rendered anywhere.
+The site originally shipped `'unsafe-inline'` on `script-src`, on the grounds
+that a nonce deoptimises static prerendering against a site with no injection
+sink. That decision was recorded here **with an expiry condition**: reopen it the
+moment any user-supplied content is rendered into a page.
 
-`'unsafe-inline'` on `script-src` is weak. The directives that limit *damage* are
-the strict ones, and they all hold: `connect-src 'self'` and `form-action 'self'`
-block exfiltration, `base-uri 'none'` blocks base-tag injection, and
-`object-src 'none'` and `frame-ancestors 'none'` close the rest. On a site whose
-only asset is a list of seller phone numbers, those are the ones that matter.
+**The trigger has fired**, in advance rather than in arrears. This origin will
+also serve seller storefronts, which render seller-written product descriptions
+and buyer-written review text. A policy retrofitted at that point is a policy
+written under pressure, so it was written before the content arrived.
+
+### What it cost, measured rather than estimated
+
+| | `'unsafe-inline'`, static | nonce, dynamic |
+|---|---|---|
+| Prerendered `.html` files | 30 | **0** |
+| Median TTFB, local | 5 ms | **13 ms** |
+| Inline scripts carrying a nonce | 0 of 29 | **23 of 23** |
+| Edge-cacheable | yes | **no** |
+
+The milliseconds are not the real cost. Prerendered pages can be served from edge
+cache and these cannot, so every request now runs a full RSC render.
+
+### The trap this hid, which cost real time to find
+
+Setting a nonce in the CSP header **is not enough**, and the failure is silent in
+every direction that is easy to check. With static prerendering still in place,
+the header advertised a fresh nonce per request while the prerendered HTML
+carried none — 0 of 29 script tags. Because `'strict-dynamic'` makes browsers
+**ignore `'self'`**, that policy blocked every script on the site, including the
+external chunks. Server-side header checks all passed. Only a real browser showed
+it.
+
+The fix is `export const dynamic = 'force-dynamic'` in `src/app/[locale]/layout.tsx`.
+
+⚠ **The build's route table still prints these pages as `●  (SSG)`.** That marker
+reflects `generateStaticParams` being present, not actual prerendering. Do not
+read it as evidence the pages are static — check `.next/server/app` for `.html`
+files, which is where the truth is.
+
+Removing that one line breaks the entire site in the browser while every
+server-side check keeps passing. Four tests in `tests/qa/headers-fonts.spec.ts`
+guard it, including one that compares each response's inline scripts against that
+same response's header nonce, and one that loads a page in a real browser and
+fails on any CSP violation.
+
+### What is no longer needed
+
+`style-src` was expected to need `'unsafe-inline'`. It does not — with the nonce,
+30 pages load with zero style-src violations, so the weaker value was removed
+rather than left in because it happened to work.
+
+Build-time hashes in a Cloudflare Pages `_headers` file remain the only way to
+get strict `script-src` **and** static rendering. They are brittle across Next
+releases and were not worth it here, but that is the path if the per-request
+render cost ever becomes the binding problem.
+
+Note that a `_headers` file would **supersede the `headers()` block in
+`next.config.mjs`** on Cloudflare Pages, and the CSP is no longer in that block
+at all — it is set per request in middleware, which a static `_headers` file
+cannot express. Whoever configures that deployment must not assume porting
+`_headers` covers the CSP.
 
 `font-src 'self'` is sufficient because `next/font` downloads at build time — ten
 `.woff2` files are emitted to `/_next/static/media` and no Google origin is
-contacted at runtime. This was expected to be the hard part of the policy and
-turned out to be free.
-
-### ⚠ Revisit trigger — the condition that expires this decision
-
-**Reopen this the moment any user-supplied content is rendered into a page.**
-
-Today nothing is. The waitlist echoes submitted values back into form inputs,
-which React escapes. Tier 2 adds two more forms with the same property. The day
-that changes — a public storefront, a review, a report-content submission
-displayed back, any reflected content at all — `'unsafe-inline'` stops being
-defensible and the nonce cost becomes worth paying.
-
-A decision whose expiry condition is not written down is a decision nobody
-revisits. This is that condition.
-
-### The third option, if the trigger fires
-
-Build-time hashes written into a Cloudflare Pages `_headers` file give strict
-`script-src` **and** static rendering — both, with no nonce. It is real work: the
-hashes are per-page, and they break whenever Next changes its bootstrap. Too
-expensive for the threat today, but it is the path if the trigger above fires,
-and a `_headers` file will be needed for that deployment anyway.
-
-Note that a `_headers` file would also **supersede the `headers()` block in
-`next.config.mjs`** on Cloudflare Pages. Whoever configures that deployment must
-port every header across, not just the CSP.
+contacted at runtime.
 
 ---
 
