@@ -110,12 +110,12 @@ both locales.
 | Wireframe | Route | Notes |
 |---|---|---|
 | W01 | `/` | Seller hero, three value cards, buyer door, cohort block |
-| W02 | `/how-it-works` | Five steps, shop preview, paste sequence, money block |
+| W02 | `/how-it-works` | Five steps, three example shop previews, finding-the-seller-again, money boundary |
 | W03 | `/for-sellers` | Full pitch page, waitlist form at `#waitlist` |
 | W23 | `/for-buyers` | Buyer page, store badges disabled, "what Adulis does not do" |
 | W04 | `/trust-and-safety` | Boundaries, verification, ladder, published stats, claims |
 | W05 | `/prohibited-products` | Twelve categories, one statement below |
-| W17 | `/about` | Origin story with the 50-vs-5 comparison, three founders |
+| W17 | `/about` | Origin story, three founders, company status |
 | W22 | `/delete-account` | Five states plus the blocked branch |
 | W20 | `[locale]/not-found` | Localised 404 |
 
@@ -216,6 +216,19 @@ every key in `en.json`; Ge'ez layout validation has run against those real
 strings; and the Ethiopic micro-subset is implemented (issue #2).
 
 ---
+
+## Where the copy comes from
+
+**`src/messages/en.json` is the single source of truth for copy.** It was seeded
+once from the final reviewed wireframe set; from that point the wireframes govern
+**layout** and the catalogue governs **words**.
+
+Do not take copy from a wireframe again. Copy living in two reviewed artifacts
+means every correction needs two edits by two different processes, and they
+drift — which is exactly what produced the reconciliation in
+[`docs/copy-reconciliation-01.md`](docs/copy-reconciliation-01.md), where only 94
+of 295 strings had survived unchanged. That document is historical; its "Gaps and
+questions" section is not, and lists five things still needing a decision.
 
 ## Traps that have already cost time
 
