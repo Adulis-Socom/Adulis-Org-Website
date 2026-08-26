@@ -158,6 +158,21 @@ Worker CPU on every page view, which touches the project's cost ceilings.
 
 **Revisit trigger:** if measured first paint on the target device exceeds budget.
 
+**Measured at Checkpoint 2 — the trigger has not fired.** Lighthouse, default
+mobile preset (4x CPU throttle, slow 4G), against the production build:
+
+| Route | Performance | FCP | LCP | TBT | CLS |
+|---|---|---|---|---|---|
+| `/en` | 98 | 1.2 s | 2.3 s | 80 ms | 0 |
+| `/en/for-sellers` | 99 | 1.2 s | 1.9 s | 80 ms | 0 |
+| `/en/terms` | 98 | 1.2 s | 2.3 s | 90 ms | 0 |
+
+Per-request rendering is costing far less than the loss of prerendering
+suggested it might — server response time is ~50 ms and TBT is negligible. This
+is a throttled desktop profile rather than a real device, so it does not replace
+the manual pass in `docs/manual-qa.md`, but it is enough to say the nonce is not
+currently the thing to optimise.
+
 **The fix is then one of these two, and never removing the nonce:**
 
 1. **Edge-side nonce injection** — a Worker that rewrites the nonce into cached
