@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Link, usePathname } from '@/i18n/routing';
 import { locales, type Locale } from '@/i18n/routing';
 import { LOCALE_LABELS } from '@/lib/nav';
+import { track } from '@/lib/analytics';
 
 /**
  * Two plain links to the current path in each locale, so switching language
@@ -40,6 +41,13 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
               className={`inline-flex min-h-[44px] items-center px-1 font-semibold ${
                 current ? 'text-ink' : 'text-ink-muted hover:text-ink'
               }`}
+              // Emits nothing today: track() has no transport until Checkpoint 4,
+              // and the switcher is hidden behind AM_ENABLED anyway. The call
+              // site lives here so the event is wired where the behaviour is,
+              // rather than retrofitted later by someone hunting for it.
+              onClick={() => {
+                if (!current) track('language_switched', { from: locale, to: code });
+              }}
             >
               {LABELS[code]}
             </Link>
