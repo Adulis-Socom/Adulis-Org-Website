@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { submitWaitlist } from '@/actions/waitlist';
 import { emptyFormState } from '@/lib/validation';
+import { track } from '@/lib/analytics';
 import { ROUTES, WAITLIST_HREF } from '@/lib/routes';
 
 /**
@@ -38,6 +39,22 @@ export function WaitlistForm() {
   useEffect(() => setHydrated(true), []);
   const showSecondHandle = !hydrated || (alsoSellOn !== '' && alsoSellOn !== 'neither');
 
+  // Which fields a person focused and left empty, emitted once each on blur.
+  // Reported as field names only -- never a value, because the values here are a
+  // name and a phone number, and an analytics event is not a place either
+  // belongs. No transport until Checkpoint 4; see src/lib/analytics.
+  const abandoned = useRef<Set<string>>(new Set());
+  const onBlurCapture = (event: React.FocusEvent<HTMLFormElement>) => {
+    // React types FocusEvent<HTMLFormElement>.target as the form, but with
+    // capture the real target is whichever control was left. Narrow through
+    // unknown rather than widening the handler's type.
+    const el = event.target as unknown as HTMLInputElement | HTMLSelectElement | null;
+    if (!el || !el.name || el.type === 'checkbox' || el.name === 'company') return;
+    if (el.value.trim() !== '' || abandoned.current.has(el.name)) return;
+    abandoned.current.add(el.name);
+    track('waitlist_field_abandoned', { field: el.name });
+  };
+
   // Move focus to the summary so a screen-reader user is told what failed.
   useEffect(() => {
     if (Object.keys(state.errors).length > 0) summaryRef.current?.focus();
@@ -52,6 +69,10 @@ export function WaitlistForm() {
             {t('success.reference', { reference: state.reference })}
           </p>
           <p className="card-body">{t('success.next')}</p>
+          {/* W03's submitted state states this outright rather than leaving the
+              applicant to infer it from a reference number that looks like an
+              acceptance. */}
+          <p className="note">{t('success.noGuarantee')}</p>
           <p className="field-help">{t('success.correctPhoneHelp')}</p>
           <Link href={WAITLIST_HREF} className="btn-secondary mt-4">
             {t('success.correctPhone')}
@@ -67,7 +88,7 @@ export function WaitlistForm() {
   const listed = FIELD_ORDER.filter((f) => state.errors[f]);
 
   return (
-    <form action={action} noValidate className="form-column">
+    <form action={action} noValidate className="form-column" onBlurCapture={onBlurCapture}>
       {(listed.length > 0 || state.errors._form) && (
         <div ref={summaryRef} tabIndex={-1} role="alert" className="error-summary mb-5">
           <p className="text-body font-semibold text-danger">{t('errorSummaryTitle')}</p>

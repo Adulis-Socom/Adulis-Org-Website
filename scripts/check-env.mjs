@@ -8,6 +8,7 @@
  *
  *   WAITLIST_WEBHOOK_URL              no delivery destination for applications
  *   NEXT_PUBLIC_SELLER_CONSOLE_URL    the header's Log in link goes nowhere
+ *   WAITLIST_HASH_SECRET              phone numbers keyed with no key
  *
  * Local builds without either are legitimate. They need the opt-out to be
  * explicit and visible in the command, not a default:
@@ -93,6 +94,38 @@ const notes = [];
         '\n     Every page header carries a Log in link to the seller console. With\n' +
         '     no origin configured it falls back to a placeholder that does not\n' +
         '     resolve, so every seller who tries to sign in hits a dead link.'
+    );
+  }
+}
+
+/* ------------------------------------------------------- phone hash secret */
+{
+  const secret = process.env.WAITLIST_HASH_SECRET;
+  if (secret) {
+    // Ethiopian mobile numbers span roughly 10^8 candidates, so an unkeyed
+    // digest is exhaustively reversible in seconds. A short key is barely better
+    // than none, because the key becomes the guessable part.
+    if (secret.length < 32) {
+      problems.push(
+        `WAITLIST_HASH_SECRET is ${secret.length} characters. Use at least 32.\n` +
+          '     It keys the HMAC that stops rate-limit rows being reversible back\n' +
+          '     to phone numbers.'
+      );
+    } else {
+      notes.push('waitlist phone hashing keyed');
+    }
+  } else if (optOut) {
+    notes.push(
+      'WARNING — no WAITLIST_HASH_SECRET.\n' +
+        '     Per-phone rate limiting and double-submission dedupe are both off.\n' +
+        '     IP-based limiting still applies. Do not deploy this build.'
+    );
+  } else {
+    problems.push(
+      'WAITLIST_HASH_SECRET is not set.\n' +
+        '\n     Without it the waitlist cannot key phone numbers, so per-phone rate\n' +
+        '     limiting and double-submission dedupe are both off. Generate one with:\n' +
+        '         node -e "console.log(crypto.randomUUID()+crypto.randomUUID())"'
     );
   }
 }
