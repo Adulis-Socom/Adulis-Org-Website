@@ -34,6 +34,10 @@ const RESEND_SECONDS = 30;
  */
 export function DeleteAccountFlow() {
   const t = useTranslations('deleteAccount');
+  // Three items now, not a buyer/seller pair: what deletion does, what is
+  // retained, and what this OTP is not. Rendered from the catalogue rather than
+  // as fixed slots, so adding a fourth does not need a component change.
+  const explainItems = t.raw('explain.items') as { title: string; body: string }[];
   const [step, setStep] = useState<Step>('explain');
   const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
@@ -60,14 +64,12 @@ export function DeleteAccountFlow() {
         <h1 className="page-title">{t('heading')}</h1>
 
         <div className="mt-6 space-y-4">
-          <div className="card">
-            <h2 className="card-title">{t('explain.buyerTitle')}</h2>
-            <p className="card-body">{t('explain.buyerBody')}</p>
-          </div>
-          <div className="card">
-            <h2 className="card-title">{t('explain.sellerTitle')}</h2>
-            <p className="card-body">{t('explain.sellerBody')}</p>
-          </div>
+          {explainItems.map((item) => (
+            <div key={item.title} className="card">
+              <h2 className="card-title">{item.title}</h2>
+              <p className="card-body">{item.body}</p>
+            </div>
+          ))}
         </div>
 
         <div className="card-sunken mt-6">
@@ -90,14 +92,12 @@ export function DeleteAccountFlow() {
             what they are requesting before identifying themselves, and a store
             reviewer looks for it on the landing step. */}
         <div className="mt-6 space-y-4">
-          <div className="card">
-            <h2 className="card-title">{t('explain.buyerTitle')}</h2>
-            <p className="card-body">{t('explain.buyerBody')}</p>
-          </div>
-          <div className="card">
-            <h2 className="card-title">{t('explain.sellerTitle')}</h2>
-            <p className="card-body">{t('explain.sellerBody')}</p>
-          </div>
+          {explainItems.map((item) => (
+            <div key={item.title} className="card">
+              <h2 className="card-title">{item.title}</h2>
+              <p className="card-body">{item.body}</p>
+            </div>
+          ))}
         </div>
 
         <button type="button" className="btn-primary btn-block mt-6" onClick={() => go('phone')}>

@@ -1,50 +1,46 @@
 import { getTranslations } from 'next-intl/server';
-import { MediaPlaceholder } from './ui';
+
+type Step = { title: string; body: string };
 
 /**
- * The illustrative storefront card.
+ * W01's "From bio link to product" band: bio → storefront → product.
  *
- * The EXAMPLE badge belongs here and on nothing else. "Luna Fashion", the level
- * and the counts are invented, and a reader has to be able to tell that at a
- * glance. It must never appear beside the trust ladder on Trust & Safety: New,
+ * The EXAMPLE badge belongs on each of these three and on nothing else. The
+ * seller name, price, stock time, level and order count are invented, and a
+ * reader has to be able to tell that at a glance.
+ *
+ * It must never appear beside the trust ladder on Trust & Safety: New,
  * Established and Trusted are the real level names, and only their thresholds
  * are undecided.
  */
-export async function ShopPreview({ withArrow = false }: { withArrow?: boolean }) {
-  const home = await getTranslations('home');
-  const shop = await getTranslations('shopPreview');
+export async function ShopPreview() {
+  const t = await getTranslations('home');
   const common = await getTranslations('common');
+  const steps = t.raw('bioToProduct.steps') as Step[];
 
   return (
-    <section className="card-sunken" aria-label={home('shopPreviewTitle')}>
-      <h2 className="text-h3 text-ink">{home('shopPreviewTitle')}</h2>
+    <section className="card-sunken" aria-label={t('bioToProduct.title')}>
+      <h2 className="text-h3 text-ink">{t('bioToProduct.title')}</h2>
 
-      <div className="mt-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
-        <MediaPlaceholder
-          label={home('socialPostAlt')}
-          className="min-h-[140px] flex-1 sm:min-h-[180px]"
-        />
-
-        {withArrow && (
-          <span
-            aria-hidden
-            className="select-none text-center text-h3 font-semibold text-ink-muted"
-          >
-            <span className="sm:hidden">↓</span>
-            <span className="hidden sm:inline">→</span>
-          </span>
-        )}
-
-        <div className="card flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-h3 text-ink">{shop('sellerName')}</span>
-            <span className="badge-example">{common('exampleTag')}</span>
-          </div>
-          <p className="badge-level mt-2">{shop('level')}</p>
-          <p className="tnum mt-1 text-small text-ink-muted">{shop('orders')}</p>
-          <p className="tnum mt-1 text-small text-ink-muted">{shop('stock')}</p>
-        </div>
-      </div>
+      <ol className="mt-4 flex flex-col gap-3">
+        {steps.map((step, i) => (
+          <li key={step.title} className="flex flex-col">
+            <div className="card">
+              <span className="badge-example">{common('exampleTag')}</span>
+              <h3 className="card-title mt-2">{step.title}</h3>
+              <p className="card-body">{step.body}</p>
+            </div>
+            {i < steps.length - 1 && (
+              <span
+                aria-hidden
+                className="select-none py-1 text-center text-h3 font-semibold text-ink-muted"
+              >
+                →
+              </span>
+            )}
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }

@@ -67,7 +67,7 @@ test.describe('§2.6 JavaScript disabled', () => {
     // in the client message payload on every page, so matching raw HTML reports
     // both a success and an error on the same response.
     const visible = body.replace(/<script[\s\S]*?<\/script>/g, '');
-    const succeeded = /You are on the waitlist/.test(visible) && /ADU-WL-\d{2}-[23456789A-HJKMNP-TV-Z]{6}/.test(visible);
+    const succeeded = /Application received/.test(visible) && /ADU-WL-\d{2}-[23456789A-HJKMNP-TV-Z]{6}/.test(visible);
     const genericError = /Something went wrong on our side/.test(visible);
     const rateLimited = /Too many applications from this connection/.test(visible);
     const originSent = requests.length > 0 ? requests[0].origin : undefined;

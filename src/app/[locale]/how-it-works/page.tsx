@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import { ROUTES } from '@/lib/routes';
-import { ShopPreview } from '@/components/ShopPreview';
-import { InfoCard, MediaPlaceholder, SectionTitle, Sequence } from '@/components/ui';
+import { InfoCard, MediaPlaceholder, SectionTitle } from '@/components/ui';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
 type Step = { title: string; body: string };
+type Preview = { seller: string; product: string; price: string; stock: string; level: string };
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params;
@@ -19,8 +19,10 @@ export default async function HowItWorksPage({ params }: LocaleParams) {
   setRequestLocale(locale);
 
   const t = await getTranslations('howItWorks');
-  const paste = await getTranslations('paste');
+  const common = await getTranslations('common');
   const steps = t.raw('steps') as Step[];
+  const previews = t.raw('shopPreviews') as Preview[];
+  const findAgain = t.raw('findAgain.items') as Step[];
 
   return (
     <>
@@ -40,20 +42,33 @@ export default async function HowItWorksPage({ params }: LocaleParams) {
 
       <section className="container-page section-tight">
         <SectionTitle>{t('shopSectionTitle')}</SectionTitle>
-        <ShopPreview />
-
-        <div className="mt-4 grid gap-4 sm:grid-cols-3">
-          <MediaPlaceholder label={t('categories.clothing')} className="min-h-[120px]" />
-          <MediaPlaceholder label={t('categories.cosmetics')} className="min-h-[120px]" />
-          <MediaPlaceholder label={t('categories.electronics')} className="min-h-[120px]" />
+        {/* Every one of these is invented, so every one carries the EXAMPLE badge.
+            The level names are real; only their thresholds are undecided. */}
+        <div className="grid gap-4 md:grid-cols-3">
+          {previews.map((p) => (
+            <div key={p.seller} className="card">
+              <MediaPlaceholder label={common('mutedProductImage')} className="min-h-[120px]" />
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <span className="text-h3 text-ink">{p.seller}</span>
+                <span className="badge-example">{common('exampleTag')}</span>
+              </div>
+              <p className="card-body">{p.product}</p>
+              <p className="tnum mt-1 text-small text-ink">{p.price}</p>
+              <p className="tnum mt-1 text-small text-ink-muted">{p.stock}</p>
+              <p className="badge-level mt-2">{p.level}</p>
+            </div>
+          ))}
         </div>
       </section>
 
       <section className="container-page section-tight">
         <div className="card-tint">
-          <h2 className="section-title">{paste('titleSeller')}</h2>
-          <p className="card-body max-w-prose">{paste('bodySeller')}</p>
-          <Sequence steps={[paste('step1'), paste('step2'), paste('step3')]} />
+          <h2 className="section-title">{t('findAgain.title')}</h2>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            {findAgain.map((item) => (
+              <InfoCard key={item.title} title={item.title} body={item.body} />
+            ))}
+          </div>
         </div>
       </section>
 

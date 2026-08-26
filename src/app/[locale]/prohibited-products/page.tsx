@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
+import { Link } from '@/i18n/routing';
 import { ROUTES } from '@/lib/routes';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
@@ -16,20 +17,23 @@ export default async function ProhibitedProductsPage({ params }: LocaleParams) {
   setRequestLocale(locale);
 
   const t = await getTranslations('prohibited');
-  const categories = t.raw('categories') as string[];
+  const common = await getTranslations('common');
+  const categories = t.raw('categories') as { title: string; body: string }[];
 
   return (
     <div className="container-page">
       <section className="section">
         <h1 className="page-title">{t('heading')}</h1>
+        <p className="lede">{t('sub')}</p>
 
-        {/* Twelve names and nothing else. Repeating the same sentence of body
-            text under each card would say it twelve times and mean it once --
-            it belongs below the set. */}
-        <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Each category now carries its own definition. A bare list of twelve
+            nouns left a reader guessing what "Fraudulent" covers, and this is
+            the page a seller checks before listing something. */}
+        <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => (
-            <li key={category} className="card">
-              <span className="card-title">{category}</span>
+            <li key={category.title} className="card">
+              <h2 className="card-title">{category.title}</h2>
+              <p className="card-body">{category.body}</p>
             </li>
           ))}
         </ul>
@@ -39,6 +43,9 @@ export default async function ProhibitedProductsPage({ params }: LocaleParams) {
         <div className="card-sunken">
           <h2 className="section-title">{t('noteTitle')}</h2>
           <p className="card-body max-w-prose">{t('noteBody')}</p>
+          <Link href={ROUTES.report} className="link-arrow-target mt-3 inline-block">
+            {t('reportLink')}
+          </Link>
         </div>
       </section>
     </div>
