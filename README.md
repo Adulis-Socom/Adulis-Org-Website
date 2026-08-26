@@ -160,34 +160,38 @@ credibility if ignored.
    > nowhere. **ADU-WEB-01 is still at v1.0 and still carries the reversed text
    > as binding.** Until it is written back to v1.1, the specification and this
    > repository disagree, and the check is what runs.
-2. **No pricing anywhere.** Pricing is not public during the controlled beta.
-3. **No follower threshold.** No number, no minimum, no guide. There is no
+2. **No table scrolls horizontally.** Every table stacks into cards below `md`.
+   A sideways-scrolling table is unusable at 360px, and a scrollable region with
+   no focusable content fails WCAG 2.1 SC 2.1.1 — it cannot be scrolled by
+   keyboard at all. Enforced by `npm run check:copy`.
+3. **No pricing anywhere.** Pricing is not public during the controlled beta.
+4. **No follower threshold.** No number, no minimum, no guide. There is no
    rejection path on follower count — every applicant is accepted onto the list
    and reviewed. The count is captured as an *input* to the decision the beta
    exists to make.
-4. **Never claim Adulis protects buyers.** There is no escrow. Buyer protection
+5. **Never claim Adulis protects buyers.** There is no escrow. Buyer protection
    is the gap that waits on the NBE licence. Never "buyer protection",
    "guaranteed", or "safe purchase".
-5. **Never label a seller.** No "scammer", "risky", "unproven". Only counted
+6. **Never label a seller.** No "scammer", "risky", "unproven". Only counted
    facts from Adulis's own records.
-6. **The buyer scans a QR code at handoff.** Never "confirms receipt" — that is
+7. **The buyer scans a QR code at handoff.** Never "confirms receipt" — that is
    a weaker, separate tier that does not count toward trust level.
-7. **No per-post product link.** TikTok and Instagram do not allow one. The
+8. **No per-post product link.** TikTok and Instagram do not allow one. The
    seller's Adulis link lives in their bio.
-8. **`EXAMPLE` tags mark illustrative seller cards only.** Never the real trust
+9. **`EXAMPLE` tags mark illustrative seller cards only.** Never the real trust
    ladder — New, Established and Trusted are the actual level names; only the
    thresholds are undecided.
-9. **Latin-first font stack.** See above. No element gets an Ethiopic-only
+10. **Latin-first font stack.** See above. No element gets an Ethiopic-only
    family.
-10. **No fixed heights.** Every container sizes to its content, so Amharic
+11. **No fixed heights.** Every container sizes to its content, so Amharic
     expands rather than overflowing.
-11. **Submit buttons are always enabled.** A disabled button cannot take
+12. **Submit buttons are always enabled.** A disabled button cannot take
     keyboard focus, so a keyboard user gets no way to trigger validation.
-12. **Error summaries are lists of links**, each moving focus to the field it
+13. **Error summaries are lists of links**, each moving focus to the field it
     names — never a single sentence.
-13. **Arrows are real glyphs** — `→` and `↓`, never `>` or `v`.
-14. **Do not machine-translate `messages/am.json`.** Missing keys fall back to
-    English by design. See `messages/README.md`.
+14. **Arrows are real glyphs** — `→` and `↓`, never `>` or `v`.
+15. **Do not machine-translate `src/messages/am.json`.** Missing keys fall back to
+    English by design. See `src/messages/README.md`.
 
 ---
 
@@ -197,7 +201,7 @@ credibility if ignored.
 it is the single source of truth — never duplicate it into a component, an
 environment variable or a page.
 
-`messages/am.json` holds no approved translations. The Amharic carried from the
+`src/messages/am.json` holds no approved translations. The Amharic carried from the
 v4.1 wireframes was unreviewed machine output, and invariant 14 forbids
 regenerating it. Rather than serve English under an Amharic switcher — a broken
 promise on a site whose doctrine is that every claim is one Adulis can stand
@@ -324,7 +328,7 @@ otherwise wonder why.
 
 ## Conventions
 
-- Copy lives in `messages/*.json`, never in components. English is the base;
+- Copy lives in `src/messages/*.json`, never in components. English is the base;
   Amharic is a partial catalogue that falls back to English key by key.
 - Arrows are real glyphs — `→` and `↓`, never `>` and `v`. Inter covers them.
 - Navigation is defined once in `src/lib/nav.ts`. Header, mobile menu and footer

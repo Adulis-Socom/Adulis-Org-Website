@@ -220,8 +220,44 @@ const CATALOGUE_KEY = /"logIn"\s*:/;
   );
 }
 
+/* ------------------------------------------------------------------------- *
+ * No table on this site scrolls horizontally.
+ *
+ * The trust ladder was first built as a table inside `overflow-x-auto`. That
+ * failed twice, and both failures are general rather than specific to that page:
+ *
+ *   - at 360px it turned the ladder into a sideways scroll on exactly the device
+ *     this site's performance doctrine is written around;
+ *   - axe failed it `scrollable-region-focusable` — WCAG 2.1 SC 2.1.1. A
+ *     scrollable region containing no focusable element cannot be reached or
+ *     scrolled by keyboard at all.
+ *
+ * Every table stacks into cards below `md` instead. More tables are coming —
+ * Published statistics is a table in all but markup, and several Tier 2 section
+ * maps will want one — so this is a rule with a guard rather than a fixed bug.
+ *
+ * The QA suite catches it too, at 360px and via axe, on every route. This check
+ * is here because it fails in a second at the point of writing rather than six
+ * minutes later in a browser.
+ * ------------------------------------------------------------------------- */
+{
+  const hits = [];
+  for (const file of walk(join(ROOT, 'src'))) {
+    if (!/\.tsx$/.test(file)) continue;
+    const body = stripComments(readFileSync(file, 'utf8'));
+    if (/overflow-x-auto/.test(body) && /<table/.test(body)) {
+      hits.push(`${rel(file)}: a table inside overflow-x-auto`);
+    }
+  }
+  report(
+    'no table scrolls horizontally',
+    'Tables stack into cards below md. A scrollable region with no focusable content fails WCAG 2.1 SC 2.1.1.',
+    hits
+  );
+}
+
 if (failed > 0) {
   console.error(`copy check failed: ${failed} invariant(s) violated.\n`);
   process.exit(1);
 }
-console.log(`copy: ${CHECKS.length + 3} invariants hold`);
+console.log(`copy: ${CHECKS.length + 4} invariants hold`);

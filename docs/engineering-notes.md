@@ -105,6 +105,27 @@ makes the entire `font-family` declaration invalid at computed-value time, and
 
 ---
 
+## No table on this site scrolls horizontally
+
+The trust ladder was first built as a table inside `overflow-x-auto`. It failed
+twice, and both failures generalise:
+
+- at 360px it became a sideways scroll on exactly the device this site's
+  performance doctrine is written around;
+- axe failed it **`scrollable-region-focusable`** — WCAG 2.1 SC 2.1.1. A
+  scrollable region containing no focusable element cannot be reached or
+  scrolled by keyboard **at all**.
+
+**Every table stacks into cards below `md`.** More tables are coming — Published
+statistics is a table in all but markup, and several Tier 2 section maps will
+want one.
+
+`npm run check:copy` fails on a table inside `overflow-x-auto`. The QA suite
+catches it too, at 360px and via axe on every route; the source check just fails
+in a second rather than six minutes.
+
+---
+
 ## Never substring-match a catalogue string against page HTML
 
 `NextIntlClientProvider` serialises `nav`, `waitlist` and `deleteAccount` into

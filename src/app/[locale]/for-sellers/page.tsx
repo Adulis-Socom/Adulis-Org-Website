@@ -54,6 +54,20 @@ export default async function ForSellersPage({ params }: LocaleParams) {
             <InfoCard key={item.title} title={item.title} body={item.body} variant="sunken" />
           ))}
         </div>
+
+        {/* One line inside an existing block, not a new section. This is the
+            conversion page and every extra block costs.
+            Framed as "What you handle" rather than as a disclaimer: a seller
+            reading a list of things the platform will not do on a recruitment
+            page reads defensiveness, and this is a job description. The
+            substance is the one obligation that genuinely surprises people --
+            the seller, not Adulis, decides whether a payment is real. A seller
+            who does not know that before applying eventually confirms a forged
+            receipt and finds out at the worst possible moment. */}
+        <div className="card-tint mt-4">
+          <h3 className="card-title">{t('handleTitle')}</h3>
+          <p className="card-body max-w-prose">{t('handleBody')}</p>
+        </div>
       </section>
 
       <section className="section-tight">

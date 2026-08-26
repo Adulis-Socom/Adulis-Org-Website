@@ -7,7 +7,7 @@ import {
   checked,
   isPlausiblePhone,
   str,
-  waitlistReference,
+  reference as makeReference,
   type FieldErrors,
   type FormState
 } from '@/lib/validation';
@@ -70,7 +70,7 @@ export async function submitWaitlist(
   // the site is being hit at all.
   if (str(data, 'company')) {
     console.info('[waitlist] honeypot triggered; submission discarded');
-    return { ok: true, errors: {}, values: {}, reference: waitlistReference() };
+    return { ok: true, errors: {}, values: {}, reference: makeReference('WL') };
   }
 
   const requestHeaders = await headers();
@@ -132,7 +132,7 @@ export async function submitWaitlist(
     return { ok: false, errors, values };
   }
 
-  const reference = waitlistReference();
+  const reference = makeReference('WL');
 
   // Escaped at the delivery boundary, never at validation: the value the seller
   // typed is kept intact, and only the copy crossing into a spreadsheet-shaped

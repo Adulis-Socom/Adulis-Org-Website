@@ -8,6 +8,8 @@ import { InfoCard, SectionTitle, UndecidedFlag } from '@/components/ui';
 type LocaleParams = { params: Promise<{ locale: string }> };
 type Item = { title: string; body: string };
 type LadderRow = { level: string; earnedBy: string; meaning: string };
+/** One card carries a list instead of a body — see the claims section below. */
+type ClaimCard = { title: string; body?: string; lead?: string; items?: string[] };
 
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params;
@@ -26,7 +28,7 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
   const ladderNotes = t.raw('ladderNotes') as Item[];
   const published = t.raw('published') as string[];
   const reviews = t.raw('reviews') as Item[];
-  const claims = t.raw('claims') as Partial<Item>[];
+  const claims = t.raw('claims') as ClaimCard[];
   const moderation = t.raw('moderation') as Item[];
 
   return (
@@ -146,9 +148,29 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
 
       <section className="section-tight">
         <SectionTitle>{t('claimsHeading')}</SectionTitle>
+        {/* "What can be claimed" is deliberately taller than its siblings. It is
+            the one card on this page that answers the question the page exists
+            for, and the no-repeated-sibling-text rule forbids identical filler,
+            not unequal length.
+
+            The five triggers are ADU-PRD-01 §14 in plain language. If that list
+            moves, the PRD governs and this follows it. */}
         <div className="grid gap-4 md:grid-cols-3">
           {claims.map((item) => (
-            <InfoCard key={item.title} title={item.title!} body={item.body} />
+            <div key={item.title} className="card">
+              <h3 className="card-title">{item.title}</h3>
+              {item.body && <p className="card-body">{item.body}</p>}
+              {item.lead && <p className="card-body">{item.lead}</p>}
+              {item.items && (
+                <ul className="mt-2 list-disc space-y-1 pl-5">
+                  {item.items.map((entry) => (
+                    <li key={entry} className="card-body">
+                      {entry}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
           ))}
         </div>
       </section>

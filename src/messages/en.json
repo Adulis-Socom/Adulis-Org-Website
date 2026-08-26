@@ -227,6 +227,8 @@
         "body": "Reservation, transfer evidence, seller confirmation and handoff are recorded."
       }
     ],
+    "handleTitle": "What you handle",
+    "handleBody": "You are the payment verifier. Adulis relays the buyer's receipt; you check your own bank account and decide whether the money arrived. Adulis never confirms a payment for you.",
     "sequenceHeading": "Commercial sequence",
     "sequence": [
       {
@@ -421,7 +423,15 @@
     "claimsHeading": "Claims",
     "claims": [
       {
-        "title": "What can be claimed"
+        "title": "What can be claimed",
+        "lead": "A buyer can raise a claim when:",
+        "items": [
+          "payment was confirmed and the seller did not respond in time",
+          "the seller cancelled because stock was not kept current",
+          "goods did not arrive after payment",
+          "goods were materially not as described",
+          "a promised refund was not delivered"
+        ]
       },
       {
         "title": "Review time",

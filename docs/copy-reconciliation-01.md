@@ -326,6 +326,10 @@ catalogue had only as stubs: `help`, `contact`, `terms`, `privacy`, `refunds`,
 
 ## Gaps and questions raised by the reconciliation
 
+> **All five were ruled on and the rulings are applied.** Each gap below records
+> what was found; the **Ruling** line under it records what was decided and what
+> shipped. Kept together so the reasoning and the outcome do not drift apart.
+
 These are places where the inventory could not be applied as-is. Nothing here was
 invented to fill a hole — each is left visibly unresolved.
 
@@ -344,6 +348,15 @@ lost its body in the wireframe. Seeded as a title with no body rather than
 guessed at. **The sentence that defines what a buyer may actually claim is
 missing, on the page that exists to answer that.**
 
+**Ruling — confirmed missing; copy seeded.** The wireframer deleted the
+mismatched body and never added the replacement, and the revision was reviewed as
+fixed. Cross-checked against **ADU-PRD-01 §14**, whose trigger list matches
+exactly: *payment confirmed with no seller response within SLA · seller cancels
+for stock not updated · goods not received after payment · goods materially not
+as described · refund promised and not delivered.* Seeded as a lead sentence plus
+those five, in plain language. The card is deliberately taller than its siblings:
+the no-repeated-sibling-text rule forbids identical filler, not unequal length.
+
 ### 2. Contact and report reference numbers look like counters
 
 ```
@@ -357,6 +370,15 @@ tells every applicant how many came before them. The same reasoning applies here
 — arguably harder, since a report reference tells a reporter how many reports
 exist. These have been seeded as `{reference}` placeholders and the generator is
 **not yet written**; it should reuse `waitlistReference()`'s alphabet and shape.
+
+**Ruling — one generator, three prefixes.** `waitlistReference()` is now
+`reference(kind)` emitting `ADU-WL-`, `ADU-CON-` and `ADU-REP-`, sharing the
+transcription-safe alphabet, `crypto.getRandomValues`, six characters and no
+counter. Three generators with different properties is three things to get wrong.
+
+The report reference matters more than volume disclosure suggests: report counts
+are a **moderation signal**. Someone who learns reports are rare learns
+enforcement is thin, which is what a bad actor wants to know before testing it.
 
 ### 3. Store badges moved
 
@@ -373,9 +395,24 @@ Three strings had no counterpart in the final set and are now gone:
   everyone recommends."* The README described the old comparison as carrying the
   page. The new line is less precise but makes a broader claim; it is the
   reviewed one, so it ships.
+
+  **Ruling — stays as written.** A specific number on both sides would be more
+  credible than a specific number against a vague absence, but the CEO confirms
+  the classifieds figure was never tracked precisely. "Almost nothing" is the
+  accurate sentence. Being caught on a fabricated figure on the credibility page
+  is far worse than a vague one, so no number is invented here.
 - **`forSellers.notDoTitle` / `notDoBody`** — the explicit "What Adulis does not
   do" block on the seller page. The buyer page keeps its equivalent as
   `forBuyers.limits`; the seller page no longer has one.
+
+  **Ruling — added, reframed as "What you handle".** Not mirrored from the buyer
+  page: W23's block is titled *honest limits* because a buyer needs to know what
+  protection does not exist, whereas a seller reading disclaimers on a
+  recruitment page reads defensiveness. The same content as a job description
+  fits the positioning. One line inside the existing block, not a new section —
+  W03 is the conversion page and every block costs. The substance is the
+  obligation that genuinely surprises people: **the seller, not Adulis, decides
+  whether a payment is real.**
 - **`paste`** — the whole namespace. W02 keeps the behaviour under
   `howItWorks.findAgain` but drops the three-step Paste → Several matching
   products → Choose one sequence.
@@ -384,3 +421,8 @@ Three strings had no counterpart in the final set and are now gone:
 
 W20 is now the code, one sentence and a single `Home` button. The previous
 version had an explanatory line and a second button to Help.
+
+**Ruling — correct as dropped, no action.** Both seller-recovery paths survive
+under `howItWorks.findAgain`; what went was the *numbered* presentation, and
+rightly: those are two alternatives, not two steps. Numbers appear only where
+content is a genuine sequence — W02's five, W23's four, W22's five states.

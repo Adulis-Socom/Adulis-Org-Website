@@ -61,16 +61,27 @@ export function isPlausiblePhone(value: string): boolean {
  */
 const REF_ALPHABET = '23456789ABCDEFGHJKMNPQRSTVWXYZ';
 
+/** The three things this site issues a reference for. */
+export type ReferenceKind = 'WL' | 'CON' | 'REP';
+
 /**
- * ADU-WL-26-K7M4XP
+ * ADU-WL-26-K7M4XP · ADU-CON-26-K7M4XP · ADU-REP-26-K7M4XP
+ *
+ * One generator, three prefixes. Three generators with different properties is
+ * three things to get wrong.
  *
  * `ADU-` matches the document series and the brand. It was `ADL-`, which matched
  * nothing.
  *
- * **Not a counter, deliberately.** A sequential number tells every applicant how
- * many applied before them, which is competitively sensitive for a pre-launch
- * company recruiting a cohort — and tells a competitor the same thing for the
- * price of one application.
+ * **Never a counter.** The wireframes showed `ADU-CON-0826-104` and
+ * `ADU-REP-0826-041` — a date plus a sequence. A counter on the waitlist tells
+ * every applicant how many applied before them, which is competitively sensitive
+ * for a company recruiting a cohort.
+ *
+ * On a **report** reference it is worse than commercial leakage. Report volume is
+ * a moderation signal: someone who learns reports are rare learns enforcement is
+ * thin, which is exactly what a bad actor wants to know before testing it. The
+ * number is withheld from the person best placed to exploit it.
  *
  * Six characters, not the four in the wireframe example. Four characters of this
  * alphabet is 810,000 values, and across a 2,000-seller cohort that is about
@@ -83,7 +94,7 @@ const REF_ALPHABET = '23456789ABCDEFGHJKMNPQRSTVWXYZ';
  * is predictable from prior outputs -- neither property is wanted on an
  * identifier a stranger can request repeatedly.
  */
-export function waitlistReference(now = new Date()): string {
+export function reference(kind: ReferenceKind, now = new Date()): string {
   const yy = String(now.getFullYear()).slice(-2);
   // Rejection-free modulo bias is not worth chasing here, but a 256-wide byte
   // over a 30-wide alphabet does skew the first 16 symbols slightly. Masking to
@@ -96,5 +107,6 @@ export function waitlistReference(now = new Date()): string {
     if (b[0] >= limit) continue;
     out += REF_ALPHABET[b[0] % REF_ALPHABET.length];
   }
-  return `ADU-WL-${yy}-${out}`;
+  return `ADU-${kind}-${yy}-${out}`;
 }
+
