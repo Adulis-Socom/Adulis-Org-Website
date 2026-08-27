@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
-import { AM_ENABLED, routing } from '@/i18n/routing';
+// From ./config, not ./routing: routing pulls next-intl/navigation, which pulls
+// next/navigation and only resolves inside Next's bundler. That import chain is
+// what stopped this file's noindex logic from having a test.
+import { AM_ENABLED, defaultLocale } from '@/i18n/config';
 import type { RoutePath } from './routes';
 
 /**
@@ -105,7 +108,7 @@ export function buildPageMetadata({
         // is self-contradictory -- search engines discard it and it advertises
         // an unfinished surface. It returns with the flag.
         ...(AM_ENABLED ? { am: localeHref('am', path) } : {}),
-        'x-default': localeHref(routing.defaultLocale, path)
+        'x-default': localeHref(defaultLocale, path)
       }
     };
   }

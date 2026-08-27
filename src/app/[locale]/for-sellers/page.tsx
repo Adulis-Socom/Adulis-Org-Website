@@ -4,6 +4,7 @@ import { buildPageMetadata } from '@/lib/metadata';
 import { ROUTES } from '@/lib/routes';
 import { InfoCard, SectionTitle } from '@/components/ui';
 import { WaitlistForm } from '@/components/WaitlistForm';
+import { track } from '@/lib/analytics';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
 type Item = { title: string; body: string };
@@ -21,6 +22,12 @@ export default async function ForSellersPage({ params }: LocaleParams) {
   const t = await getTranslations('forSellers');
   const waitlist = await getTranslations('waitlist');
   const nav = await getTranslations('nav');
+
+  // Emitted server-side, so it counts people who never run the bundle -- which
+  // on a slow connection is a meaningful share of the audience, and exactly the
+  // share a client-only view event would silently omit. No transport until
+  // Checkpoint 4; see src/lib/analytics.
+  track('waitlist_form_viewed', { locale });
   const problems = t.raw('problems') as Item[];
   const benefits = t.raw('benefits') as Item[];
   const sequence = t.raw('sequence') as Item[];

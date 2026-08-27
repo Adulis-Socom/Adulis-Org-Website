@@ -117,6 +117,85 @@ test.describe('§2.6 JavaScript disabled', () => {
     expect(await links.count(), 'error summary must be a list of links').toBeGreaterThan(0);
   });
 
+  /**
+   * Help is an accordion, and it is <details>/<summary> rather than a scripted
+   * one precisely so this passes. A JavaScript disclosure would leave all eleven
+   * answers unreachable for a reader whose bundle never arrives, which on a slow
+   * connection is the reader this page exists for.
+   */
+  test('the Help accordion opens with no JavaScript', async ({ page }) => {
+    await page.goto('/en/help');
+    const items = page.locator('details');
+    const count = await items.count();
+    expect(count, 'no <details> on /en/help — has it become a scripted accordion?').toBeGreaterThan(5);
+
+    const first = items.first();
+    expect(await first.evaluate((el: HTMLDetailsElement) => el.open), 'first answer starts open').toBe(false);
+
+    // The answer must be in the DOM before it is opened, not injected on demand.
+    const answer = first.locator('p');
+    await expect(answer).toHaveCount(1);
+
+    await first.locator('summary').click();
+    expect(
+      await first.evaluate((el: HTMLDetailsElement) => el.open),
+      'summary click did not open <details> without JavaScript'
+    ).toBe(true);
+    await expect(answer).toBeVisible();
+  });
+
+  /**
+   * The placeholder path, tested rather than assumed.
+   *
+   * Every legal body is still undecided. The section map is real, so a reader and
+   * an app-store reviewer can see that Privacy has a retention section — but the
+   * bodies must render as visibly flagged placeholders, never as plausible prose.
+   * An unapproved sentence in a privacy notice is a legal exposure, and one that
+   * reads well is worse than one that reads like a placeholder, because nobody
+   * removes it.
+   */
+  test('legal pages render flagged placeholders, not invented prose', async ({ page }) => {
+    for (const route of ['/en/terms', '/en/privacy', '/en/seller-terms', '/en/refunds-and-disputes']) {
+      await page.goto(route);
+
+      const sections = page.locator('section[id]');
+      expect(await sections.count(), `${route} rendered no section map`).toBeGreaterThan(4);
+
+      const flags = page.locator('.placeholder-flag');
+      expect(await flags.count(), `${route} has no flagged undecided body`).toBeGreaterThan(0);
+      await expect(flags.first()).toContainText('UNDECIDED');
+
+      // Every "On this page" entry must point at a section that exists.
+      const links = page.locator('nav[aria-labelledby="on-this-page"] a');
+      const n = await links.count();
+      expect(n, `${route} has no on-this-page nav`).toBeGreaterThan(0);
+      for (let i = 0; i < n; i++) {
+        const href = await links.nth(i).getAttribute('href');
+        const id = (href ?? '').replace('#', '');
+        expect(
+          await page.locator(`[id="${id}"]`).count(),
+          `${route}: on-this-page link ${href} points at nothing`
+        ).toBe(1);
+      }
+    }
+  });
+
+  /**
+   * Contact and Report content must not present a form they cannot deliver.
+   * A report form that accepts a submission and drops it would leave someone
+   * reporting harmful content believing it had been sent.
+   */
+  test('unwired forms are absent, not silently broken', async ({ page }) => {
+    for (const route of ['/en/contact', '/en/report-content']) {
+      await page.goto(route);
+      expect(
+        await page.locator('form').count(),
+        `${route} renders a form, but no action is wired until Checkpoint 4`
+      ).toBe(0);
+      await expect(page.locator('.placeholder-flag').first()).toBeVisible();
+    }
+  });
+
   test('footer legal links resolve without JavaScript', async ({ page }) => {
     await page.goto('/en');
     for (const label of ['Terms', 'Privacy', 'Report content', 'Delete my account']) {

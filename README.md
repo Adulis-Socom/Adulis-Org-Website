@@ -105,28 +105,44 @@ any other Ge'ez appearing there renders as a box. That is the signal you want.
 Every route is locale-prefixed: `/en/...` and `/am/...`. All sixteen resolve in
 both locales.
 
-### Built (Tier 1)
-
 | Wireframe | Route | Notes |
 |---|---|---|
-| W01 | `/` | Seller hero, three value cards, buyer door, cohort block |
+| W01 | `/` | Seller hero, bio-to-product, what changes, what Adulis is for, buyer door, cohort |
 | W02 | `/how-it-works` | Five steps, three example shop previews, finding-the-seller-again, money boundary |
-| W03 | `/for-sellers` | Full pitch page, waitlist form at `#waitlist` |
-| W23 | `/for-buyers` | Buyer page, store badges disabled, "what Adulis does not do" |
-| W04 | `/trust-and-safety` | Boundaries, verification, ladder, published stats, claims |
-| W05 | `/prohibited-products` | Twelve categories, one statement below |
+| W03 | `/for-sellers` | Full pitch, commercial sequence, "What you handle", waitlist form at `#waitlist` |
+| W23 | `/for-buyers` | Four steps, what you can check, app badges, honest limits |
+| W04 | `/trust-and-safety` | Boundaries, verification, ladder, published stats, reviews, claims, moderation |
+| W05 | `/prohibited-products` | Twelve categories with definitions, enforcement |
+| W11 | `/help` | Eleven FAQs as `<details>` — opens with JavaScript disabled |
+| W12 | `/contact` | Institutional routes, location, privacy principle |
+| W13 | `/terms` | Section map, 11 sections |
+| W14 | `/privacy` | Section map, 14 sections, 4 with approved bodies |
+| W15 | `/refunds-and-disputes` | Section map, 7 sections |
+| W16 | `/seller-terms` | Section map, 12 sections |
 | W17 | `/about` | Origin story, three founders, company status |
-| W22 | `/delete-account` | Five states plus the blocked branch |
+| W21 | `/report-content` | Moderation explanation |
+| W22 | `/delete-account` | Explanation plus the manual route while the flag is off |
 | W20 | `[locale]/not-found` | Localised 404 |
 
-### Stubbed (Tier 2 — next)
+### What is still flagged as undecided
 
-`/help` · `/contact` · `/terms` · `/privacy` · `/seller-terms` ·
-`/refunds-and-disputes` · `/report-content`
+Every route renders real content. Three things inside them do not:
 
-These render a visibly-unbuilt placeholder rather than a 404. A 404 behind
-"Privacy", "Report content" or "Delete my account" is a legal and app-store
-problem, not a cosmetic one.
+- **Legal bodies** — `/terms`, `/privacy`, `/seller-terms` and
+  `/refunds-and-disputes` render a real section map with `UNDECIDED` bodies.
+  Four Privacy sections have approved text; the rest do not.
+- **Contact addresses and the enquiry form** — every address is undecided and
+  submission is Checkpoint 4.
+- **The report form** — reason categories are undecided and submission is
+  Checkpoint 4.
+
+Those six routes stay `noindex` while that is true. `/help` does not: every
+answer on it is approved copy.
+
+⚠ **Neither `/contact` nor `/report-content` renders a `<form>`.** A form with no
+action behind it would accept what a person types and discard it — and on a page
+for reporting harmful content, that is the one failure mode it must not have. A
+test asserts both pages render no form until Checkpoint 4 wires them.
 
 ---
 

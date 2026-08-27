@@ -1,25 +1,72 @@
 import type { Metadata } from 'next';
-import { setRequestLocale } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import { ROUTES } from '@/lib/routes';
-import { TierTwoStub } from '@/components/TierTwoStub';
+import { UndecidedFlag } from '@/components/ui';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
+type Route = { title: string; value: string };
 
-const TITLE = 'Contact';
-const NOTE =
-  'Three states plus the consent line, per W12. Blocked on the domain decision.';
-
-// generateMetadata, not a static `metadata` export: a static one cannot see the
-// locale, so it could not ask buildPageMetadata the right question -- and whatever it
-// set would silently replace the layout's value for that field.
 export async function generateMetadata({ params }: LocaleParams): Promise<Metadata> {
   const { locale } = await params;
-  return buildPageMetadata({ locale, path: ROUTES.contact, title: TITLE, unbuilt: true });
+  const t = await getTranslations({ locale, namespace: 'contact' });
+  // Still `unbuilt`: every address is undecided and the form is not wired, so
+  // there is currently no way to contact anyone from this page. Indexing a
+  // contact page that cannot deliver a message is worse than not having one.
+  return buildPageMetadata({ locale, path: ROUTES.contact, title: t('pageTitle'), unbuilt: true });
 }
 
 export default async function ContactPage({ params }: LocaleParams) {
   const { locale } = await params;
   setRequestLocale(locale);
-  return <TierTwoStub title={TITLE} note={NOTE} />;
+
+  const t = await getTranslations('contact');
+  const footer = await getTranslations('footer');
+  const routes = t.raw('routes') as Route[];
+
+  return (
+    <div className="container-page">
+      <section className="section">
+        <h1 className="page-title">{t('heading')}</h1>
+        <p className="lede">{t('sub')}</p>
+      </section>
+
+      <section className="section-tight">
+        <h2 className="section-title mb-4">{t('routesHeading')}</h2>
+        <ul className="grid gap-4 md:grid-cols-3">
+          {routes.map((route) => (
+            <li key={route.title} className="card">
+              <h3 className="card-title">{route.title}</h3>
+              {/* The addresses are genuinely undecided, so they render as
+                  flagged placeholders rather than as mailto: links to nothing. */}
+              <UndecidedFlag>{route.value}</UndecidedFlag>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="section-tight">
+        <div className="card-sunken">
+          <h2 className="section-title">{t('locationTitle')}</h2>
+          <p className="card-body">{footer('address')}</p>
+        </div>
+      </section>
+
+      {/* The form's markup, validation and delivery are Checkpoint 4. Rendering
+          the fields now with no action behind them would be worse than this:
+          a form that silently discards what a person types is the one failure
+          mode a contact page must not have. */}
+      <section className="section-tight">
+        <h2 className="section-title mb-4">{t('formHeading')}</h2>
+        <UndecidedFlag>Not yet accepting submissions — the enquiry form is built in Checkpoint 4.</UndecidedFlag>
+      </section>
+
+      <section className="section-tight pb-12">
+        <div className="card">
+          <h2 className="section-title">{t('privacyTitle')}</h2>
+          <p className="card-body max-w-prose">{t('privacyBody')}</p>
+        </div>
+      </section>
+    </div>
+  );
 }

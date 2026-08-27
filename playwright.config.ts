@@ -56,7 +56,13 @@ export default defineConfig({
       timeout: 120_000,
       env: {
         NEXT_PUBLIC_SITE_URL: `http://localhost:${PORT}`,
-        WAITLIST_WEBHOOK_URL: `http://localhost:${SINK_PORT}/`
+        WAITLIST_WEBHOOK_URL: `http://localhost:${SINK_PORT}/`,
+        // Present so the suite exercises the keyed phone hash, per-phone rate
+        // limiting and double-submission dedupe. Without it those three paths
+        // are skipped and the tests covering them silently assert nothing.
+        // Fixed rather than random, because dedupe behaviour must not differ
+        // between runs. A throwaway localhost value, not a deployment secret.
+        WAITLIST_HASH_SECRET: 'qa-only-secret-not-for-any-deployment-0123456789'
       }
     }
   ]

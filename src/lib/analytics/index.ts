@@ -28,8 +28,10 @@
 /** Events this site emits. Adding one is a decision, so they are enumerated. */
 export type AnalyticsEvent =
   | 'language_switched'
+  | 'waitlist_form_viewed'
   | 'waitlist_submitted'
-  | 'waitlist_validation_failed';
+  | 'waitlist_validation_failed'
+  | 'waitlist_field_abandoned';
 
 /**
  * Records that something happened. Currently does nothing at all.

@@ -126,6 +126,25 @@ in a second rather than six minutes.
 
 ---
 
+## If an undecided item cannot be visibly flagged, do not render a stand-in
+
+A legal body can carry an `UNDECIDED` marker and a reader sees it is not real. A
+placeholder **icon** cannot. It silently becomes the brand mark, because nothing
+about it says "temporary" and nobody is prompted to replace it.
+
+That is why the site currently ships **no favicon at all** and takes a 404 on
+`/favicon.ico` instead. The 404 is visible in the console and dents the
+best-practices score; a plausible-looking icon would be invisible and permanent.
+
+The same rule decided two other things here: `/contact` and `/report-content`
+render **no `<form>`** rather than a form with no action behind it, and the
+seller-side "What you handle" copy was written rather than seeded as filler.
+
+The general form: **a placeholder is only safe when its placeholder-ness is part
+of what the reader sees.** Where it cannot be, ship nothing and record the gap.
+This is the same failure class as plausible filler shipping unnoticed, and the
+favicon is its second instance.
+
 ## Never substring-match a catalogue string against page HTML
 
 `NextIntlClientProvider` serialises `nav`, `waitlist` and `deleteAccount` into

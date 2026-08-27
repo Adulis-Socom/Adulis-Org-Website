@@ -47,6 +47,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
+import { coveredCodepoints } from './lib/woff2-cmap.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const FONT_DIR = join(ROOT, 'src/fonts');
@@ -114,13 +115,35 @@ if (!WRITE) {
   const digest = 'sha256:' + createHash('sha256').update(bytes).digest('hex');
   const tampered = manifest.sha256 && manifest.sha256 !== digest;
 
-  if (missing.length || tampered) {
+  // The check that matters: read the cmap out of the font binary and confirm it
+  // really maps every codepoint the label needs.
+  //
+  // Comparing the label against the manifest only proves the manifest and the
+  // file belong together. If the subsetting request ever returned a font missing
+  // a glyph, the manifest -- written from that same response -- would claim
+  // coverage anyway, the check would pass, and the switcher would render a box
+  // with everything green. That is the U+123B class of failure exactly.
+  let uncovered = [];
+  let cmapError = null;
+  try {
+    const covered = coveredCodepoints(bytes);
+    uncovered = required.filter((cp) => !covered.has(cp));
+  } catch (err) {
+    cmapError = err.message;
+  }
+
+  if (missing.length || tampered || uncovered.length || cmapError) {
     console.error('\nfont: the committed subset does not match the switcher labels.');
     if (missing.length) {
       console.error(`      missing glyphs: ${missing.map(hex).join(', ')}`);
       console.error('      These would render as missing-glyph boxes in the switcher.');
     }
     if (tampered) console.error(`      font file hash does not match the manifest`);
+    if (uncovered.length) {
+      console.error(`      the FONT BINARY does not map: ${uncovered.map(hex).join(', ')}`);
+      console.error('      The manifest claims coverage the font does not have.');
+    }
+    if (cmapError) console.error(`      could not read the font's cmap: ${cmapError}`);
     console.error('\n      Run: node scripts/build-ethiopic-subset.mjs --write\n');
     process.exit(1);
   }
@@ -129,7 +152,8 @@ if (!WRITE) {
     console.log(`font: note - subset carries ${extra.length} glyph(s) no longer used`);
   }
   console.log(
-    `font: ethiopic switcher subset ok (${required.map(hex).join(', ')}, ${bytes.length} bytes)`
+    `font: ethiopic switcher subset ok — cmap verified for ` +
+      `${required.map(hex).join(', ')} (${bytes.length} bytes)`
   );
   process.exit(0);
 }
