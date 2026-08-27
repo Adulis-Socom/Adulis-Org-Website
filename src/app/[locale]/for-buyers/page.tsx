@@ -74,6 +74,7 @@ export default async function ForBuyersPage({ params }: LocaleParams) {
           title={t('sellerDoorTitle')}
           linkLabel={t('sellerDoorLink')}
           href={ROUTES.forSellers}
+          event="seller_door_clicked"
         />
       </section>
     </div>

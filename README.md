@@ -114,35 +114,50 @@ both locales.
 | W04 | `/trust-and-safety` | Boundaries, verification, ladder, published stats, reviews, claims, moderation |
 | W05 | `/prohibited-products` | Twelve categories with definitions, enforcement |
 | W11 | `/help` | Eleven FAQs as `<details>` — opens with JavaScript disabled |
-| W12 | `/contact` | Institutional routes, location, privacy principle |
+| W12 | `/contact` | Institutional routes, location, enquiry form, privacy principle |
 | W13 | `/terms` | Section map, 11 sections |
 | W14 | `/privacy` | Section map, 14 sections, 4 with approved bodies |
 | W15 | `/refunds-and-disputes` | Section map, 7 sections |
 | W16 | `/seller-terms` | Section map, 12 sections |
 | W17 | `/about` | Origin story, three founders, company status |
-| W21 | `/report-content` | Moderation explanation |
+| W21 | `/report-content` | Report form, moderation explanation |
 | W22 | `/delete-account` | Explanation plus the manual route while the flag is off |
 | W20 | `[locale]/not-found` | Localised 404 |
 
 ### What is still flagged as undecided
 
-Every route renders real content. Three things inside them do not:
+Every route renders real content and all three forms are built. Three things
+inside them are not decided:
 
 - **Legal bodies** — `/terms`, `/privacy`, `/seller-terms` and
   `/refunds-and-disputes` render a real section map with `UNDECIDED` bodies.
   Four Privacy sections have approved text; the rest do not.
-- **Contact addresses and the enquiry form** — every address is undecided and
-  submission is Checkpoint 4.
-- **The report form** — reason categories are undecided and submission is
-  Checkpoint 4.
+- **Contact addresses** — every institutional address on `/contact` is
+  `UNDECIDED EMAIL`.
+- **Report reason categories** — `/report-content` renders that field as a
+  flagged placeholder rather than a `<select>`. A moderation taxonomy published
+  on a public page is a policy statement, not copy.
 
 Those six routes stay `noindex` while that is true. `/help` does not: every
 answer on it is approved copy.
 
-⚠ **Neither `/contact` nor `/report-content` renders a `<form>`.** A form with no
-action behind it would accept what a person types and discard it — and on a page
-for reporting harmful content, that is the one failure mode it must not have. A
-test asserts both pages render no form until Checkpoint 4 wires them.
+### ⚠ No form can accept a live submission
+
+The waitlist, contact and report forms are complete, tested, and **blocked**.
+Choosing where submissions live is the Article 22 decision, and the DPIA lists a
+legal opinion as required before any technical provisioning. `WaitlistStore` and
+`EnquiryStore` are interfaces with a webhook relay and an in-memory adapter;
+**nothing is provisioned.**
+
+That is the correct shape, not a failure — the gate is legal, not technical. A
+production build with no destination configured **refuses** submissions rather
+than discarding them silently.
+
+Analytics is the exception and ships. It carries counts only — no IP, no
+persistent identifier — so it is not personal data. The property is recorded in
+[`docs/dpia-notes.md`](docs/dpia-notes.md) and enforced by a property
+allowlist plus a `check:copy` rule that fails if the beacon route so much as
+mentions a user-agent or a cookie.
 
 ---
 

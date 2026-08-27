@@ -145,6 +145,33 @@ of what the reader sees.** Where it cannot be, ship nothing and record the gap.
 This is the same failure class as plausible filler shipping unnoticed, and the
 favicon is its second instance.
 
+## `pkill` does not kill Next servers on Windows, and Playwright reuses them
+
+`reuseExistingServer: !process.env.CI` means a local Playwright run **adopts
+whatever is already listening on the port**. Combined with `pkill -f "next start"`
+silently failing on Windows, that produces the most misleading failure mode in
+this project: tests run against a build from twenty minutes ago.
+
+It cost several cycles in Checkpoint 4. Three contact tests failed with
+`Loading chunk 638 failed` and a missing `.field-error`, which reads exactly like
+a hydration bug in new code. The code was fine; the server was stale.
+
+**Kill by port, not by name:**
+
+```powershell
+Get-NetTCPConnection -LocalPort 3210 -State Listen |
+  ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }
+```
+
+Symptoms that mean "stale server", not "broken code":
+
+- a chunk 404s or fails to load while the same file exists on disk and serves 200
+- a test passes alone and fails in a suite, or vice versa
+- behaviour that does not match the source you just changed
+
+Check `curl -s -o /dev/null -w '%{http_code}' http://localhost:3210/en` before
+diagnosing anything else. CI is unaffected — `reuseExistingServer` is false there.
+
 ## Never substring-match a catalogue string against page HTML
 
 `NextIntlClientProvider` serialises `nav`, `waitlist` and `deleteAccount` into

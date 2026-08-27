@@ -253,7 +253,13 @@ export function WaitlistForm() {
             aria-describedby={err('consent') ? 'consent-error' : undefined}
             className="checkbox"
           />
-          <label htmlFor="consent" className="text-small text-ink-muted">
+          {/* Same 44px floor as the shared ConsentField in form.tsx — see the
+              note there. This form still has its own consent block; the two must
+              not drift, because the invariant is identical on both. */}
+          <label
+            htmlFor="consent"
+            className="block min-h-[44px] py-1.5 text-small text-ink-muted"
+          >
             {t('fields.consent')}{' '}
             <Link href={ROUTES.privacy} className="link-arrow">
               {t('fields.consentLink')}

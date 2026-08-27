@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { headers } from 'next/headers';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
@@ -56,7 +57,39 @@ type LocaleParams = { params: Promise<{ locale: string }> };
  * A client component reaching for a namespace that is not in this list fails at
  * runtime, not at build. If you add one, add its namespace here.
  */
-const CLIENT_NAMESPACES = ['nav', 'waitlist', 'deleteAccount'] as const;
+/**
+ * Message namespaces sent to the browser, per route.
+ *
+ * `nav` is on every page because the header and mobile menu are client
+ * components. Everything else is sent only where a client component on that
+ * route actually reads it.
+ *
+ * Why per-route rather than one list: sending every client namespace everywhere
+ * costs 9,845 bytes on all sixteen routes. Sending nav alone costs **357**, and
+ * the four routes with forms pay only for their own. Twelve of sixteen routes
+ * carry no form at all, and on a low-end Android over a slow connection those
+ * bytes are the binding constraint.
+ *
+ * ⚠ A client component reaching for a namespace not listed for its route fails
+ * at RUNTIME, not at build — `MISSING_MESSAGE` in front of a person. If you add
+ * a client component to a route, add its namespace here. `tests/qa/console.spec.ts`
+ * is what catches the omission.
+ */
+const BASE_NAMESPACES = ['nav'] as const;
+
+const ROUTE_NAMESPACES: { match: string; namespaces: readonly string[] }[] = [
+  { match: '/for-sellers', namespaces: ['waitlist'] },
+  { match: '/delete-account', namespaces: ['deleteAccount'] },
+  { match: '/contact', namespaces: ['contact'] },
+  { match: '/report-content', namespaces: ['report'] }
+];
+
+function namespacesFor(pathname: string): string[] {
+  const extra = ROUTE_NAMESPACES.filter((r) => pathname.includes(r.match)).flatMap(
+    (r) => r.namespaces
+  );
+  return [...BASE_NAMESPACES, ...extra];
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -105,8 +138,12 @@ export default async function LocaleLayout({
   // fallback merge has already happened by this point, so the picked namespaces
   // are post-merge.
   const messages = await getMessages();
+  // Set by src/middleware.ts. Falling back to '' sends the base namespaces only,
+  // which is the safe direction: a missing namespace is a loud runtime error,
+  // whereas an extra one is silent bytes.
+  const pathname = (await headers()).get('x-pathname') ?? '';
   const clientMessages = Object.fromEntries(
-    CLIENT_NAMESPACES.map((namespace) => [namespace, messages[namespace]])
+    namespacesFor(pathname).map((namespace) => [namespace, messages[namespace]])
   );
 
   return (

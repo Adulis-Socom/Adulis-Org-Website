@@ -3,7 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import { ROUTES } from '@/lib/routes';
 import { Link } from '@/i18n/routing';
-import { UndecidedFlag } from '@/components/ui';
+import { ReportForm } from '@/components/ReportForm';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
 
@@ -31,12 +31,12 @@ export default async function ReportContentPage({ params }: LocaleParams) {
         <p className="lede">{t('sub')}</p>
       </section>
 
-      {/* Fields, validation and delivery are Checkpoint 4, and the reason
-          categories are still undecided. A report form that accepts a
-          submission and drops it is worse than one that says it is not ready:
-          someone reporting harmful content would believe it had been sent. */}
+      {/* The reason category is still a flagged placeholder inside the form —
+          a moderation taxonomy on a public page is a policy statement, not
+          copy. Everything else works: someone can describe the problem in their
+          own words today. */}
       <section className="section-tight">
-        <UndecidedFlag>Not yet accepting reports — the form is built in Checkpoint 4.</UndecidedFlag>
+        <ReportForm />
       </section>
 
       <section className="section-tight pb-12">

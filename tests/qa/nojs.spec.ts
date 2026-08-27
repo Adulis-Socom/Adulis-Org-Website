@@ -181,18 +181,31 @@ test.describe('§2.6 JavaScript disabled', () => {
   });
 
   /**
-   * Contact and Report content must not present a form they cannot deliver.
-   * A report form that accepts a submission and drops it would leave someone
-   * reporting harmful content believing it had been sent.
+   * Checkpoint 2 asserted these pages rendered NO form, because a form with no
+   * action accepts what a person types and discards it. Checkpoint 4 gave both
+   * an action that persists, so the assertion is inverted: the forms must now be
+   * present and must validate server-side with scripting off.
+   *
+   * They still cannot accept a live submission — no store is provisioned — but
+   * that is a refusal with an error, not a silent discard.
    */
-  test('unwired forms are absent, not silently broken', async ({ page }) => {
+  test('contact and report forms work with no JavaScript', async ({ page }) => {
     for (const route of ['/en/contact', '/en/report-content']) {
       await page.goto(route);
+      expect(await page.locator('form').count(), `${route} renders no form`).toBeGreaterThan(0);
+
+      await Promise.all([
+        page.waitForLoadState('load'),
+        page.locator('form button[type="submit"]').click()
+      ]);
+      await page.waitForTimeout(800);
+
+      const summary = page.locator('.error-summary');
+      await expect(summary, `${route}: no server-rendered error summary`).toBeVisible();
       expect(
-        await page.locator('form').count(),
-        `${route} renders a form, but no action is wired until Checkpoint 4`
-      ).toBe(0);
-      await expect(page.locator('.placeholder-flag').first()).toBeVisible();
+        await summary.locator('ul li a').count(),
+        `${route}: the summary must be links`
+      ).toBeGreaterThan(0);
     }
   });
 
