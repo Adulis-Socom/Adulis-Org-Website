@@ -15,7 +15,7 @@
  * ⚠ That property is load-bearing and easy to destroy by accident. Adding a
  * visitor id, a session id, an IP, a user-agent string, or any value that could
  * link two events to one person turns this stream into personal data and puts it
- * straight back behind the same block. `docs/dpia-analytics.md` records the
+ * straight back behind the same block. `docs/dpia-notes.md` records the
  * property; `PROPERTY_ALLOWLIST` below enforces it.
  *
  * ## What is given up, accepted explicitly
@@ -38,32 +38,45 @@
  */
 
 /**
- * Every event this site emits. Adding one is a decision, so they are enumerated
- * rather than accepted as free strings.
+ * Every event this site emits. **This list is ADU-WEB-01 §12, exactly.**
+ *
+ * ⚠ Do not add an event here without adding it to ADU-WEB-01 §12 first.
+ *
+ * ADU-DB-01 C7 has the website's events sharing the platform's registry, where
+ * `analytics.event_definition` is append-only with `UNIQUE (name, version)`.
+ * There is no path that edits or removes version 1 — so an event name invented
+ * in code because two documents were ambiguous becomes permanent.
+ *
+ * `door_clicked` was exactly that mistake: a generic event beside
+ * `buyer_door_clicked` and `seller_door_clicked`, recording the same fact twice.
+ * It existed for one build and is gone.
+ *
+ * Four events for the contact and report forms are deliberately ABSENT. They are
+ * not in ADU-WEB-01 §12, and creating them here would put four permanent names
+ * into a shared registry on this repository's say-so. They are proposed in the
+ * Checkpoint 4 report instead.
  */
 export type AnalyticsEvent =
-  | 'language_switched'
-  | 'door_clicked'
   | 'waitlist_form_viewed'
+  | 'waitlist_field_abandoned'
   | 'waitlist_submitted'
   | 'waitlist_validation_failed'
-  | 'waitlist_field_abandoned'
-  | 'contact_submitted'
-  | 'contact_validation_failed'
-  | 'report_submitted'
-  | 'report_validation_failed';
+  | 'buyer_door_clicked'
+  | 'seller_door_clicked'
+  | 'language_switched'
+  | 'deletion_requested'
+  | 'deletion_blocked';
 
 export const ANALYTICS_EVENTS: readonly AnalyticsEvent[] = [
-  'language_switched',
-  'door_clicked',
   'waitlist_form_viewed',
+  'waitlist_field_abandoned',
   'waitlist_submitted',
   'waitlist_validation_failed',
-  'waitlist_field_abandoned',
-  'contact_submitted',
-  'contact_validation_failed',
-  'report_submitted',
-  'report_validation_failed'
+  'buyer_door_clicked',
+  'seller_door_clicked',
+  'language_switched',
+  'deletion_requested',
+  'deletion_blocked'
 ];
 
 /** Bumped when the meaning of an existing event changes, never for a new one. */

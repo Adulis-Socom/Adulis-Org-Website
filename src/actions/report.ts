@@ -3,7 +3,6 @@
 import { headers } from 'next/headers';
 import { clientKey, rateLimit } from '@/lib/ratelimit';
 import { spreadsheetSafeRecord } from '@/lib/spreadsheet-safe';
-import { track } from '@/lib/analytics';
 import { purgeAfterFor, reportStore, type ReportRecord } from '@/lib/store/enquiries';
 import {
   checked,
@@ -56,7 +55,6 @@ export async function submitReport(_prev: FormState, data: FormData): Promise<Fo
   // scam harder than someone asking a press question would be the wrong trade.
   const { allowed } = rateLimit(clientKey(requestHeaders, 'report'), { limit: 5 });
   if (!allowed) {
-    track('report_validation_failed', { reason: 'rate_limited' });
     return { ok: false, errors: { _form: 'rateLimited' }, values };
   }
 
@@ -77,7 +75,6 @@ export async function submitReport(_prev: FormState, data: FormData): Promise<Fo
   // required field with no valid values would make the form unsubmittable.
 
   if (Object.keys(errors).length > 0) {
-    track('report_validation_failed', { fields: Object.keys(errors).join(',') });
     return { ok: false, errors, values };
   }
 
@@ -117,6 +114,5 @@ export async function submitReport(_prev: FormState, data: FormData): Promise<Fo
     return { ok: false, errors: { _form: 'unexpected' }, values };
   }
 
-  track('report_submitted');
   return { ok: true, errors: {}, values: {}, reference };
 }

@@ -610,7 +610,7 @@
       "message": "Message",
       "messagePlaceholder": "Enter your message",
       "consentLabel": "Consent",
-      "consent": "I consent to Adulis using this information to respond to my enquiry.",
+      "consent": "I consent to Adulis using this information to respond to my enquiry. Enquiry data is kept for up to 12 months.",
       "consentLink": "Privacy →"
     },
     "submit": "Submit contact request",
@@ -687,7 +687,7 @@
       },
       {
         "title": "2. Information we handle",
-        "body": "Waitlist data is kept for up to 12 months."
+        "body": "Waitlist, enquiry and report data are each kept for up to 12 months."
       },
       {
         "title": "3. Where information comes from"
@@ -711,7 +711,7 @@
       },
       {
         "title": "9. Retention",
-        "body": "Waitlist data is kept for up to 12 months."
+        "body": "Waitlist, enquiry and report data are each kept for up to 12 months."
       },
       {
         "title": "10. Deletion and your rights"
@@ -858,7 +858,7 @@
       "contact": "Contact for follow-up",
       "contactPlaceholder": "Email or phone",
       "consentLabel": "Consent",
-      "consent": "I consent to Adulis using this information to review and follow up on this report.",
+      "consent": "I consent to Adulis using this information to review and follow up on this report. Report data is kept for up to 12 months.",
       "consentLink": "Privacy →"
     },
     "submit": "Submit report",
@@ -923,7 +923,8 @@
       "expiresIn": "Code expires in {time}",
       "resendIn": "Resend available in {time}",
       "submit": "Verify code",
-      "error": "That code was not correct. Check it and try again."
+      "error": "That code was not correct. Check it and try again.",
+      "intro": "Enter the six-digit code sent to the number you gave."
     },
     "confirm": {
       "title": "Confirm account deletion",
@@ -978,8 +979,12 @@
       "cta": "Contact Adulis →"
     },
     "errors": {
+      "phoneInvalid": "Enter a full phone number including the area code.",
+      "otpInvalid": "That code was not correct. Check it and try again.",
+      "confirmRequired": "Confirm you understand this action is irreversible.",
       "expired": "That code or session expired. Start again with your phone number.",
-      "rateLimited": "Too many attempts. Wait a few minutes and try again."
+      "rateLimited": "Too many attempts. Wait a few minutes and try again.",
+      "invalid": "That was not accepted. Check it and try again."
     },
     "unreachable": {
       "title": "Self-service deletion is unavailable right now",

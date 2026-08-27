@@ -32,9 +32,34 @@ test.describe('§6.4 analytics payload', () => {
     expect(String(out.reason).length).toBeLessThanOrEqual(64);
   });
 
+  test('the event list is exactly ADU-WEB-01 §12', () => {
+    // ADU-DB-01 C7 shares this registry with the platform, where
+    // analytics.event_definition is append-only. A name invented here is
+    // permanent, so the list is checked against the specification, not just
+    // against itself.
+    expect([...ANALYTICS_EVENTS].sort()).toEqual(
+      [
+        'buyer_door_clicked',
+        'deletion_blocked',
+        'deletion_requested',
+        'language_switched',
+        'seller_door_clicked',
+        'waitlist_field_abandoned',
+        'waitlist_form_viewed',
+        'waitlist_submitted',
+        'waitlist_validation_failed'
+      ].sort()
+    );
+  });
+
   test('every declared event is recognised and nothing else is', () => {
     for (const event of ANALYTICS_EVENTS) expect(isAnalyticsEvent(event)).toBe(true);
     expect(isAnalyticsEvent('page_view')).toBe(false);
+    // Retired: a generic event beside buyer_/seller_door_clicked recorded the
+    // same fact twice, and names in the shared registry are permanent.
+    expect(isAnalyticsEvent('door_clicked')).toBe(false);
+    // Not in ADU-WEB-01 §12, so deliberately absent until it is written there.
+    expect(isAnalyticsEvent('contact_submitted')).toBe(false);
     expect(isAnalyticsEvent('waitlist_submitted; DROP TABLE')).toBe(false);
     expect(isAnalyticsEvent(42)).toBe(false);
   });

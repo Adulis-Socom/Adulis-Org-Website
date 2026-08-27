@@ -155,7 +155,7 @@ than discarding them silently.
 
 Analytics is the exception and ships. It carries counts only — no IP, no
 persistent identifier — so it is not personal data. The property is recorded in
-[`docs/dpia-analytics.md`](docs/dpia-analytics.md) and enforced by a property
+[`docs/dpia-notes.md`](docs/dpia-notes.md) and enforced by a property
 allowlist plus a `check:copy` rule that fails if the beacon route so much as
 mentions a user-agent or a cookie.
 

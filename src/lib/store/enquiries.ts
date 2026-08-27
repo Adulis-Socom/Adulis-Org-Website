@@ -94,17 +94,28 @@ export class WebhookEnquiryStore<T> implements EnquiryStore<T> {
 }
 
 /**
- * Both forms deliver to the same configured destination as the waitlist, tagged
- * with `kind`. One destination is one thing for the founders to configure and
- * one thing to assess, rather than three.
+ * `ENQUIRY_WEBHOOK_URL`, separate from the waitlist destination.
+ *
+ * These first shared `WAITLIST_WEBHOOK_URL` on the reasoning that one
+ * destination is one thing to configure and one thing to assess. That was wrong
+ * in one direction that matters: a waitlist application and a report alleging
+ * that a named seller is selling counterfeit goods are different sensitivity
+ * classes, and pointing them at one endpoint makes them one decision when they
+ * should be two.
+ *
+ * ⚠ **Setting this variable is choosing a processor.** It sends a name, an email
+ * address and free-text complaint content to whatever is on the other end. That
+ * is the Article 22 decision arriving through a different door, not a way round
+ * it. The adapter is correct precisely because it defers the choice to whoever
+ * sets the variable — it does not make the choice.
  */
 export function contactStore(): EnquiryStore<ContactRecord> | null {
-  const url = process.env.WAITLIST_WEBHOOK_URL;
+  const url = process.env.ENQUIRY_WEBHOOK_URL;
   return url ? new WebhookEnquiryStore<ContactRecord>(url, 'contact') : null;
 }
 
 export function reportStore(): EnquiryStore<ReportRecord> | null {
-  const url = process.env.WAITLIST_WEBHOOK_URL;
+  const url = process.env.ENQUIRY_WEBHOOK_URL;
   return url ? new WebhookEnquiryStore<ReportRecord>(url, 'report') : null;
 }
 

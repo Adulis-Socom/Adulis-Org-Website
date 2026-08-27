@@ -3,7 +3,6 @@
 import { headers } from 'next/headers';
 import { clientKey, rateLimit } from '@/lib/ratelimit';
 import { spreadsheetSafeRecord } from '@/lib/spreadsheet-safe';
-import { track } from '@/lib/analytics';
 import { contactStore, purgeAfterFor, type ContactRecord } from '@/lib/store/enquiries';
 import {
   checked,
@@ -54,7 +53,6 @@ export async function submitContact(_prev: FormState, data: FormData): Promise<F
 
   const { allowed } = rateLimit(clientKey(requestHeaders, 'contact'), { limit: 5 });
   if (!allowed) {
-    track('contact_validation_failed', { reason: 'rate_limited' });
     return { ok: false, errors: { _form: 'rateLimited' }, values };
   }
 
@@ -87,7 +85,6 @@ export async function submitContact(_prev: FormState, data: FormData): Promise<F
   if (!checked(data, 'consent')) set('consent', 'consentRequired');
 
   if (Object.keys(errors).length > 0) {
-    track('contact_validation_failed', { fields: Object.keys(errors).join(',') });
     return { ok: false, errors, values };
   }
 
@@ -127,6 +124,5 @@ export async function submitContact(_prev: FormState, data: FormData): Promise<F
     return { ok: false, errors: { _form: 'unexpected' }, values };
   }
 
-  track('contact_submitted');
   return { ok: true, errors: {}, values: {}, reference };
 }

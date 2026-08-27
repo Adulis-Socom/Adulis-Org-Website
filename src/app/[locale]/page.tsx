@@ -68,6 +68,7 @@ export default async function HomePage({ params }: LocaleParams) {
           title={t('buyerDoorTitle')}
           linkLabel={t('buyerDoorLink')}
           href={ROUTES.forBuyers}
+          event="buyer_door_clicked"
         />
         <p className="card-body mt-2">{t('buyerDoorBody')}</p>
       </section>

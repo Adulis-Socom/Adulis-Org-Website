@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Link } from '@/i18n/routing';
+import { DoorLink } from './DoorLink';
 
 type CardVariant = 'plain' | 'sunken' | 'tint';
 
@@ -49,18 +49,19 @@ export function SectionTitle({ children }: { children: ReactNode }) {
 export function DoorBand({
   title,
   linkLabel,
-  href
+  href,
+  event
 }: {
   title: string;
   linkLabel: string;
   href: string;
+  /** ADU-WEB-01 §12: whether the seller/buyer split is right, and the reverse. */
+  event: 'buyer_door_clicked' | 'seller_door_clicked';
 }) {
   return (
     <div className="door flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
       <h2 className="text-h3 text-ink">{title}</h2>
-      <Link href={href} className="link-arrow-target">
-        {linkLabel}
-      </Link>
+      <DoorLink href={href} label={linkLabel} event={event} />
     </div>
   );
 }

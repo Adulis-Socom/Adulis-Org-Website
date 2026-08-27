@@ -320,8 +320,49 @@ const CATALOGUE_KEY = /"logIn"\s*:/;
   );
 }
 
+/* ------------------------------------------------------------------------- *
+ * Every form on this site works without JavaScript.
+ *
+ * A form advances by posting to a server action (`action={...}`). A form that
+ * advances in an `onSubmit` handler with `preventDefault` works only when a
+ * bundle arrives, which is exactly the person this site is built for failing.
+ *
+ * The deletion flow shipped that way for one build and nobody noticed, because
+ * it is gated off and a reviewer in a normal browser sees it work. It is also
+ * the app-store gate, so it must not depend on a bundle.
+ *
+ * ⚠ This is a source check because the deletion flow cannot be driven end to end
+ * while `DELETION_FLOW_ENABLED` is false and no API exists. It asserts the
+ * mechanism, not the journey. When the flag flips, the journey needs a real
+ * no-JavaScript test.
+ * ------------------------------------------------------------------------- */
+{
+  const hits = [];
+  for (const file of walk(join(ROOT, 'src/components'))) {
+    if (!/\.tsx$/.test(file)) continue;
+    const body = stripComments(readFileSync(file, 'utf8'));
+    if (!/<form/.test(body)) continue;
+
+    const path = rel(file);
+    const forms = body.match(/<form[\s\S]{0,400}?>/g) ?? [];
+    for (const tag of forms) {
+      if (!/\saction=/.test(tag)) {
+        hits.push(`${path}: a <form> with no action — it cannot work without JavaScript`);
+      }
+    }
+    if (/onSubmit=/.test(body)) {
+      hits.push(`${path}: uses onSubmit; forms here advance through a server action`);
+    }
+  }
+  report(
+    'every form works without JavaScript',
+    'A form that advances in onSubmit works only when a bundle arrives.',
+    hits
+  );
+}
+
 if (failed > 0) {
   console.error(`copy check failed: ${failed} invariant(s) violated.\n`);
   process.exit(1);
 }
-console.log(`copy: ${CHECKS.length + 6} invariants hold`);
+console.log(`copy: ${CHECKS.length + 7} invariants hold`);
