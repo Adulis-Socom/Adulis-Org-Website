@@ -129,12 +129,21 @@ The adapters are correct precisely because they defer the choice to whoever sets
 the variable. They do not make it, and setting a variable is not a smaller
 decision than writing a database binding.
 
-Contact and report use a **separate** variable from the waitlist. They first
-shared one, on the reasoning that one destination is one thing to assess. That
-was wrong in the direction that matters: a waitlist application and a report
-alleging that a named seller is selling counterfeit goods are different
-sensitivity classes, and one endpoint makes them one decision when they should be
-two.
+**Three destinations, three decisions.** `WAITLIST_WEBHOOK_URL`,
+`ENQUIRY_WEBHOOK_URL` and `REPORT_WEBHOOK_URL` are separate variables.
+
+They began as one, on the reasoning that one destination is one thing to assess.
+That was wrong twice over, and the same test separates them each time: **does the
+record contain something the other does not?**
+
+- A waitlist application is a person volunteering their own details.
+- A contact enquiry adds free text and an email address.
+- **A report contains allegations about a named third party who never visited
+  this site and consented to anything.** That is not a difference of degree.
+
+The report destination also carries a 24-hour response commitment the others do
+not, and the moderation-record retention interaction below. It should plausibly
+be reachable by fewer people than a press enquiry inbox.
 
 ### Retention
 

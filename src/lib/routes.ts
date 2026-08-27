@@ -33,6 +33,49 @@ export const ROUTES = {
 export type RouteKey = keyof typeof ROUTES;
 export type RoutePath = (typeof ROUTES)[RouteKey];
 
+/**
+ * Why a route is not indexable, in one place.
+ *
+ * This used to live in fifteen separate `generateMetadata` calls. That was fine
+ * while nothing else needed it — and then `sitemap.ts` did, and a second copy of
+ * "which routes may be indexed" is the exact drift this file exists to prevent.
+ * A sitemap listing routes the site tells crawlers to ignore is a contradiction
+ * search engines act on.
+ *
+ * `unbuilt` — real content, but something inside it is still undecided. The four
+ * legal pages have placeholder bodies; contact has no working addresses; report
+ * has no reason categories.
+ *
+ * `unlisted` — complete and deliberately not advertised. `/delete-account` is
+ * reachable from the footer and from app-store metadata, and that is the whole
+ * audience for it.
+ *
+ * A route absent from this map is indexable, subject to the two conditions no
+ * route controls: a public site URL existing, and the locale being on offer.
+ */
+export const INDEX_POLICY: Partial<
+  Record<RouteKey, { unbuilt?: boolean; unlisted?: boolean }>
+> = {
+  contact: { unbuilt: true },
+  terms: { unbuilt: true },
+  privacy: { unbuilt: true },
+  sellerTerms: { unbuilt: true },
+  refunds: { unbuilt: true },
+  report: { unbuilt: true },
+  deleteAccount: { unlisted: true }
+};
+
+export function indexPolicy(key: RouteKey): { unbuilt?: boolean; unlisted?: boolean } {
+  return INDEX_POLICY[key] ?? {};
+}
+
+/** The routes a sitemap may list: no policy against them at all. */
+export function indexableRoutes(): RoutePath[] {
+  return (Object.keys(ROUTES) as RouteKey[])
+    .filter((key) => Object.keys(indexPolicy(key)).length === 0)
+    .map((key) => ROUTES[key]);
+}
+
 /** The waitlist form lives on the For Sellers page, at an anchor. */
 export const WAITLIST_HREF = `${ROUTES.forSellers}#waitlist` as const;
 

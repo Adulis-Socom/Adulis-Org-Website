@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES, indexPolicy } from '@/lib/routes';
 import { LegalSections } from '@/components/LegalSections';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
@@ -17,10 +17,10 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'terms' });
   return buildPageMetadata({
+    ...indexPolicy('terms'),
     locale,
     path: ROUTES.terms,
-    title: t('pageTitle'),
-    unbuilt: true
+    title: t('pageTitle')
   });
 }
 

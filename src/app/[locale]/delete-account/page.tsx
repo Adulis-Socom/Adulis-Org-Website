@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES, indexPolicy } from '@/lib/routes';
 import { DeleteAccountFlow } from '@/components/DeleteAccountFlow';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
@@ -12,10 +12,10 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
   // Reachable by URL because both app stores require it, but there is no
   // reason for it to rank.
   return buildPageMetadata({
+    ...indexPolicy('deleteAccount'),
     locale,
     path: ROUTES.deleteAccount,
-    title: t('pageTitle'),
-    unlisted: true
+    title: t('pageTitle')
   });
 }
 

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES, indexPolicy } from '@/lib/routes';
 import { UndecidedFlag } from '@/components/ui';
 import { ContactForm } from '@/components/ContactForm';
 
@@ -14,7 +14,8 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
   // Still `unbuilt`: every address is undecided and the form is not wired, so
   // there is currently no way to contact anyone from this page. Indexing a
   // contact page that cannot deliver a message is worse than not having one.
-  return buildPageMetadata({ locale, path: ROUTES.contact, title: t('pageTitle'), unbuilt: true });
+  return buildPageMetadata({
+    ...indexPolicy('contact'), locale, path: ROUTES.contact, title: t('pageTitle') });
 }
 
 export default async function ContactPage({ params }: LocaleParams) {

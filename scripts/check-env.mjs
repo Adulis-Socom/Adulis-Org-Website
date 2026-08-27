@@ -2,12 +2,13 @@
 /**
  * Refuses to build something that is not deployable.
  *
- * Five things make a build undeployable, and each fails here — at build time,
+ * Six things make a build undeployable, and each fails here — at build time,
  * where somebody is watching — rather than at request time, where nobody is.
  * A runtime warning would scroll past.
  *
  *   WAITLIST_WEBHOOK_URL              no delivery destination for applications
- *   ENQUIRY_WEBHOOK_URL               contact and report submissions refused
+ *   ENQUIRY_WEBHOOK_URL               contact submissions refused
+ *   REPORT_WEBHOOK_URL                report submissions refused
  *   NEXT_PUBLIC_SELLER_CONSOLE_URL    the header's Log in link goes nowhere
  *   WAITLIST_HASH_SECRET              phone numbers keyed with no key
  *   DELETION_FLOW_ENABLED without
@@ -175,6 +176,62 @@ const notes = [];
         '     take a report is not deployable.'
     );
   }
+}
+
+/* ------------------------------------------------------- report destination */
+/*
+ * Separate from ENQUIRY_WEBHOOK_URL on purpose. A report carries allegations
+ * about a named third party who never visited this site and consented to
+ * nothing; a contact enquiry does not. Different sensitivity class, different
+ * destination, different decision.
+ */
+{
+  const url = process.env.REPORT_WEBHOOK_URL;
+  if (url) {
+    let parsed = null;
+    try {
+      parsed = new URL(url);
+    } catch {
+      problems.push('REPORT_WEBHOOK_URL is set but is not a valid URL.');
+    }
+    if (parsed && parsed.protocol !== 'https:' && parsed.hostname !== 'localhost') {
+      problems.push(
+        `REPORT_WEBHOOK_URL must be https (got ${parsed.protocol}//).\n` +
+          '     Reports carry allegations about named third parties.'
+      );
+    } else if (parsed) {
+      notes.push('report destination configured');
+    }
+  } else if (optOut) {
+    notes.push(
+      'WARNING — no report destination.\n' +
+        '     /report-content REJECTS every submission in production, and it is\n' +
+        '     an app-store requirement. Do not deploy this build.'
+    );
+  } else {
+    problems.push(
+      'REPORT_WEBHOOK_URL is not set.\n' +
+        '\n     /report-content refuses every submission without it, and a build\n' +
+        '     that cannot take a report is not deployable.'
+    );
+  }
+}
+
+/* --------------------------------------------------------- public site URL */
+/*
+ * Not required — its absence is a valid, deliberate state that makes every page
+ * noindex and robots.txt disallow everything.
+ *
+ * robots.txt and sitemap.xml read it per request (both are force-dynamic), so
+ * setting it in the deployment environment is enough — it does not have to be
+ * present at build. That was not true at first: they baked at build time, and a
+ * build predating the domain would have served a permanently closed robots.txt
+ * that no runtime variable could reopen.
+ */
+{
+  const url = process.env.NEXT_PUBLIC_SITE_URL;
+  if (url) notes.push(`public site URL: ${url} (robots.txt and sitemap.xml will be generated)`);
+  else notes.push('no NEXT_PUBLIC_SITE_URL — every page noindex, robots.txt disallows all');
 }
 
 /* ------------------------------------------------------------ deletion gates */

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
-import { ROUTES } from '@/lib/routes';
+import { ROUTES, indexPolicy } from '@/lib/routes';
 import { Link } from '@/i18n/routing';
 import { ReportForm } from '@/components/ReportForm';
 
@@ -13,7 +13,8 @@ export async function generateMetadata({ params }: LocaleParams): Promise<Metada
   // Still `unbuilt`: the form is not wired and the reason categories are
   // undecided. This route must resolve — it is an app-store requirement — but it
   // must not be indexed while it cannot actually take a report.
-  return buildPageMetadata({ locale, path: ROUTES.report, title: t('pageTitle'), unbuilt: true });
+  return buildPageMetadata({
+    ...indexPolicy('report'), locale, path: ROUTES.report, title: t('pageTitle') });
 }
 
 export default async function ReportContentPage({ params }: LocaleParams) {

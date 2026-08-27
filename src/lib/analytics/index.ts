@@ -51,10 +51,19 @@
  * `buyer_door_clicked` and `seller_door_clicked`, recording the same fact twice.
  * It existed for one build and is gone.
  *
- * Four events for the contact and report forms are deliberately ABSENT. They are
- * not in ADU-WEB-01 §12, and creating them here would put four permanent names
- * into a shared registry on this repository's say-so. They are proposed in the
- * Checkpoint 4 report instead.
+ * Four events for the contact and report forms are deliberately ABSENT, and this
+ * was ruled on rather than left open — do not add them.
+ *
+ * `waitlist_submitted` exists because the waitlist is the site's only conversion
+ * and has to sit in the same stream as `waitlist_form_viewed` to give a ratio.
+ * Contact and report have no funnel, nobody is optimising contact-form
+ * conversion, and the enquiry stores already answer how many arrived. A
+ * validation-failure rate is real but not actionable at this volume: a
+ * pre-launch site taking dozens of enquiries surfaces a broken form through the
+ * absence of submissions long before a rate would be consulted.
+ *
+ * The asymmetry decides it. Adding them later costs nothing; adding them now and
+ * being wrong costs forever.
  */
 export type AnalyticsEvent =
   | 'waitlist_form_viewed'
