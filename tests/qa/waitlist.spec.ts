@@ -55,7 +55,11 @@ type Record_ = {
 
 async function records(page: Page): Promise<Record_[]> {
   const res = await page.request.get(`${SINK}/records`);
-  return (await res.json()).records as Record_[];
+  const all = (await res.json()).records as (Record_ & { kind?: string })[];
+  // Checkpoint 4 added contact and report deliveries to the same sink. Those
+  // carry a `kind` and no `phone`, so an unguarded `r.phone.includes(...)` throws
+  // on them — the same shape of failure the readiness-probe records caused.
+  return all.filter((r) => !r.kind && typeof r.phone === 'string');
 }
 
 /** Fill and submit, returning the reference shown on the success screen. */

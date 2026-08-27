@@ -79,6 +79,10 @@ export default function middleware(request: NextRequest) {
   // bootstrap scripts it emits. Setting it only on the response would produce a
   // policy that blocks the framework's own scripts.
   request.headers.set('x-nonce', nonce);
+  // The layout uses this to send only the message namespaces the route's client
+  // components actually need. Next does not expose the pathname to a layout, and
+  // reading it here costs nothing because the request is already passing through.
+  request.headers.set('x-pathname', request.nextUrl.pathname);
   request.headers.set('content-security-policy', csp);
 
   const response = intlMiddleware(request);

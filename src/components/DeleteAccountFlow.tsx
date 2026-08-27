@@ -6,10 +6,15 @@ import { Link } from '@/i18n/routing';
 import { isPlausiblePhone } from '@/lib/validation';
 import { ROUTES } from '@/lib/routes';
 import { DELETION_FLOW_ENABLED } from '@/lib/flags';
+import {
+  completeDeletion,
+  loadDeletionPreview,
+  startDeletion,
+  verifyDeletionCode
+} from '@/actions/deletion';
+import type { DeletionBlocker } from '@/lib/deletion/client';
 
-type Step = 'explain' | 'phone' | 'otp' | 'confirm' | 'blocked' | 'success';
-
-type BlockedItem = { title: string; action: string };
+type Step = 'explain' | 'phone' | 'otp' | 'confirm' | 'blocked' | 'success' | 'unreachable';
 
 const RESEND_SECONDS = 30;
 
@@ -32,7 +37,7 @@ const RESEND_SECONDS = 30;
  * issues no session and grants access to no other surface, and the copy on the
  * phone step says so — there is no web sign-in anywhere on this site.
  */
-export function DeleteAccountFlow() {
+export function DeleteAccountFlow({ apiConfigured = false }: { apiConfigured?: boolean }) {
   const t = useTranslations('deleteAccount');
   // Three items now, not a buyer/seller pair: what deletion does, what is
   // retained, and what this OTP is not. Rendered from the catalogue rather than
@@ -44,6 +49,26 @@ export function DeleteAccountFlow() {
   const [acknowledged, setAcknowledged] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cooldown, setCooldown] = useState(0);
+  const [busy, setBusy] = useState(false);
+
+  /**
+   * The ticket, held here and nowhere else.
+   *
+   * ⚠ Never write this to a cookie, localStorage or sessionStorage, and never
+   * attach it to a request other than preview and confirm. A ticket in a cookie
+   * is a session, and this site has no session — which is the entire reason the
+   * deletion path uses an OTP rather than a sign-in. It dies with this component.
+   */
+  const [ticket, setTicket] = useState<string | null>(null);
+
+  /**
+   * Blockers exactly as the server returned them.
+   *
+   * The server decides what blocks a deletion; this page renders what it is told.
+   * Hard-coding the list would mean a new blocker type on the server silently
+   * disappearing from the page.
+   */
+  const [blockers, setBlockers] = useState<DeletionBlocker[]>([]);
 
   useEffect(() => {
     if (cooldown <= 0) return;
@@ -56,9 +81,26 @@ export function DeleteAccountFlow() {
     setStep(next);
   };
 
+  /** Turns a non-ok result into either an inline error or a step change. */
+  const handleFailure = (status: 'invalid' | 'expired' | 'rateLimited' | 'unreachable', inline: string) => {
+    if (status === 'unreachable') {
+      setStep('unreachable');
+      return;
+    }
+    if (status === 'expired') {
+      // The ticket or the code has expired. Sending someone back to the phone
+      // step is the only honest option — there is nothing left to resume.
+      setTicket(null);
+      setError(t('errors.expired'));
+      setStep('phone');
+      return;
+    }
+    setError(status === 'rateLimited' ? t('errors.rateLimited') : inline);
+  };
+
   // The explanation, then the manual route. No phone entry, no OTP, no confirm,
   // no blocked state. The wording must not imply a self-service path exists.
-  if (!DELETION_FLOW_ENABLED) {
+  if (!DELETION_FLOW_ENABLED || !apiConfigured) {
     return (
       <div className="form-column">
         <h1 className="page-title">{t('heading')}</h1>
@@ -115,10 +157,21 @@ export function DeleteAccountFlow() {
 
         <form
           className="mt-6"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
+            // A format check only, so somebody is not sent to wait for a code
+            // that was never going to arrive. It is not authorisation — the
+            // server owns whether a number gets an OTP, and answers identically
+            // whether or not an account exists.
             if (!isPlausiblePhone(phone)) {
               setError(t('phone.error'));
+              return;
+            }
+            setBusy(true);
+            const result = await startDeletion(phone);
+            setBusy(false);
+            if (result.status !== 'ok') {
+              handleFailure(result.status, t('phone.error'));
               return;
             }
             setCooldown(RESEND_SECONDS);
@@ -148,7 +201,7 @@ export function DeleteAccountFlow() {
             </span>
           </div>
 
-          <button type="submit" className="btn-primary btn-block mt-6">
+          <button type="submit" className="btn-primary btn-block mt-6" aria-busy={busy}>
             {t('phone.submit')}
           </button>
         </form>
@@ -164,11 +217,32 @@ export function DeleteAccountFlow() {
 
         <form
           className="mt-6"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
-            // Mocked. The real implementation verifies this server-side.
-            if (!/^\d{6}$/.test(code)) {
-              setError(t('otp.error'));
+            setBusy(true);
+            const verified = await verifyDeletionCode(phone, code);
+            if (verified.status !== 'ok') {
+              setBusy(false);
+              handleFailure(verified.status, t('otp.error'));
+              return;
+            }
+
+            // The ticket exists only from here, and only in memory.
+            setTicket(verified.data.ticket);
+
+            // The blocked list is requested only AFTER the code is verified, and
+            // never in the same response as the check — otherwise the check
+            // itself becomes an oracle for whether an account exists.
+            const preview = await loadDeletionPreview(verified.data.ticket);
+            setBusy(false);
+            if (preview.status !== 'ok') {
+              handleFailure(preview.status, t('otp.error'));
+              return;
+            }
+
+            if (preview.data.length > 0) {
+              setBlockers(preview.data);
+              go('blocked');
               return;
             }
             go('confirm');
@@ -193,7 +267,7 @@ export function DeleteAccountFlow() {
             {error && <span className="field-error">{error}</span>}
           </div>
 
-          <button type="submit" className="btn-primary btn-block mt-6">
+          <button type="submit" className="btn-primary btn-block mt-6" aria-busy={busy}>
             {t('otp.submit')}
           </button>
 
@@ -201,7 +275,16 @@ export function DeleteAccountFlow() {
             type="button"
             className="btn-secondary btn-block mt-3"
             disabled={cooldown > 0}
-            onClick={() => setCooldown(RESEND_SECONDS)}
+            onClick={async () => {
+              setBusy(true);
+              const again = await startDeletion(phone);
+              setBusy(false);
+              if (again.status !== 'ok') {
+                handleFailure(again.status, t('otp.error'));
+                return;
+              }
+              setCooldown(RESEND_SECONDS);
+            }}
           >
             {t('otp.resend')}
           </button>
@@ -220,12 +303,27 @@ export function DeleteAccountFlow() {
 
         <form
           className="mt-6"
-          onSubmit={(event) => {
+          onSubmit={async (event) => {
             event.preventDefault();
             if (!acknowledged) {
               setError(t('confirm.error'));
               return;
             }
+            if (!ticket) {
+              // Reaching confirm without a ticket means the flow was entered by
+              // something other than a verified code. There is no local path
+              // here by construction, and if one ever appears this refuses it.
+              setStep('phone');
+              return;
+            }
+            setBusy(true);
+            const done = await completeDeletion(ticket);
+            setBusy(false);
+            if (done.status !== 'ok') {
+              handleFailure(done.status, t('confirm.error'));
+              return;
+            }
+            setTicket(null);
             go('success');
           }}
         >
@@ -254,7 +352,7 @@ export function DeleteAccountFlow() {
             </div>
           </div>
 
-          <button type="submit" className="btn-danger btn-block mt-6">
+          <button type="submit" className="btn-danger btn-block mt-6" aria-busy={busy}>
             {t('confirm.submit')}
           </button>
 
@@ -274,12 +372,25 @@ export function DeleteAccountFlow() {
     );
   }
 
-  // Reachable only from a server response that says deletion is blocked. There is
-  // deliberately no client-side transition into this state: it renders a seller's
-  // outstanding orders, payments and claims, and nothing in the browser should be
-  // able to put the page here. The demo button that used to do so is gone.
+  /**
+   * Reachable only from a verified server response.
+   *
+   * There is deliberately no client-side transition into this state: it renders a
+   * seller's outstanding orders, payments and claims, and nothing in the browser
+   * should be able to put the page here. The demo button that used to do so is
+   * gone (security audit 01, F-02).
+   *
+   * ⚠ The list comes from `items[]` as the server returned it. The catalogue
+   * supplies a translated title and action **per reason code**; it does not
+   * supply the list. A blocker whose reason this build has never heard of still
+   * renders, using the server's own `detail` — because a new blocker type
+   * appearing on the server must not silently vanish from the page.
+   */
   if (step === 'blocked') {
-    const items = t.raw('blocked.items') as BlockedItem[];
+    const reasons = t.raw('blocked.reasons') as Record<
+      string,
+      { title: string; action: string } | undefined
+    >;
 
     return (
       <div className="form-column">
@@ -287,12 +398,15 @@ export function DeleteAccountFlow() {
         <p className="lede">{t('blocked.intro')}</p>
 
         <ul className="mt-6 space-y-3">
-          {items.map((item) => (
-            <li key={item.title} className="card-sunken">
-              <p className="tnum card-title">{item.title}</p>
-              <p className="card-body">{item.action}</p>
-            </li>
-          ))}
+          {blockers.map((item, i) => {
+            const known = reasons[item.reason];
+            return (
+              <li key={`${item.reason}-${i}`} className="card-sunken">
+                <p className="card-title">{known?.title ?? t('blocked.unknownTitle')}</p>
+                <p className="card-body">{known?.action ?? item.detail ?? t('blocked.unknownAction')}</p>
+              </li>
+            );
+          })}
         </ul>
 
         <p className="note mt-4">{t('blocked.note')}</p>
@@ -300,6 +414,29 @@ export function DeleteAccountFlow() {
         <Link href={ROUTES.home} className="btn-secondary mt-6">
           {t('blocked.home')}
         </Link>
+      </div>
+    );
+  }
+
+  /**
+   * The API is not answering.
+   *
+   * Today this is the expected outcome: the four endpoints are being built in
+   * adulis-platform and do not exist yet. Nothing here fakes a success path — a
+   * person is told plainly that self-service is unavailable and pointed at the
+   * route that does work.
+   */
+  if (step === 'unreachable') {
+    return (
+      <div className="form-column" role="status">
+        <h1 className="page-title">{t('heading')}</h1>
+        <div className="card-sunken mt-6">
+          <h2 className="section-title">{t('unreachable.title')}</h2>
+          <p className="card-body max-w-prose">{t('unreachable.body')}</p>
+          <Link href={ROUTES.contact} className="btn-primary mt-4">
+            {t('manual.cta')}
+          </Link>
+        </div>
       </div>
     );
   }

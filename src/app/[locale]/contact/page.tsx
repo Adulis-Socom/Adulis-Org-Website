@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import { ROUTES } from '@/lib/routes';
 import { UndecidedFlag } from '@/components/ui';
+import { ContactForm } from '@/components/ContactForm';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
 type Route = { title: string; value: string };
@@ -52,13 +53,14 @@ export default async function ContactPage({ params }: LocaleParams) {
         </div>
       </section>
 
-      {/* The form's markup, validation and delivery are Checkpoint 4. Rendering
-          the fields now with no action behind them would be worse than this:
-          a form that silently discards what a person types is the one failure
-          mode a contact page must not have. */}
+      {/* The form now has an action behind it, which is what Checkpoint 2's
+          placeholder was waiting for. It still cannot accept a live submission:
+          no store is provisioned, so a production build with no destination
+          refuses rather than silently discarding. The gate is legal, not
+          technical. */}
       <section className="section-tight">
         <h2 className="section-title mb-4">{t('formHeading')}</h2>
-        <UndecidedFlag>Not yet accepting submissions — the enquiry form is built in Checkpoint 4.</UndecidedFlag>
+        <ContactForm />
       </section>
 
       <section className="section-tight pb-12">

@@ -25,7 +25,13 @@ export default async function DeleteAccountPage({ params }: LocaleParams) {
 
   return (
     <div className="container-page section">
-      <DeleteAccountFlow />
+      <DeleteAccountFlow
+      // The API URL is server-only, so whether it is configured is passed in
+      // rather than read in the browser. The flow needs BOTH this and
+      // DELETION_FLOW_ENABLED: the flag is a person certifying the seven
+      // conditions in src/lib/flags.ts, the URL is the technical precondition.
+      apiConfigured={Boolean(process.env.DELETION_API_URL)}
+    />
     </div>
   );
 }

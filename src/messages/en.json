@@ -622,7 +622,11 @@
       "messageRequired": "Enter your message.",
       "consentRequired": "Consent is required to submit.",
       "rateLimited": "Too many messages from this connection. Try again later.",
-      "unexpected": "Something went wrong on our side. Your message was not sent — try again."
+      "unexpected": "Something went wrong on our side. Your message was not sent — try again.",
+      "nameTooLong": "Enter a name of 100 characters or fewer.",
+      "emailTooLong": "Enter an email address of 254 characters or fewer.",
+      "subjectTooLong": "Enter a subject of 150 characters or fewer.",
+      "messageTooLong": "Enter a message of 2,000 characters or fewer."
     },
     "success": {
       "title": "Message received",
@@ -630,7 +634,8 @@
       "reference": "Reference: {reference}"
     },
     "privacyTitle": "Privacy principle",
-    "privacyBody": "Institutional routes only. Founders' personal contact details stay private."
+    "privacyBody": "Institutional routes only. Founders' personal contact details stay private.",
+    "errorSummaryTitle": "There is a problem"
   },
   "terms": {
     "pageTitle": "Terms",
@@ -864,13 +869,18 @@
       "contactRequired": "Enter an email address or phone number.",
       "consentRequired": "Consent is required to submit.",
       "rateLimited": "Too many reports from this connection. Try again later.",
-      "unexpected": "Something went wrong on our side. Your report was not sent — try again."
+      "unexpected": "Something went wrong on our side. Your report was not sent — try again.",
+      "whatTooLong": "Describe what is reported in 200 characters or fewer.",
+      "descriptionTooLong": "Describe the issue in 2,000 characters or fewer.",
+      "linkTooLong": "Enter a link of 500 characters or fewer.",
+      "contactTooLong": "Enter a contact of 254 characters or fewer."
     },
     "success": {
       "title": "Report received",
       "body": "Adulis has received the report. The team aims to respond within 24 hours.",
       "reference": "Reference: {reference}"
-    }
+    },
+    "errorSummaryTitle": "There is a problem"
   },
   "deleteAccount": {
     "pageTitle": "Delete my account",
@@ -953,7 +963,9 @@
         }
       },
       "note": "Deletion can proceed after every outstanding item above is cleared.",
-      "home": "Back to home"
+      "home": "Back to home",
+      "unknownTitle": "An outstanding obligation",
+      "unknownAction": "This must be resolved before the account can be deleted."
     },
     "success": {
       "title": "Account deleted",
@@ -964,6 +976,14 @@
       "title": "How to request deletion",
       "body": "Deletion is handled by a person, not by a form on this page. Contact Adulis from the phone number on your account and ask for your account to be deleted. We confirm when it is done, and everything described above applies.",
       "cta": "Contact Adulis →"
+    },
+    "errors": {
+      "expired": "That code or session expired. Start again with your phone number.",
+      "rateLimited": "Too many attempts. Wait a few minutes and try again."
+    },
+    "unreachable": {
+      "title": "Self-service deletion is unavailable right now",
+      "body": "The deletion service is not responding, so this request cannot be completed here. Contact Adulis from the phone number on your account and ask for your account to be deleted — everything described above still applies."
     }
   },
   "forBuyers": {
