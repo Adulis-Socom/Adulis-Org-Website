@@ -60,6 +60,7 @@ export default defineConfig({
         // Separate variable, same sink: the suite asserts on both streams and
         // the sink tags them by `kind`.
         ENQUIRY_WEBHOOK_URL: `http://localhost:${SINK_PORT}/`,
+        REPORT_WEBHOOK_URL: `http://localhost:${SINK_PORT}/`,
         // Present so the suite exercises the keyed phone hash, per-phone rate
         // limiting and double-submission dedupe. Without it those three paths
         // are skipped and the tests covering them silently assert nothing.

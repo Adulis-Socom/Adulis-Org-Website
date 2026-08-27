@@ -114,8 +114,23 @@ export function contactStore(): EnquiryStore<ContactRecord> | null {
   return url ? new WebhookEnquiryStore<ContactRecord>(url, 'contact') : null;
 }
 
+/**
+ * `REPORT_WEBHOOK_URL`, separate again from contact.
+ *
+ * The same test that separated enquiries from the waitlist, applied one level
+ * further — and it separates these too.
+ *
+ * A report contains **allegations about a named third party who never visited
+ * this site and consented to nothing.** Neither a waitlist application nor a
+ * contact enquiry has that property, and it is not a difference of degree. Three
+ * consequences follow: a 24-hour response commitment the other two do not carry,
+ * the moderation-record retention interaction flagged for the lawyer, and a
+ * destination that should plausibly be reachable by fewer people.
+ *
+ * One environment variable and one branch now; a data migration later.
+ */
 export function reportStore(): EnquiryStore<ReportRecord> | null {
-  const url = process.env.ENQUIRY_WEBHOOK_URL;
+  const url = process.env.REPORT_WEBHOOK_URL;
   return url ? new WebhookEnquiryStore<ReportRecord>(url, 'report') : null;
 }
 

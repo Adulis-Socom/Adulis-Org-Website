@@ -265,6 +265,25 @@ drift — which is exactly what produced the reconciliation in
 of 295 strings had survived unchanged. That document is historical; its "Gaps and
 questions" section is not, and lists five things still needing a decision.
 
+## What is left, and what it is blocked on
+
+The code is close to complete. Most of what remains is not engineering.
+
+| Item | Blocked on |
+|---|---|
+| Waitlist, contact and report going live | Article 22 legal opinion · DPIA covering these streams |
+| Deletion flow functioning | The four platform endpoints in `adulis-platform` |
+| Report reason categories | Founder ruling — a taxonomy is policy, not copy |
+| Legal bodies on four pages | Lawyer |
+| Amharic strings, then Ge'ez layout validation | Human translation |
+| Favicon | An icon nobody has drawn — see the placeholder rule in the notes |
+| Real-device performance pass | A physical low-end Android in Addis |
+| End-to-end no-JS pass over the deletion flow | The flag flip — condition 8 in `src/lib/flags.ts` |
+
+`robots.txt` and `sitemap.xml` are done: both read `NEXT_PUBLIC_SITE_URL` per
+request, and the sitemap lists only routes with no entry in `INDEX_POLICY`, so
+it can never advertise a URL the site serves with `noindex`.
+
 ## Traps that have already cost time
 
 Before changing the CSP, the fonts, or anything in the build pipeline, read

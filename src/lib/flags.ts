@@ -41,5 +41,13 @@
  *   6. Constant-time comparison of the submitted code.
  *   7. The blocked list returned only after the code is verified server-side,
  *      never in the same response as the check.
+ *   8. **An end-to-end no-JavaScript pass over all five steps**, with the ticket
+ *      surviving three boundaries. `check:copy` asserts every form carries an
+ *      `action` and none uses `onSubmit`, which proves the flow CAN work without
+ *      a bundle — it cannot prove the five steps chain, because nothing can
+ *      drive them while this flag is false and no API exists.
+ *
+ *      A guard that has only ever asserted a mechanism is the same shape as a
+ *      guard that has only ever passed. This is a precondition, not a follow-up.
  */
 export const DELETION_FLOW_ENABLED = false;
