@@ -290,7 +290,7 @@ No trigger design can reach a tree that does not contain it.
 1. **Enable *Automatically delete head branches*** (`delete_branch_on_merge`,
    currently **false**). The incident is "a branch outlives its PR"; deleting
    the branch at merge removes the shape outright, which no workflow edit can.
-2. **Delete the six stale merged branches.** Their PRs are merged and their
+2. **Delete the seven stale merged branches.** Their PRs are merged and their
    content is in `main`. While they exist they are push targets that produce
    no signal.
 3. **`audit/security-01` and `fix/security-triage` never had a PR.** Decide
