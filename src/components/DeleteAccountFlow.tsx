@@ -70,7 +70,7 @@ export function DeleteAccountFlow({ enabled = false }: { enabled?: boolean }) {
           ))}
         </div>
 
-        <div className="card-sunken mt-6">
+        <div className="card mt-6">
           <h2 className="section-title">{t('manual.title')}</h2>
           <p className="card-body max-w-prose">{t('manual.body')}</p>
           <Link href={ROUTES.contact} className="btn-primary mt-4">
@@ -193,7 +193,7 @@ export function DeleteAccountFlow({ enabled = false }: { enabled?: boolean }) {
         <h1 className="page-title">{t('heading')}</h1>
         {carry}
 
-        <div className="card-sunken mt-6">
+        <div className="card mt-6">
           <h2 className="section-title">{t('confirm.title')}</h2>
           <p className="card-body max-w-prose">{t('confirm.body')}</p>
 
@@ -253,7 +253,7 @@ export function DeleteAccountFlow({ enabled = false }: { enabled?: boolean }) {
           {state.blockers.map((item, i) => {
             const known = reasons[item.reason];
             return (
-              <li key={`${item.reason}-${i}`} className="card-sunken">
+              <li key={`${item.reason}-${i}`} className="card">
                 <p className="card-title">{known?.title ?? t('blocked.unknownTitle')}</p>
                 <p className="card-body">
                   {known?.action ?? item.detail ?? t('blocked.unknownAction')}
@@ -282,7 +282,7 @@ export function DeleteAccountFlow({ enabled = false }: { enabled?: boolean }) {
     return (
       <div className="form-column" role="status">
         <h1 className="page-title">{t('heading')}</h1>
-        <div className="card-sunken mt-6">
+        <div className="card mt-6">
           <h2 className="section-title">{t('unreachable.title')}</h2>
           <p className="card-body max-w-prose">{t('unreachable.body')}</p>
           <Link href={ROUTES.contact} className="btn-primary mt-4">

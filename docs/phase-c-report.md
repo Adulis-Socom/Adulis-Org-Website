@@ -1,0 +1,316 @@
+# Phase C report
+
+Written as the run went, not at the end. Unattended, 4 September 2026, from
+the Phase C work order and ADU-WEB-03 v1.2. Every choice this run could not make
+is in [`decisions-pending.md`](./decisions-pending.md).
+
+**PR:** _(filled in when opened)_
+
+---
+
+## 0 · Before Phase C — the v1.2 amendments
+
+Applied first, as instructed.
+
+| Amendment | Done |
+|---|---|
+| §1 third failure mode | `enforcement.md` §0 now lists all three, with the 231-pixel case |
+| §2 G6 row | Matches v1.2 wording; integration with the real API stays on condition 8 |
+| §3 G11 and G12 rows | G12 now records that the same pixel baseline holds its appearance |
+| §4 **G14** | `tests/qa/messages.spec.ts` — every route, both locales. Anchored to the top-level keys of `en.json`, read at test time |
+| §5 engineering notes | Two entries: a client-component flag is a build-time constant; a policy that blocks the tooling is the policy working |
+
+**G14 observed failing.** `common.onThisPage` deleted from `en.json`, rebuilt,
+run: **8 failed** — the four legal pages in both locales — each naming
+`common.onThisPage` as visible text. Restored, and the key is back.
+
+---
+
+## 1 · Token changes (work order §1)
+
+| Change | Applied |
+|---|---|
+| `surface-2` → `#EFF1F5` | `:root` in `globals.css`; ink on it 14.9:1 |
+| Contained card border → `#DDE1E8` | `--rule-card`, used by `.card` |
+| Focus ring reverses — paper inner, ink outer | `:focus-visible` written as the spec's `box-shadow` |
+| Design rule: no paper-filled control on the ink surface | `.surface-ink` carries `.btn-gold` (ink on gold 5.31:1) or ink controls; documented at the rule |
+| G-row focus test | Adds a **visible-edge** assertion — see the difference below |
+
+**The focus assertion, as implemented.** §1.2 asks that the inner tone contrast
+≥3:1 with the element's own background. No single fixed ring does that on both
+a paper input and an ink button; paper-inner fails the first, ink-inner fails
+the second, and the ruling that made the ring dual-tone was that it must not
+need to know its context. What the requirement protects against is a ring that
+merges on *both* edges. So the test asserts at least one edge is visible — inner
+against the element, or outer against the page — and reports both. It fails the
+merged case on the CTA and passes paper-inner/ink-outer everywhere. Recorded in
+`enforcement.md` under "Where this differs".
+
+_(observed-failing result recorded in §3 · C1 below)_
+
+---
+
+## 2 · The design system (work order §2)
+
+**The Figma file is empty.** `hndzWhYFqg1kLwCaUr0asC` holds one page with zero
+nodes — no Foundations board, no component sets, no variables. Recorded as
+**D1** in `decisions-pending.md`. Phase C proceeded from the text: §1, §2.1,
+§2.2, §2.3 of the work order, plus the palette and derived tokens from the
+Design Direction and Token Rulings. Screenshots in this report are of the
+built components alone; there is nothing to set them beside.
+
+---
+
+## 3 · Phase C
+
+### C1 · Tokens
+
+**Changed:** `tailwind.config.ts`, `src/app/globals.css`, `src/lib/fonts.ts`,
+`src/app/[locale]/layout.tsx`, `scripts/check-font.mjs` (new), `package.json`,
+`tests/qa/design.spec.ts`, `tests/qa/headers-fonts.spec.ts`.
+
+- Every colour is a `var()` into `:root` in `globals.css` — one definition. The
+  nine colours plus the Contained border and the three danger values.
+- The old utility names (`text-ink-muted`, `border-line`, `bg-surface-sunken`,
+  `text-h3`, …) stay as **exact aliases** of the token they now mean, so the
+  token layer changed under 200 class attributes without touching them. Each
+  alias says what it resolves to; they go when no markup uses them.
+- Ten text styles, fixed pixel line heights. `font-display` is Instrument Sans
+  SemiBold with the same Ethiopic tail as the body stack.
+- `rule` and `border-control` are separate. Form fields now sit at 3.08:1 —
+  the existing 1.4.11 failure on the conversion path is closed.
+- Instrument Sans through `next/font/google`, Latin subset, weight 600 only.
+
+**Guards, each observed failing:**
+
+| Guard | Broken by | Result |
+|---|---|---|
+| `check:font` display-face declaration | `weight: ['600', '700']` | exit 1: *weights are [600,700] — expected [600]* |
+| Focus visible-edge assertion | ring reversed to ink inner, paper outer | **1 failed, 3 passed** — the submit button: *inner stop 1:1 against the element (rgb(14,26,51)), outer stop 1:1 against the page*. The input, the wordmark and the summary still had a visible edge, which is why the assertion is "either edge" and not "inner" |
+
+Baseline before the reversal: the four focus cases pass on paper-inner/ink-outer.
+
+**Font bytes, measured.** `/en/for-sellers` after the display face landed:
+
+| File | Bytes |
+|---|---|
+| Inter, Latin | 48,432 |
+| Instrument Sans SemiBold, Latin | 17,232 |
+| **Total** | **65,664** |
+
+The 80,000 cap in `headers-fonts.spec.ts` stays. It was set with headroom above
+51,080; it now sits between the measured 65,664 and the next unwanted addition —
+a second display weight is ~17,000 more and would fail it, which is the right
+outcome. The switcher subset (2,648) fits inside the remaining room for the day
+`AM_ENABLED` flips. D4 closes on that measurement.
+
+**C1 verification (chromium):** design, fonts, axe, console, layout, G14 —
+**282 passed, 1 failed**, and the failure was the new font assertion's own
+regex: `U\+13` matched `U+131`, dotless i, on a correct face. Fixed to
+four-digit Ethiopic blocks; the face was Latin-only and weight 600 throughout.
+
+### C2 · Components
+
+Every state of Button, Field, Card, Tag and Placeholder lives in
+`globals.css` as a class, and the pages consume classes — so the component pass
+is mostly the C1 stylesheet. Markup changed in two places:
+
+- `src/components/ui.tsx` — `InfoCard` gains `contained` and `open`; the three
+  retired names map to `contained` until no page uses them.
+- `src/components/Header.tsx` — the menu trigger's border moves from `rule` to
+  `border-control`: it is a control's boundary, and 1.4.11 applies.
+
+| Component | States | Where |
+|---|---|---|
+| Button | Primary / Secondary / Gold-on-ink / Danger × default, hover, focus, disabled | `.btn-*`, `:focus-visible`, `.btn:disabled` |
+| Field | default, focus, filled, error | `.input` `.select` `.textarea` `.input-invalid` |
+| Card | Contained / Open | `.card` `.card-open` |
+| Tag | Status / Marker | `.tag-status` `.tag-marker` (aliases `badge-beta`, `badge-example`) |
+| Placeholder | Flag / Media | `.placeholder-flag` `.placeholder-media` |
+
+**G11 baselines regenerated** in the pinned container after the deliberate
+restyle — the flag's dashed edge is now gold (a shape, where gold is allowed on
+paper) with ink text; the media box keeps its cross; the EXAMPLE stamp is Label
+size. All three still read as unfinished at a glance.
+
+**The control was then re-proven:** the flag tidied into a solid `rule-card`
+border on `surface-2` — the designed-callout failure G11 exists for — compared
+against the new baselines: **1 failed, 449 differing pixels** (ratio 0.03), the two
+untouched images unchanged. The control survived the restyle.
+
+### C3 · Pages
+
+Five groups. Full suite after each, both engines, runtime recorded.
+
+#### Group 1 — Home · How it works · For sellers (the conversion path)
+
+**Changed:** `src/app/[locale]/page.tsx`, `src/components/ShopPreview.tsx`,
+`src/app/[locale]/how-it-works/page.tsx`, `src/app/[locale]/for-sellers/page.tsx`.
+
+- **Home** opens as §2.3 describes: Tag/Status, Display/XL, Body/L, primary +
+  secondary (the secondary is the existing *How it works* label and route — no
+  new copy). The three value items are Card/Open with generous spacing; the
+  physical-goods block and the cohort block stay Contained, with Open items
+  inside the cohort block and the second primary button.
+- **The one ink surface** is `ShopPreview`: paper heading, on-ink connectors,
+  each invented step a Contained card carrying its EXAMPLE marker. Once per
+  page. The prow is D2.
+- **How it works** and **For sellers** drop the retired card names; the form
+  is neutral, Field components throughout, the error summary a list of links.
+
+**A guarantee touched — by being triggered, not weakened.** The first full-suite
+run after Home was composed failed axe on `/en` and `/am`: the ink surface's
+text rules (paper headings, on-ink body) bled into the three Contained cards
+nested inside it, which sit back on surface-2. Paper on surface-2 measured
+**1.13:1**, on-ink on surface-2 **2.83:1**. G4 caught it on the first pass; a
+screenshot did not. Fixed by stopping those rules at a nested card's edge.
+
+#### Group 2 — For buyers · About
+
+**Changed:** `src/app/[locale]/for-buyers/page.tsx`, `src/app/[locale]/about/page.tsx`.
+Retired card names gone; the three buyer checks are a set and render Open, as
+the value items do on Home. The founders' cards stay Contained around their
+photo placeholders; both `UNDECIDED` flags are untouched.
+
+Authored while group 1's suite was running, and then group 1's suite failed
+on the ink-surface contrast above. Rather than run a sixteen-minute suite
+twice for two alias renames and one grid, **one suite covers groups 1 and 2**
+and is recorded as such.
+
+**Suite (groups 1 + 2, both engines):** first run **799 passed, 8 failed, 1
+skipped, 14.2 min**. Both failure clusters were the suite doing its job on my
+own work:
+
+- **The display-face test (2).** It asserted every loaded "Instrument" face is
+  weight 600, and `next/font` also registers **`Instrument Sans Fallback`** —
+  a local, metric-adjusted stand-in, always loaded, weight normal. The real
+  faces were 600 throughout. The filter now excludes the fallback.
+- **Keyboard focus, WebKit, the three form pages in both locales (6).** Native
+  checkboxes and selects reported *neither outline nor ring*. WebKit paints no
+  author `box-shadow` on native-appearance controls, so a ring built purely
+  from shadow layers is invisible on exactly the controls in the site's only
+  conversion, in Safari. **It had passed for two checkpoints only because
+  Tailwind's `outline-none` leaves a 2px *transparent* outline behind and
+  `focusIsVisible()` counted it.** Two fixes: the ring's ink stop is now a real
+  `outline` at 2px offset over a 2px paper shadow — identical geometry to the
+  spec's two layers, painted everywhere — and the helper no longer counts a
+  transparent outline. The visible-edge assertion reads the outline as the
+  outer stop.
+
+Targeted re-run after both fixes — keyboard, design, fonts, **both engines**:
+**243 passed, 1 skipped, 0 failed** (3.9 min). The reversal break was then
+re-run under the outline mechanism, since the edge measurement's outline path
+had only been exercised in the passing direction: **1 failed, 3 passed** — the submit button again, *inner stop 1:1 against the element, outer stop 1:1 against the page*. Same case, same numbers, through the outline path.
+
+**A correction to the cadence.** Groups 3 and 4 were authored while this suite
+was queued, and `next build` builds the working tree, not the git index — so
+this run validated **groups 1 through 4**, whatever the staging said. It is
+recorded as such and the four groups are committed together, because that is
+what was tested. Group 5 gets its own build and suite.
+
+Full suite, second run (groups 1–4, both engines): **805 passed, 2 failed, 1
+skipped, 13.6 min (818 s)**. The two were the deletion journey's retired-class
+selector, described under group 4; with the structural locator the journey
+spec passes **8 of 8** in both engines against the same build. Effective:
+**807 passing, 0 failing, 1 skipped.**
+
+#### Group 3 — Trust & Safety · Prohibited Products (the evidentiary register)
+
+**Changed:** `src/app/[locale]/trust-and-safety/page.tsx`,
+`src/app/[locale]/prohibited-products/page.tsx`.
+
+Paper ground, ink text, **no gold, no surfaces, no Contained cards**. Every
+section on Trust & Safety is Card/Open: boundaries, verification, the ladder
+(a table from `md`, Open rows below it), its notes, reviews, claims,
+moderation, and the closing routes with no fill. Published statistics are a
+**hairline-separated single-column list** rather than a grid of cards.
+Prohibited Products follows: Open category cards, Open note block. The
+`UNDECIDED` flag on the ladder thresholds is untouched, and the EXAMPLE marker
+stays absent from the ladder — those level names are real.
+
+Trust & Safety now reads plainer than Home. That contrast is the point.
+
+#### Group 4 — Help · Contact · Report content · Delete account
+
+**Changed:** `src/app/[locale]/contact/page.tsx`, `src/components/ReportForm.tsx`,
+`src/components/ContactForm.tsx`, `src/components/WaitlistForm.tsx`,
+`src/components/DeleteAccountFlow.tsx`.
+
+Retired card names only — eight occurrences, every grey block is Contained.
+Help's `<details>` accordion and its door are unchanged; the report-content
+reason category stays a flagged placeholder; the deletion flow's markup is
+untouched (its journey is G6's subject and nothing here may move it).
+
+After this group, **no markup in `src` carries `card-sunken`, `card-tint`,
+`variant="sunken"` or `variant="tint"`** — verified by grep. The aliases in
+`globals.css` and `ui.tsx` are removed in group 5.
+
+**Suite:** covered by the groups 1–4 run above. It found one coupling of its
+own: the deletion journey's blocked-branch test located items by
+`ul li.card-sunken`, a styling class the restyle retired, and failed in both
+engines the moment the name went. A journey test coupled to a token asserts
+the token. It now locates the list structurally (`main ul li`).
+
+---
+
+## 4 · Everything else (work order §4)
+
+### 4.1 `sharp` — still closed
+
+`npm run check:assets` after the design pass: *no raster assets and no image
+pipeline import (sharp 0.35.4 present but unreachable)*. The design pass added
+no image files — the only new asset is a font, self-hosted by `next/font`, and
+fonts do not touch sharp. SVG stays excluded; `tests/qa/icons.spec.ts` will
+exercise that exclusion the day `icon.svg` lands.
+
+### 4.2 The favicon — pipeline built, artwork not drawn
+
+`tests/qa/icons.spec.ts` reads `src/app` and asserts the state the filesystem
+implies: today, `/icon.svg`, `/apple-icon.png` and `/favicon.ico` are a plain
+**404** and no page carries a `<link rel="icon">` to a file that is not there.
+When the artwork is dropped into `src/app`, the same test asserts 200 with the
+right content-type and the link present. Recorded as D5. **Run: 5 passed** on the 404 branch.
+
+### 4.3 Founder biographies
+
+Two of three are `UNDECIDED` flags. Not written. The About page's flag **is**
+the G11 `undecided-flag` baseline, so its appearance is pinned, and G14 proves
+the copy behind it renders from the catalogue.
+
+### 4.4 Report content reason categories
+
+Still a flagged placeholder inside an otherwise complete form
+(`ReportForm.tsx`). Not invented. It renders through the same `UndecidedFlag`
+component G11 pins.
+
+### 4.5 Suite runtime
+
+_(measured after group 5)_
+
+### 4.6 Docs pass
+
+Reconciled against what the code now does:
+
+| Document | State | Change |
+|---|---|---|
+| `enforcement.md` | Rewritten to v1.2 in §0 above; G6, G11, G12, G14 rows current; focus-ring difference recorded | — |
+| `engineering-notes.md` | Two entries added (§0 amendments) | — |
+| `SECURITY.md` | Current: postcss accepted, `sharp` marked resolved with the override | none needed |
+| `dpia-notes.md` | Current: three forms blocked on Article 22, analytics not personal data | none needed |
+| `manual-qa.md` | **Overstated an open state**: still called Q-01 and Q-02 "expected failures". Both are closed | corrected — the suite is expected green |
+| `README.md` | Stack table said tokens come from the v4.1 wireframes and listed two fonts | corrected — tokens are the `:root` definition; three fonts |
+| `tests/qa/README.md` | Spec index | `messages.spec.ts` and `icons.spec.ts` added |
+
+Nothing was found to overstate *enforcement*; one document overstated a gap.
+
+---
+
+## 5 · Suite runtime
+
+| Run | Wall time | Note |
+|---|---|---|
+| Groups 1–2, first | 853 s (14.2 min) | 8 failures, all the suite's own |
+| Groups 1–4, second | 818 s (13.6 min) | 2 failures, a selector |
+
+Both under the fifteen minutes §4.5 names, on this machine. _(group 5 and the
+decision below)_

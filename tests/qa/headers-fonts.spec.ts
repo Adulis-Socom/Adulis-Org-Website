@@ -248,6 +248,48 @@ test.describe('§2.9 fonts', () => {
     expect(total, `total font bytes on /en: ${total}\n${JSON.stringify(sizes)}`).toBeLessThan(80_000);
   });
 
+  /**
+   * The display face — Phase C. Two things can go wrong silently: it fails to
+   * load and headings render from Inter (nobody notices, because Inter is a
+   * fine face), or it loads with a wider subset than declared and every English
+   * page pays for glyphs no heading uses. `check:font` guards the declaration;
+   * this measures what a browser actually got.
+   */
+  test('the display face loads on /en, Latin-only, one weight', async ({ page }) => {
+    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.waitForTimeout(600);
+
+    // Not the metric-adjusted local stand-in next/font also registers as
+    // "Instrument Sans Fallback": it is a local face, always loaded, weight
+    // normal, and it failed this test in both engines on a correct build.
+    const faces = await page.evaluate(() =>
+      Array.from(document.fonts)
+        .filter((f) => /instrument/i.test(f.family) && !/fallback/i.test(f.family))
+        .map((f) => ({ family: f.family, weight: f.weight, status: f.status, unicodeRange: f.unicodeRange }))
+    );
+    const loaded = faces.filter((f) => f.status === 'loaded');
+    record('fonts.jsonl', { displayFace: faces });
+
+    expect(loaded.length, `no Instrument Sans face loaded on /en:\n${JSON.stringify(faces, null, 2)}`).toBeGreaterThan(0);
+    for (const f of loaded) {
+      expect(f.weight, `display face loaded at weight ${f.weight}; only 600 is declared`).toBe('600');
+      // Latin ranges only. An Ethiopic block here would mean the display stack
+      // is drawing Ge'ez from a face that has none — boxes.
+      //
+      // Four hex digits, bounded. A looser `U\+13` matched U+131 — dotless i,
+      // squarely Latin — and failed a correct face on the first run.
+      expect(
+        /U\+1[23][0-9A-F]{2}\b|U\+2D[89A-D][0-9A-F]\b|U\+AB[0-2][0-9A-F]\b/i.test(f.unicodeRange),
+        `display face claims an Ethiopic range: ${f.unicodeRange}`
+      ).toBe(false);
+    }
+
+    // And headings actually resolve to it. A computed family that starts with
+    // the Inter variable means the display class never reached the element.
+    const h1Family = await page.evaluate(() => getComputedStyle(document.querySelector('h1')!).fontFamily);
+    expect(h1Family, `h1 font-family is "${h1Family}"`).toMatch(/instrument/i);
+  });
+
   test('no Google Fonts origin is contacted at runtime', async ({ page }) => {
     const external: string[] = [];
     page.on('request', (r) => {

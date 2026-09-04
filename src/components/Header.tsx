@@ -94,7 +94,9 @@ export function Header() {
             aria-expanded={open}
             aria-controls={panelId}
             aria-label={open ? t('closeMenu') : t('openMenu')}
-            className="inline-flex h-11 w-11 items-center justify-center rounded border border-line text-ink lg:hidden"
+            // border-control, not rule: this is a control's boundary, and a
+            // person has to find it. 3.08:1 meets WCAG 1.4.11; the hairline did not.
+            className="inline-flex h-11 w-11 items-center justify-center rounded border border-border-control text-ink lg:hidden"
           >
             {open ? <CloseIcon /> : <MenuIcon />}
           </button>

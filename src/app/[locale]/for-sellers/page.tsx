@@ -58,7 +58,7 @@ export default async function ForSellersPage({ params }: LocaleParams) {
         <SectionTitle>{t('getHeading')}</SectionTitle>
         <div className="grid gap-4 md:grid-cols-3">
           {benefits.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} variant="sunken" />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="contained" />
           ))}
         </div>
 
@@ -71,7 +71,7 @@ export default async function ForSellersPage({ params }: LocaleParams) {
             the seller, not Adulis, decides whether a payment is real. A seller
             who does not know that before applying eventually confirms a forged
             receipt and finds out at the worst possible moment. */}
-        <div className="card-tint mt-4">
+        <div className="card mt-4">
           <h3 className="card-title">{t('handleTitle')}</h3>
           <p className="card-body max-w-prose">{t('handleBody')}</p>
         </div>
@@ -81,7 +81,7 @@ export default async function ForSellersPage({ params }: LocaleParams) {
         <SectionTitle>{t('sequenceHeading')}</SectionTitle>
         <div className="grid gap-4 md:grid-cols-3">
           {sequence.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} variant="tint" />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="contained" />
           ))}
         </div>
         {/* Kept verbatim from the specification. An earlier revision blanked this
@@ -100,7 +100,7 @@ export default async function ForSellersPage({ params }: LocaleParams) {
         <SectionTitle>{t('nextHeading')}</SectionTitle>
         <div className="grid gap-4 md:grid-cols-3">
           {next.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} variant="sunken" />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="contained" />
           ))}
         </div>
       </section>

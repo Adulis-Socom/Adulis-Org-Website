@@ -48,7 +48,7 @@ export default async function ContactPage({ params }: LocaleParams) {
       </section>
 
       <section className="section-tight">
-        <div className="card-sunken">
+        <div className="card">
           <h2 className="section-title">{t('locationTitle')}</h2>
           <p className="card-body">{footer('address')}</p>
         </div>

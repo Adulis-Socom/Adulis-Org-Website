@@ -1,12 +1,22 @@
 import type { ReactNode } from 'react';
 import { DoorLink } from './DoorLink';
 
-type CardVariant = 'plain' | 'sunken' | 'tint';
+/**
+ * Two treatments (work order §2.2): `contained` holds a group on the secondary
+ * surface with its own border; `open` is a hairline above and nothing else —
+ * the second container treatment in this system is the absence of a container.
+ *
+ * `plain`, `sunken` and `tint` are retired names for `contained`, kept until
+ * every page has been restyled and then removed.
+ */
+type CardVariant = 'contained' | 'open' | 'plain' | 'sunken' | 'tint';
 
 const CARD_CLASS: Record<CardVariant, string> = {
+  contained: 'card',
+  open: 'card-open',
   plain: 'card',
-  sunken: 'card-sunken',
-  tint: 'card-tint'
+  sunken: 'card',
+  tint: 'card'
 };
 
 /**

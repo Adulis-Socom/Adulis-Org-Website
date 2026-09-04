@@ -15,7 +15,7 @@
     "check:routes": "node scripts/check-routes.mjs",
     "qa": "playwright test",
     "qa:report": "playwright show-report",
-    "check:font": "node scripts/build-ethiopic-subset.mjs",
+    "check:font": "node scripts/check-font.mjs",
     "check:encoding": "node scripts/check-encoding.mjs",
     "check:assets": "node scripts/check-assets.mjs",
     "qa:snapshots": "node scripts/snapshot-container.mjs",

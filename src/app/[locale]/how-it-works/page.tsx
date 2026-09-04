@@ -62,7 +62,7 @@ export default async function HowItWorksPage({ params }: LocaleParams) {
       </section>
 
       <section className="container-page section-tight">
-        <div className="card-tint">
+        <div className="card">
           <h2 className="section-title">{t('findAgain.title')}</h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {findAgain.map((item) => (
@@ -73,7 +73,7 @@ export default async function HowItWorksPage({ params }: LocaleParams) {
       </section>
 
       <section className="container-page section-tight pb-12">
-        <div className="card-sunken">
+        <div className="card">
           <h2 className="section-title">{t('moneyTitle')}</h2>
           <p className="card-body max-w-prose">{t('moneyBody')}</p>
         </div>

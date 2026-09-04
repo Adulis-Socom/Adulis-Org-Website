@@ -89,6 +89,8 @@ check this before anything else.
 | `a11y.spec.ts` | §2.7 axe, WCAG 2.1 AA |
 | `headers-fonts.spec.ts` | §2.8 security headers, §2.9 font loading |
 | `deletion-journey.spec.ts` | ADU-WEB-03 G6 — five steps chained with JS off, on the forced-on instance (port 3212) |
+| `messages.spec.ts` | ADU-WEB-03 G14 — no visible text on any route begins with an `en.json` namespace and a dot |
+| `icons.spec.ts` | Work order §4.2 — the icon pipeline: a deliberate 404 while no artwork exists, 200 the day it does, read from the filesystem |
 | `placeholder-appearance.spec.ts` | ADU-WEB-03 G11 — pixel baselines. Excluded from `npm run qa`; run `npm run qa:snapshots` |
 | `sink.mjs` | Local delivery sink, so the waitlist has a destination — and the deletion API double |
 

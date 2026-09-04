@@ -1,5 +1,31 @@
-import { Inter, Noto_Sans_Ethiopic } from 'next/font/google';
+import { Inter, Instrument_Sans, Noto_Sans_Ethiopic } from 'next/font/google';
 import localFont from 'next/font/local';
+
+/**
+ * The display face — Phase C. Headlines and headings only; body, UI and forms
+ * stay Inter, because the subset pipeline, the `unicode-range` split and the
+ * cmap guard are built around it.
+ *
+ * Same route as Inter (`next/font/google`, self-hosted at build, Latin subset),
+ * one weight: SemiBold is the only weight the ten text styles use, and every
+ * extra weight is another file on the low-end Android this site is built for.
+ *
+ * `scripts/check-font.mjs` reads this declaration and refuses a build where the
+ * subset or the weight list has widened, and `tests/qa/headers-fonts.spec.ts`
+ * measures what actually reaches the browser against the byte budget.
+ *
+ * ⚠ `next/font/google` keeps the real family name. Never write 'Instrument
+ * Sans' as a literal anywhere in CSS — it would match this face and defeat the
+ * `var()` fallback, the same defect that once shipped 198 KB of Ethiopic on
+ * every English page.
+ */
+export const instrument = Instrument_Sans({
+  subsets: ['latin'],
+  weight: ['600'],
+  display: 'swap',
+  variable: '--font-instrument',
+  preload: true
+});
 
 /**
  * The font stack is load-bearing, and this is the fix for a real defect rather

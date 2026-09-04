@@ -112,7 +112,11 @@ test.describe('§7 deletion journey with JavaScript disabled', () => {
 
     await expect(page.getByRole('heading', { name: /temporarily blocked/i })).toBeVisible();
 
-    const items = page.locator('ul li.card-sunken');
+    // Structural, not a class name. This was `ul li.card-sunken` and it broke
+    // the day the restyle retired that name — a journey test coupled to a
+    // styling token asserts the token, not the journey. The blocked page has
+    // one list inside <main>: the blockers.
+    const items = page.locator('main ul li');
     expect(await items.count(), 'the blocked list is empty').toBe(3);
 
     // Two reasons this build knows, rendered from the catalogue.
