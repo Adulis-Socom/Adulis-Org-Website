@@ -549,7 +549,29 @@ looked at.
 
 Full detail and the two options in `decisions-pending.md` **D7**.
 
-### 7.6 The argument for the cadence
+### 7.6 PR #13 merged green — and the next two commits had no CI at all
+
+Worth recording, because it is the same class of gap as §7.5 wearing different
+clothes.
+
+**PR #13 was merged at `dacd097` with all four jobs green.** That is the process
+working: a verified merge, and the first one on this project that can be shown
+to have been verified.
+
+But the closing-rulings work was pushed **after** that merge, and with the PR
+closed there was no open pull request for the branch — so `9dfff9d` and
+`65d1fe9` triggered **no CI run of any kind**. Not a red run: no run. Nothing
+reports that, and nothing would have.
+
+The branch is not the danger; the *appearance of coverage* is. A commit sitting
+on a branch whose PR has closed looks exactly like a commit awaiting review.
+Those two commits are now **PR #14**, with their own run.
+
+Under branch protection this would be moot — the commits could not reach `main`
+unverified. Without it (§7.5), the only control is noticing, which is precisely
+the control that failed twice before.
+
+### 7.7 The argument for the cadence
 
 In `engineering-notes.md`: three of this phase's four findings had been present
 for multiple checkpoints and were passing every check. None would have surfaced

@@ -213,4 +213,11 @@ has to be stated rather than merely not looked at. That is weaker than a gate
 and should not be mistaken for one — nothing currently prevents a third
 unverified merge.
 
+**A third shape of the same gap turned up within the hour.** PR #13 was merged
+green — correctly — and the next two commits were pushed to the branch after it
+closed. With no open PR, they triggered **no CI at all**: not a red run, no run.
+A commit on a branch whose PR has closed is indistinguishable, at a glance, from
+one awaiting review. They are now PR #14. A required status check makes the
+whole category impossible; noticing does not.
+
 ---
