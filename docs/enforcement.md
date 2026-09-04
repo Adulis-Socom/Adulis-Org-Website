@@ -75,7 +75,37 @@ stated scope.
 **Implemented instead:** a separate `runOnly: { type: 'rule' }` pass, so both
 scopes stay exact.
 
-### Focus ring (work order §1.2) — "inner tone" cannot be asserted literally
+### Focus ring — asserted in pixels, not in properties
+
+**The property inspection is gone.** It failed three times, and a guard passed
+every time:
+
+| Failure | Why the guard passed |
+|---|---|
+| Ink inner ring on an ink button | Two colour stops present, both merged with what they touched |
+| Zero-spread offset layer | Colour present, pixels absent |
+| `outline-none` leaving a transparent outline in Safari | Outline present, alpha zero |
+
+Each measured the presence of *something*. The guarantee is that a keyboard
+user can see where they are.
+
+**`tests/qa/focus-pixels.spec.ts`** screenshots the element unfocused, focuses
+it, screenshots again, and requires a real difference in the 8px band
+immediately outside its bounds. Seven controls — including the native checkbox
+and select that WebKit refuses to paint a box-shadow on — in both engines.
+
+Measured rather than guessed: signal **21.1%–45.8%** of the band, noise
+**0.0%, zero pixels, on all fourteen cases** with the ring reduced to a
+transparent outline. Threshold 0.10. All three failures above land on zero.
+
+It needs no pinned container, unlike G11: it compares two screenshots from the
+same browser seconds apart, so the platform cancels. That is what lets it run
+in the ordinary suite on every push instead of in a container job.
+
+The dual-tone stop check is kept as a cheap pre-filter and still reports both
+edges, but **the pixel difference is the guarantee**.
+
+### The edge measurement — why "inner tone" cannot be asserted literally
 
 §1.2 asks that the inner stop contrast ≥3:1 with the element's own background.
 **No single fixed ring satisfies that on both a paper input and an ink button**:

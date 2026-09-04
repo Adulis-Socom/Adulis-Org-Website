@@ -58,6 +58,22 @@ image, and CI compares them in that same image rather than on the bare runner �
 `npm run qa` leaves them out entirely unless `QA_SNAPSHOTS=1`. See the header of
 `tests/qa/placeholder-appearance.spec.ts` for why the pin is the point.
 
+### Reporting a branch as done
+
+State the PR URL **and its check status**, never the URL alone.
+
+⚠ **A red pull request can be merged on this repository.** Branch protection
+and rulesets both require a paid plan or a public repo, and this org is on the
+free plan with a private repo — see `docs/decisions-pending.md` D7. Work has
+reached `main` unverified twice: Checkpoints 2–3 (no PR opened) and Phase A (PR
+merged while CI was failing at `npm ci`, so not one of 723 tests ran).
+
+Until a plan change makes a gate possible, the check status is the control:
+
+```bash
+gh pr checks            # or the Actions tab for the head commit
+```
+
 Copy `.env.example` to `.env.local` before deploying anywhere real. Leaving
 `NEXT_PUBLIC_SITE_URL` unset is deliberate: the layout emits
 `robots: noindex, nofollow` whenever it is missing.

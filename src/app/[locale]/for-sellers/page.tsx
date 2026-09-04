@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import { ROUTES } from '@/lib/routes';
-import { InfoCard, SectionTitle } from '@/components/ui';
+import { DisplayHeading, InfoCard, SectionTitle } from '@/components/ui';
 import { WaitlistForm } from '@/components/WaitlistForm';
 import { track } from '@/lib/analytics';
 
@@ -36,7 +36,7 @@ export default async function ForSellersPage({ params }: LocaleParams) {
   return (
     <div className="container-page">
       <section className="section">
-        <h1 className="page-title">{t('heading')}</h1>
+        <DisplayHeading lead={t('heading')} accent={t('headingAccent')} />
         <p className="lede">{t('sub')}</p>
 
         {/* A button, not a bold text link. This is the page's only job. */}

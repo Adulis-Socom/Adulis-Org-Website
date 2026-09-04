@@ -136,11 +136,11 @@
      carried the token layer through the page-by-page restyle and were removed
      in group 5 once no markup used them.) */
   .card {
-    @apply rounded border border-rule-card bg-surface-2 p-4 md:p-5;
+    @apply rounded border border-rule-card bg-surface-2 p-4 md:p-6;
   }
 
   .card-open {
-    @apply border-t border-rule pt-4 md:pt-5;
+    @apply border-t border-rule pt-4 md:pt-6;
   }
 
   /* The one band on a page that changes audience -- seller side to buyer side,
@@ -227,8 +227,10 @@
   }
 
   /* ----------------------------------------------------------- buttons */
+  /* 50px tall, per the Figma Button set: 26px line + 12px top and bottom. The
+     44px floor stays as the invariant it is — this exceeds it. */
   .btn {
-    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded px-5 py-2.5 text-body font-semibold transition-colors;
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded px-5 py-3 text-body font-semibold transition-colors;
   }
 
   .btn-primary {
@@ -237,8 +239,11 @@
 
   /* An outlined control's boundary is a component boundary: border-control,
      not rule, so it meets 3:1 (WCAG 1.4.11). */
+  /* py-[11px], not py-3: this button has a 1px boundary top and bottom, and
+     border-box counts it. 11 + 1 = 12, so it matches the primary at 50px
+     rather than standing 2px taller in the same row. */
   .btn-secondary {
-    @apply btn border border-border-control bg-paper text-ink hover:bg-surface-2;
+    @apply btn border border-border-control bg-paper py-[11px] text-ink hover:bg-surface-2;
   }
 
   /* On the ink surface: gold fill, ink text (5.31:1). The only primary control
@@ -344,18 +349,26 @@
      Tag/Status: a state the reader should register — the beta chip.
      Tag/Marker: a truthfulness control — the EXAMPLE stamp on invented cards.
      Both are Label-sized; there is no smaller text style. */
+  /* Status: a filled pill, no boundary. Quiet by design — it reports a state,
+     it does not ask to be read first. */
   .badge-beta,
   .tag-status {
-    @apply inline-flex items-center rounded-pill border border-rule-card bg-surface-2 px-3 py-1 text-label font-medium text-ink;
+    @apply inline-flex items-center rounded-pill bg-surface-2 px-3 py-1 text-label font-medium text-slate;
   }
 
   /* Illustrative seller cards only -- the home hero and the How-it-works shop
      mock. Never the trust ladder: New, Established and Trusted are real level
      names, and only their thresholds are undecided.
      Slate on surface-2 is 5.56:1, above the 4.5 a marker this size needs. */
+  /* Marker: an OUTLINED pill in ink on paper — the Figma Tag set's treatment,
+     and the opposite of Status on purpose. This is a truthfulness control: the
+     seller name, price, stock time and order count on those cards are invented
+     and this label is the only thing that says so, so it is the one label that
+     must never be missed. It sits on surface-2 cards, where a paper fill and an
+     ink edge both separate it from the card. Ink on paper is 17.4:1. */
   .badge-example,
   .tag-marker {
-    @apply inline-flex items-center rounded bg-surface-2 px-2 py-0.5 text-micro font-semibold uppercase text-slate;
+    @apply inline-flex items-center rounded-pill border border-ink bg-paper px-3 py-0.5 text-micro font-semibold uppercase text-ink;
   }
 
   .badge-level {
@@ -368,8 +381,13 @@
      these and fails when either is tidied into something that reads as
      designed. The dashed gold edge is a shape, which is where gold is allowed on
      paper; the text stays ink, because gold at 14px on paper fails AA. */
+  /* Dashed neutral on paper, per the Figma Placeholder set.
+     ⚠ Not gold. Gold was tried and is wrong twice over: the ruling permits no
+     gold on an evidentiary page, and UNDECIDED flags appear on Trust & Safety
+     and all four legal pages, which are exactly those. A dashed edge and the
+     word UNDECIDED carry it without a colour that means something else here. */
   .placeholder-flag {
-    @apply rounded border border-dashed border-gold bg-gold/10 px-2 py-1 text-body-s text-ink;
+    @apply rounded border border-dashed border-border-control bg-paper px-4 py-3 text-body-s font-semibold text-ink;
   }
 
   .placeholder-line {
@@ -380,13 +398,13 @@
      measured 3.02:1, below the 4.5:1 AA floor, and it was the only axe
      violation in the whole suite (QA report 01, Q-02). */
   .placeholder-media {
-    @apply relative flex items-center justify-center rounded border border-rule-card
-           bg-surface-2 text-micro font-semibold uppercase text-slate;
+    @apply relative flex items-center justify-center rounded border border-dashed
+           border-border-control bg-surface-2 text-micro font-semibold uppercase text-slate;
     background-image:
       linear-gradient(to top right, transparent calc(50% - 0.5px),
-        rgb(var(--rule-card)) 50%, transparent calc(50% + 0.5px)),
+        rgb(var(--border-control)) 50%, transparent calc(50% + 0.5px)),
       linear-gradient(to bottom right, transparent calc(50% - 0.5px),
-        rgb(var(--rule-card)) 50%, transparent calc(50% + 0.5px));
+        rgb(var(--border-control)) 50%, transparent calc(50% + 0.5px));
   }
 
   .skip-link {

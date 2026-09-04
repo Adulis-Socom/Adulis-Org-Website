@@ -5,7 +5,7 @@ import { ROUTES } from '@/lib/routes';
 import { Link } from '@/i18n/routing';
 import { WAITLIST_HREF } from '@/lib/nav';
 import { ShopPreview } from '@/components/ShopPreview';
-import { DoorBand, InfoCard, SectionTitle } from '@/components/ui';
+import { DisplayHeading, DoorBand, InfoCard, SectionTitle } from '@/components/ui';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
 type Item = { title: string; body: string };
@@ -41,7 +41,7 @@ export default async function HomePage({ params }: LocaleParams) {
               copy decision, recorded as D6 in docs/decisions-pending.md. The
               `.display-gold` class is ready for the span once that lands. */}
           <p className="tag-status">{common('betaBadge')}</p>
-          <h1 className="display mt-5">{t('heading')}</h1>
+          <DisplayHeading lead={t('heading')} accent={t('headingAccent')} className="display mt-5" />
           <p className="lede">{t('sub')}</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link href={WAITLIST_HREF} className="btn-primary">
