@@ -43,22 +43,34 @@ export function InfoCard({
 }
 
 /**
- * A two-line display headline, with the second line in gold.
+ * A display headline with one phrase in gold.
  *
- * The rule, so it is not a per-page judgement: **gold carries the second line
- * of a two-line display headline, never the first.** The first line names the
- * subject; the second names the outcome — the thing the reader is being
- * offered — and that is where the emphasis belongs. One gold phrase per page
- * keeps it meaningful.
+ * > **Gold marks a phrase, not a line.** Choose the words once. They stay gold
+ * > at every width, in every locale. The phrase names the **outcome** — what
+ * > the reader is being offered, not the subject — and is short enough that it
+ * > never exceeds roughly half the rendered headline at 360px.
+ *
+ * ⚠ The earlier rule said *the second line of a two-line headline*, and each
+ * part was a block so that "second line" was true of the markup. **That was a
+ * mechanism, and it broke at 360px**: the headline reflowed to four lines, "the
+ * second line" became three of them, and most of the headline went gold with
+ * the emphasis gone. The same failure this project keeps recording — naming the
+ * mechanism when the guarantee is semantic.
+ *
+ * So the accent is now an inline phrase. Where it wraps is the browser's
+ * business; which words are gold is the catalogue's, and it survives reflow and
+ * translation because it is a string rather than a position.
  *
  * ⚠ Relational pages only, and display sizes only. Gold on paper is 3.24:1,
- * which clears AA for large text (≥24px, or ≥18.66px bold) and fails it
- * outright below that — every size this renders at is 32px or more. It must
- * never appear on an evidentiary page: Trust & Safety and Prohibited Products
- * carry no gold at all, headline included.
+ * which clears AA for large text (≥24px, or ≥18.66px bold) and fails outright
+ * below that — every size this renders at is 32px or more. It must never appear
+ * on an evidentiary page: Trust & Safety and Prohibited Products carry no gold
+ * at all, headline included.
  *
- * Each part is a block, so "the second line" is a fact about the markup rather
- * than about where a particular viewport happens to wrap.
+ * ⚠ For translators: the accent is its own catalogue key and must be
+ * translated as its own phrase. It must NOT be derived positionally from the
+ * English — Ge'ez reflows differently again, and a phrase found by counting
+ * words or lines would land on the wrong ones. See src/messages/README.md.
  */
 export function DisplayHeading({
   lead,
@@ -71,8 +83,7 @@ export function DisplayHeading({
 }) {
   return (
     <h1 className={className}>
-      <span className="block">{lead}</span>
-      <span className="display-gold block">{accent}</span>
+      {lead} <span className="display-gold">{accent}</span>
     </h1>
   );
 }

@@ -317,3 +317,37 @@ recorded rather than assumed.
 alternative is finding all of it at the end, in one pile, without knowing which
 change caused which failure. A regression found three groups later costs more
 than the group took, and this phase paid that cost once and never again.
+
+---
+
+## Two sources agreeing is only evidence when they could have disagreed
+
+I reported a Figma file as empty. Two checks agreed: the node in the supplied
+URL had no children, and the tool's page listing returned only that one page.
+Two independent-looking readings, same answer, so I stopped.
+
+They were not independent. **Both resolved the same node**, so they shared a
+blind spot and confirmed each other inside it. The file had three more pages and
+a complete component library on them; one query with a different node id would
+have found it.
+
+The test is not "did two things agree" but **"could they have disagreed?"** Two
+checks that fail the same way under the same condition are one check counted
+twice. Corroboration requires a source that would have said something different
+if the conclusion were wrong.
+
+This generalises well past Figma. The same shape has appeared here as a green
+suite confirming a green local run — same machine, same npm, same blind spot —
+and as a header assertion agreeing with a directive assertion while the browser
+blocked every script on the page.
+
+**Its worst form is a check performed where the defect cannot appear.** The
+push-trigger fix (D8) is the clearest instance: for a `push`, GitHub reads the
+workflow from the pushed commit's tree, so the change only works on branches
+that already contain it. Verifying it the obvious way — push to the branch you
+just edited, watch the jobs run — confirms it, on the one branch that cannot
+reveal the problem. Eight other branches were unaffected by the fix and still
+reproduced the incident.
+
+**So ask where the check would have to run to be able to fail.** If the answer
+is "somewhere other than where I ran it", the green means nothing yet.

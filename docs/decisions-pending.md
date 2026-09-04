@@ -135,54 +135,54 @@ from asserting a 404 to asserting 200 with no code change. Carries D2 with it.
 
 ---
 
-## D6 · Which words of the Home headline are gold
+## D6 · Which words are gold
 
-§2.3: *Display/XL headline with the second line in gold.* The headline is one
-catalogue string — "Sell where your audience already knows you." — and where it
-breaks depends on viewport and, later, on the Amharic translation. Choosing the
-words that carry the gold is a copy decision, not a styling one.
+§2.3 asked for *a Display/XL headline with the second line in gold*, leaving
+open which words carry it — a copy decision, not a styling one.
 
-**Done:** the headline renders whole at Display/XL in ink. `.display-gold` is
-defined and unused.
+**RULED — and then corrected, because the first rule was a mechanism.**
 
-**RULED, as a rule rather than a per-page judgement:**
+The first version said *gold carries the second line of a two-line display
+headline*. That is a **visual line**, and at 360px the headline reflows to four:
+"the second line" became three of them, most of the headline went gold, and the
+emphasis was gone. The same failure this project keeps recording — naming the
+mechanism when the guarantee is semantic.
 
-> **Gold carries the second line of a two-line display headline, never the
-> first.** The first line names the subject. The second names the outcome — the
-> thing the reader is being offered. One gold phrase per page keeps it
-> meaningful.
+> **Gold marks a phrase, not a line.**
+>
+> Choose the words once. They stay gold at every width, in every locale. The
+> phrase names the **outcome** — what the reader is being offered, not the
+> subject — and is short enough that it never exceeds roughly half the rendered
+> headline at 360px.
 
 Relational pages only, display sizes only (gold on paper is 3.24:1, which needs
-≥24px). **No gold on any evidentiary page, headline included.**
+≥24px; every size this renders at is 32px or more). **No gold on any evidentiary
+page, headline included.**
 
-**Applied** to the three relational headings that are genuinely two-part, each
-split into `heading` + `headingAccent` and rendered by one `DisplayHeading`
-component:
+**Implemented** as two catalogue strings and one inline span, so the choice
+lives where a translator can see it rather than in a CSS rule reflow can break:
 
-| Page | Subject | Outcome, in gold |
-|---|---|---|
-| Home | "Sell where" | "your audience already knows you." |
-| For sellers | "You already have the audience." | "Stop losing the orders you're already getting." |
-| For buyers | "You followed them." | "This is where you buy from them." |
+| Page | Subject | Outcome, in gold | Gold share at 360px |
+|---|---|---|---|
+| Home | "Sell where your audience" | "already knows you." | **30%** |
+| For sellers | "You already have the audience." | "Stop losing the orders you're already getting." | **37%** |
+| For buyers | "You followed them." | "This is where you buy from them." | **39%** |
 
-*How it works* ("How Adulis works") and *About* ("Why we're building Adulis")
-are single-part and take no gold. Trust & Safety and Prohibited Products are
-evidentiary and take none by rule.
+All three clear the half constraint. **Measured, not estimated** — by rendered
+area at 360px, counting the line-boxes each part actually occupies. A character
+count had put two of them at 60% and 63% and would have prompted a needless
+rewrite of approved copy; the lead text wraps across more line-boxes than its
+length suggests. Same lesson as the snapshot tolerance and the focus threshold.
 
-⚠ **Where each line breaks is a copy judgement**, and it is the one part of this
-that was not ruled.
+*How it works* ("How Adulis works") and *About* ("Why we're building Adulis") are
+single-part and take no gold.
 
-Home's is worth a look before it settles. `Sell where` is two words, so at 360px
-the gold runs to **three of the headline's four lines** — see
-`docs/phase-c-screenshots/360-home.png`. It obeys the rule exactly (gold carries
-the second line) while sitting oddly against *"one gold phrase per page keeps it
-meaningful"*. On desktop at 56px it is one ink line over one gold line, which is
-what the rule describes.
-
-The alternative split, `Sell where your audience` / `already knows you.`, is
-balanced at both sizes and puts the emphasis on the relationship rather than on
-the whole claim. It is two catalogue strings either way, and I have left the
-ruled reading in place rather than substitute my own.
+⚠ **Carried into the translation brief** (`src/messages/README.md`): the accent
+must be translated as its own phrase and **never derived positionally**. Ge'ez
+reflows differently again, so "the second line" or "the last N words" would land
+on the wrong words. If Amharic word order puts the outcome first, the component
+takes its parts in a fixed order and would need changing rather than the copy
+being bent to fit.
 
 ---
 
@@ -200,12 +200,18 @@ an **organization on the free plan** and the repository is **private**, which is
 the combination GitHub excludes. The token used has `repo` scope, so this is a
 plan limit and not a permissions problem.
 
-**The two documented ways out are both decisions, not engineering:**
+**Three options, and the third is not one:**
 
 | Option | Cost |
 |---|---|
-| A paid GitHub plan for the org | A subscription. Restores required checks, and is the only option that makes a red merge *impossible* |
-| Make the repository public | **Forbidden today** — IP registration is incomplete and `README.md` says the repo must stay private |
+| **GitHub Team** | A small per-user monthly fee — check current pricing. Enables required status checks on private repos, and is the only option that makes a red merge *impossible* |
+| Compensating controls only | What exists now. Reporting is not a gate |
+| Make the repository public | **Forbidden.** Nothing goes public before the trademark filing |
+
+**The upgrade is evidenced rather than theoretical.** Two unverified merges have
+already reached `main`, and the platform repository will need the same control
+shortly. Roughly the cost of a coffee a month against a defect class that has
+fired twice in six weeks.
 
 **What exists in the meantime is a compensating control, not enforcement:** the
 reporting format now requires the PR URL **and its check status**, so a red run
@@ -217,7 +223,96 @@ unverified merge.
 green — correctly — and the next two commits were pushed to the branch after it
 closed. With no open PR, they triggered **no CI at all**: not a red run, no run.
 A commit on a branch whose PR has closed is indistinguishable, at a glance, from
-one awaiting review. They are now PR #14. A required status check makes the
-whole category impossible; noticing does not.
+one awaiting review.
+
+**That shape is now closed at the trigger.** `push` fires on every branch, with
+`verify` and `snapshots` on every push (~3 min) and the expensive matrix still
+limited to pull requests and `main` (~22 min, against a 2,000-minute monthly
+allowance). Every push produces a signal, so the one shape a human could not
+catch no longer exists. See `docs/phase-c-report.md` §7.5.
+
+The other two shapes remain possible: a required status check is what makes them
+impossible, and noticing is what is left until the plan allows one.
+
+---
+
+---
+
+## D8 · The push trigger does not reach the branches it was written for
+
+**Found by adversarially reviewing the trigger change, not by it failing.** It
+would have shipped looking correct, and the way it fails is self-concealing.
+
+### The mechanism
+
+For a `push` event, **GitHub resolves the workflow file from the tree of the
+pushed commit, not from `main`.** A branch created before this change still
+carries the old `push: [main]`, so a push to it still matches nothing and still
+runs nothing — which is the incident, unchanged.
+
+State of the repository the day the change was written:
+
+| Branch | `ci.yml` push trigger | PR | Last commit |
+|---|---|---|---|
+| `main` | `[main]` → `['**']` after merge | — | 2026-09-04 |
+| `feat/checkpoint-4` | `['**']` (carries the change) | #10–14, all merged | 2026-09-04 |
+| `ci/qa-blocking` | `[main]` | #6 merged | 2026-08-24 |
+| `feat/backend-checkpoint-1` | `[main]` | #7 merged | 2026-08-26 |
+| `feat/checkpoint-2` | `[main]` | #8 merged | 2026-08-26 |
+| `feat/checkpoint-3` | `[main]` | #9 merged | 2026-08-26 |
+| `test/qa-automation` | `[main]` | #5 merged | 2026-08-24 |
+| `feat/initial-build` | **no workflow file at all** | #3 merged | 2026-08-23 |
+| `audit/security-01` | **no workflow file at all** | none ever | 2026-08-23 |
+| `fix/security-triage` | `[main]` | none ever | 2026-08-23 |
+
+**Eight of the nine branches besides `main` still reproduce the incident**, and
+two of them can never produce a signal from any trigger change, because their
+tree holds no workflow file. Six are branches that outlived a merged PR — the
+exact shape — and two never had a PR at all, which is the *first* shape.
+
+### Why it is self-concealing
+
+Anyone verifying the fix will push to the branch that carries it, watch
+`verify` and `snapshots` run, and conclude it works. It does — there. That is
+the same error as reading one Figma node twice: **a check performed where the
+defect cannot appear.**
+
+### The fix is branch hygiene, not YAML
+
+No trigger design can reach a tree that does not contain it.
+
+1. **Enable *Automatically delete head branches*** (`delete_branch_on_merge`,
+   currently **false**). The incident is "a branch outlives its PR"; deleting
+   the branch at merge removes the shape outright, which no workflow edit can.
+2. **Delete the six stale merged branches.** Their PRs are merged and their
+   content is in `main`. While they exist they are push targets that produce
+   no signal.
+3. **`audit/security-01` and `fix/security-triage` never had a PR.** Decide
+   whether they hold anything wanted; if so, open a PR, and if not, delete them.
+4. Verify by pushing an empty commit to an **old** branch — never to the branch
+   carrying the change.
+
+⚠ **Not done here, because all of it deletes or reconfigures shared state.**
+Steps 1–3 are the founder's to run; the reasoning and the exact list are above
+so it is a few minutes of work rather than an investigation.
+
+### One shape the trigger cannot close either
+
+While a pull request has a **merge conflict**, GitHub runs no `pull_request`
+workflows at all — `refs/pull/N/merge` cannot be computed. The push run still
+goes green on `verify` and `snapshots`, both attach to the head SHA, and the
+merge box reads **"All checks have passed"** with `qa` absent rather than red
+or pending.
+
+Under the old triggers that PR showed an *empty* check list, which is visibly
+wrong. This change replaces it with two reassuring green rows — absence
+rendered as green, which is the presentation a human control cannot catch.
+
+The exposure is narrow: resolving a conflict is a push to the head branch,
+which re-fires everything. It is real only when a base-side change removes the
+conflict with no head push. Closing it properly needs a job that asks the API
+whether the head SHA has completed `qa` check runs — more machinery than this
+repository has wanted so far, and pointless next to simply having a required
+status check (D7). Documented rather than built.
 
 ---

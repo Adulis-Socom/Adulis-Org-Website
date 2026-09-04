@@ -1,20 +1,94 @@
 name: CI
 
+# ⚠ `push` on EVERY branch, not just main. This is the fix for the third shape
+# of the unverified-merge gap, and it is the only one of the three a human
+# cannot catch by looking:
+#
+#   PR never opened .................. nothing ran
+#   PR merged red .................... ran, failed, merged anyway
+#   PR closed, commits pushed after .. nothing ran, AND nothing indicated that
+#
+# The first two are visible to anyone who checks. The third is invisible by
+# construction — a commit on a branch whose PR has closed is indistinguishable
+# from one awaiting review. It happened on this repository within an hour of
+# the second shape being written up.
+#
+# Cost is why this is split rather than "everything on every push". A full run
+# is ~25 billable minutes and the free private-repo allowance is 2,000 a month,
+# so the whole matrix on every push exhausts it in about a fortnight. So:
+#
+#   verify + snapshots  every push, every branch     ~3 min
+#   qa (both engines)   pull_request and main only   ~22 min
+#
+# Every push therefore produces a signal — ON A BRANCH WHOSE TREE CONTAINS THIS
+# FILE. That caveat is the whole rollout problem, and it is self-concealing:
+#
+#   For a `push` event GitHub resolves the workflow from the tree of the pushed
+#   commit, NOT from main. A branch created before this change still carries the
+#   old `push: [main]` and still runs nothing.
+#
+# So merging this fixes main and every branch cut from it afterwards, and fixes
+# NOTHING for the branches that already exist — which are exactly the stale ones
+# the incident happened on. Worse, anyone verifying the fix will push to the
+# branch carrying it, watch the jobs run, and conclude it works everywhere.
+# See docs/decisions-pending.md D8 for the branch-by-branch state and the
+# rollout step, which is branch hygiene rather than YAML.
+#
+# See D7 for why a required status check — the actual gate — is unavailable on
+# this plan.
+#
+# ⚠ One shape this does NOT close, and cannot: while a pull request has a merge
+# conflict, GitHub runs no `pull_request` workflows, because `refs/pull/N/merge`
+# cannot be computed. The push run still goes green on `verify` and `snapshots`,
+# both attach to the head SHA, and the merge box reads "All checks have passed"
+# with `qa` simply absent rather than red or pending. Under the OLD triggers the
+# same PR showed an EMPTY check list, which is visibly wrong; this change
+# replaces that with two reassuring green rows. Resolving the conflict pushes to
+# the head branch and re-fires everything, so the exposure is narrow — but if a
+# base-side change removes the conflict with no head push, the PR reads clean
+# with the matrix never having run. Recorded in D8.
+#
+# The jobs are assigned to events rather than duplicated across them: a push to
+# a branch with an open PR fires BOTH events, so running the fast jobs only on
+# `push` and the matrix only on `pull_request` gives full coverage of the commit
+# with nothing run twice. Both attach to the same SHA, so the PR shows all four.
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: ['**']
+  # An escape hatch that runs everything, for a branch with no PR that needs the
+  # full matrix before one is opened.
+  workflow_dispatch:
 
 # Nothing here needs write access to anything.
 permissions:
   contents: read
 
+# ⚠ Two corrections here, both found by adversarially reviewing this file's own
+# trigger change rather than by it failing.
+#
+# `github.event_name` is in the group because `workflow_dispatch` and `push`
+# resolve `github.ref` to the SAME string on a branch. Without it, dispatching
+# the full matrix on a branch and then pushing a typo fix cancels the matrix —
+# and the push run does not run `qa`, so the one feature whose purpose is
+# getting the matrix without a PR could be voided by the most ordinary action
+# on that branch.
+#
+# `cancel-in-progress` is now false on main. Cancelling is right for a branch,
+# where only the tip matters; on the trunk every commit is a permanent artefact
+# that needs its own verdict. Two merges inside ~14 minutes — an ordinary
+# afternoon — would otherwise cancel the first merge's run mid-webkit and leave
+# that commit with no result at all, showing as a grey "cancelled" that reads
+# like infrastructure noise.
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   verify:
+    # Every push, every branch — the always-on signal. Not on `pull_request`:
+    # the same commit was already pushed, so that would run it twice.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -90,6 +164,13 @@ jobs:
   # Runs in parallel with `verify` — no `needs:` between them — so wall time is
   # the longer of the two (~8.7 min), not the sum.
   qa:
+    # The expensive half — ~22 billable minutes across the two engines. On pull
+    # requests, on main, and on demand; not on every branch push, which would
+    # exhaust the monthly allowance in a fortnight.
+    if: >-
+      github.event_name == 'pull_request' ||
+      github.event_name == 'workflow_dispatch' ||
+      github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -178,6 +259,8 @@ jobs:
   # and scripts/snapshot-container.mjs move with it, and the baselines are
   # regenerated in the same commit.
   snapshots:
+    # Every push, every branch, for the same reason as verify. ~100s warm.
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     container: mcr.microsoft.com/playwright:v1.62.1-noble
     timeout-minutes: 20

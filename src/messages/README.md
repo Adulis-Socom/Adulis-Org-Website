@@ -87,3 +87,34 @@ It is a guard rail, not a bug.
    guard rail, not a bug.
 6. **Highest priority for review**, per ADU-PRD-01 §23.1: every button label,
    every form label and validation message, and the delete-account flow.
+
+---
+
+## `headingAccent` — translate it as a phrase, never derive it
+
+Three relational pages carry a headline in two keys:
+
+| Key | Role |
+|---|---|
+| `heading` | The subject — what the sentence is about |
+| `headingAccent` | The **outcome** — what the reader is being offered. Rendered in gold |
+
+The rule the design follows is **gold marks a phrase, not a line**. The accent
+is one inline span inside the headline; where it wraps is the browser's
+business, and the same words stay gold at every width.
+
+⚠ **Do not derive the accent positionally.** It is not "the second line", "the
+second sentence" or "the last N words" — an earlier version of this rule said
+"the second line" and broke at 360px, where the headline reflows to four lines
+and three of them went gold. Ge'ez reflows differently again, so any rule based
+on position lands on the wrong words in Amharic.
+
+**For the translator:** `headingAccent` is its own string and needs its own
+translation. Choose the Amharic words that name the outcome, and keep them
+short enough that the gold never exceeds roughly half the rendered headline at
+360px. Measured on the English at that width: 30%, 37% and 39%.
+
+The two parts are joined by a single space in that order, so the translation
+must read correctly as `heading + " " + headingAccent`. If Amharic word order
+puts the outcome first, say so — the component takes the parts in a fixed
+order and would need changing rather than the copy being bent to fit.
