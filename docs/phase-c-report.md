@@ -601,7 +601,7 @@ turned up a blocking defect and two real bugs:
 
 | Found | Severity |
 |---|---|
-| For a `push`, GitHub resolves the workflow from **the pushed commit's tree, not main**. Eight of the nine other branches still carry the old `push: [main]`; two have no workflow file at all. The incident is unchanged on every one of them | **blocking** |
+| For a `push`, GitHub resolves the workflow from **the pushed commit's tree, not main**. Nine of the ten other branches still carry the old `push: [main]`; two have no workflow file at all. The incident is unchanged on every one of them | **blocking** |
 | `cancel-in-progress` on `main`: two merges within ~14 minutes cancel the first merge's run mid-WebKit, leaving that commit with no verdict and a grey mark that reads like infrastructure noise | fixed |
 | `workflow_dispatch` and `push` resolve `github.ref` to the same string, so a trivial push cancels a deliberately requested matrix — and the push run does not run `qa`, so nothing replaces it | fixed |
 | While a PR has a merge conflict, no `pull_request` workflow runs; the push run still paints two green rows and the merge box reads "All checks have passed" with `qa` simply **absent** | documented, D8 |
@@ -614,7 +614,7 @@ defect cannot appear.
 
 The remedy is branch hygiene, not YAML, and it deletes shared state, so it is
 recorded in **D8** with the branch-by-branch table rather than done here:
-enable *Automatically delete head branches* (currently off), delete the six
+enable *Automatically delete head branches* (currently off), delete the seven
 branches that outlived merged PRs, and decide about the two that never had a
 PR at all. Verify by pushing an empty commit to an **old** branch.
 

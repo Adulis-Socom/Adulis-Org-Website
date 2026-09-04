@@ -254,8 +254,9 @@ State of the repository the day the change was written:
 
 | Branch | `ci.yml` push trigger | PR | Last commit |
 |---|---|---|---|
-| `main` | `[main]` → `['**']` after merge | — | 2026-09-04 |
-| `feat/checkpoint-4` | `['**']` (carries the change) | #10–14, all merged | 2026-09-04 |
+| `main` | `[main]` → `['**']` once this merges | — | 2026-09-04 |
+| `fix/ci-push-trigger` | `['**']` — **the only branch carrying the change** | #15 | 2026-09-05 |
+| `feat/checkpoint-4` | `[main]` | #10–14, all merged | 2026-09-04 |
 | `ci/qa-blocking` | `[main]` | #6 merged | 2026-08-24 |
 | `feat/backend-checkpoint-1` | `[main]` | #7 merged | 2026-08-26 |
 | `feat/checkpoint-2` | `[main]` | #8 merged | 2026-08-26 |
@@ -265,10 +266,15 @@ State of the repository the day the change was written:
 | `audit/security-01` | **no workflow file at all** | none ever | 2026-08-23 |
 | `fix/security-triage` | `[main]` | none ever | 2026-08-23 |
 
-**Eight of the nine branches besides `main` still reproduce the incident**, and
+**Nine of the ten branches besides `main` still reproduce the incident**, and
 two of them can never produce a signal from any trigger change, because their
-tree holds no workflow file. Six are branches that outlived a merged PR — the
+tree holds no workflow file. Seven are branches that outlived a merged PR — the
 exact shape — and two never had a PR at all, which is the *first* shape.
+
+⚠ `feat/checkpoint-4` is on that list for a reason worth naming: this work was
+moved to a new branch precisely **because** checkpoint-4's PR had closed, and
+committing there would have reproduced the gap a fourth time. Moving branch
+did not fix checkpoint-4; it only stopped adding to the problem.
 
 ### Why it is self-concealing
 
