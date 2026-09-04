@@ -369,9 +369,18 @@ Nothing was found to overstate *enforcement*; one document overstated a gap.
 | Group 5 | 855 s (14.2 min) | green |
 
 All three under the fifteen minutes §4.5 names — **on this machine**, at
-roughly 95% of it. The number that decides the split is CI's, where the same
-suite has historically run slower, and the split itself (one job per engine,
-nothing thinned) is prepared. _(CI figure and decision below, from PR #13's run)_
+roughly 95% of it. CI is the number that decides it:
+
+| CI job (PR #13, `b87df1a`) | Wall time | Result |
+|---|---|---|
+| `verify` | 467 s | green |
+| `snapshots` (pinned container) | 396 s | green |
+| `qa` — the browser matrix, both engines | **1,209 s (20.2 min)** | green |
+
+**Decision: split.** The `qa` job now runs as one job per engine, in
+parallel, through a matrix — every spec still runs in both engines; nothing
+is thinned; wall time becomes the slower engine rather than the sum. The
+split's own per-engine durations are recorded from its first run below.
 
 ---
 
