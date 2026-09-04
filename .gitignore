@@ -13,3 +13,8 @@ tests/qa/.artifacts
 tests/qa/.results.json
 playwright-report
 test-results
+
+# Generated pseudo-locale for the Ge'ez layout stress test (ADU-WEB-03 G10).
+# Never commit this: a pseudo-locale on disk is one that eventually ships to a
+# real visitor reading nonsense. scripts/make-pseudo-locale.mjs regenerates it.
+.pseudo/

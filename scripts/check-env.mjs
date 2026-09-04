@@ -234,6 +234,27 @@ const notes = [];
   else notes.push('no NEXT_PUBLIC_SITE_URL — every page noindex, robots.txt disallows all');
 }
 
+/* --------------------------------------------------------- pseudo-locale */
+/*
+ * PSEUDO_AM_FILE replaces the Amharic catalogue with generated nonsense, for the
+ * Ge'ez layout stress test. On a deployment it would serve that nonsense to a
+ * real reader, so it is refused outright unless the build has already declared
+ * itself undeployable.
+ */
+{
+  const path = process.env.PSEUDO_AM_FILE;
+  if (path && !optOut) {
+    problems.push(
+      `PSEUDO_AM_FILE is set (${path}).\n` +
+        '\n     It replaces the Amharic catalogue with generated pseudo-text. A build\n' +
+        '     with it set would serve nonsense to anyone opening /am. It belongs to\n' +
+        '     the test harness and nowhere else.'
+    );
+  } else if (path) {
+    notes.push('WARNING — PSEUDO_AM_FILE is set. /am serves generated pseudo-text, not Amharic.');
+  }
+}
+
 /* ------------------------------------------------------------ deletion gates */
 /*
  * Two gates that can contradict each other are one gate and a bug waiting.

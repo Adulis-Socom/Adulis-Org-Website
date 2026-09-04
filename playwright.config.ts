@@ -12,6 +12,16 @@ import { defineConfig, devices } from '@playwright/test';
 const PORT = Number(process.env.QA_PORT ?? 3210);
 const SINK_PORT = Number(process.env.QA_SINK_PORT ?? 4556);
 
+/**
+ * A SECOND site instance, serving the generated pseudo-Amharic catalogue.
+ *
+ * It has to be a separate instance: setting PSEUDO_AM_FILE on the main server
+ * would make every existing /am assertion read generated nonsense instead of the
+ * English fallback they are written against. Two servers keeps both truths
+ * testable — the real catalogue on PORT, the +40% Ge'ez stress on this one.
+ */
+const PSEUDO_PORT = Number(process.env.QA_PSEUDO_PORT ?? 3211);
+
 export default defineConfig({
   testDir: './tests/qa',
   fullyParallel: false,
@@ -67,6 +77,21 @@ export default defineConfig({
         // Fixed rather than random, because dedupe behaviour must not differ
         // between runs. A throwaway localhost value, not a deployment secret.
         WAITLIST_HASH_SECRET: 'qa-only-secret-not-for-any-deployment-0123456789'
+      }
+    },
+    {
+      // Regenerates the pseudo-locale, then serves it. The generator writes to
+      // .pseudo/, which is gitignored — see scripts/make-pseudo-locale.mjs for
+      // why it must never be committable.
+      command:
+        'node scripts/make-pseudo-locale.mjs && npx next start -p ' + PSEUDO_PORT,
+      url: `http://localhost:${PSEUDO_PORT}/am`,
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+      env: {
+        NEXT_PUBLIC_SITE_URL: `http://localhost:${PSEUDO_PORT}`,
+        PSEUDO_AM_FILE: '.pseudo/am.json',
+        ALLOW_UNDELIVERED_WAITLIST: '1'
       }
     }
   ]

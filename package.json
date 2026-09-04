@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "prebuild": "npm run check:i18n && npm run check:encoding && npm run check:font && npm run check:copy && npm run check:env",
+    "prebuild": "npm run check:i18n && npm run check:encoding && npm run check:font && npm run check:copy && npm run check:assets && npm run check:env",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -16,7 +16,8 @@
     "qa": "playwright test",
     "qa:report": "playwright show-report",
     "check:font": "node scripts/build-ethiopic-subset.mjs",
-    "check:encoding": "node scripts/check-encoding.mjs"
+    "check:encoding": "node scripts/check-encoding.mjs",
+    "check:assets": "node scripts/check-assets.mjs"
   },
   "dependencies": {
     "next": "15.5.23",
@@ -36,5 +37,8 @@
     "postcss": "8.5.26",
     "tailwindcss": "3.4.17",
     "typescript": "5.7.3"
+  },
+  "overrides": {
+    "sharp": "^0.35.4"
   }
 }

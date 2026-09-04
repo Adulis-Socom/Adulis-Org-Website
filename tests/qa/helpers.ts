@@ -19,7 +19,16 @@ export function routePaths(): string[] {
 
 export const LOCALES = ['en', 'am'] as const;
 
-/** Every page under test: 15 routes x 2 locales. */
+/**
+ * Every page under test: 15 routes x 2 locales, **plus the 404**.
+ *
+ * The 404 is not a ROUTES entry — it has no path of its own, being whatever
+ * `[...rest]` catches — so `routePaths()` never yielded it and every page-walking
+ * spec silently skipped it. That is 60 layout measurements, 30 axe scans and
+ * every console check missing the one page a redesign is most likely to give an
+ * oversized display numeral. `clamp(14rem, 26vw, 20rem)` on "404" renders 441px
+ * wide in a 312px content box, and nothing would have failed.
+ */
 export function allPages(): { locale: string; path: string; url: string; label: string }[] {
   const out: { locale: string; path: string; url: string; label: string }[] = [];
   for (const locale of LOCALES) {
@@ -27,6 +36,8 @@ export function allPages(): { locale: string; path: string; url: string; label: 
       const url = `/${locale}${path === '/' ? '' : path}`;
       out.push({ locale, path, url, label: url });
     }
+    // Any path that does not exist renders [locale]/not-found.tsx.
+    out.push({ locale, path: '/not-found', url: `/${locale}/__not-found__`, label: `/${locale} [404]` });
   }
   return out;
 }
@@ -64,7 +75,11 @@ export function collectProblems(page: Page) {
       // all six nav links, and the test navigated away before they settled.
       // Deliberately matched on the whole message rather than on "Failed to
       // fetch" alone, so a genuine failed request still trips the check.
-      /Failed to fetch RSC payload for .*Falling back to browser navigation/i.test(text);
+      /Failed to fetch RSC payload for .*Falling back to browser navigation/i.test(text) ||
+      // A 404 page is REACHED by a request that returns 404, and the browser
+      // logs that. It is the page working correctly. Matched narrowly on the
+      // status so a genuinely missing subresource elsewhere still trips this.
+      /Failed to load resource: the server responded with a status of 404/i.test(text);
 
     if (isProblem && !isNoise) problems.push({ kind, text });
   };
