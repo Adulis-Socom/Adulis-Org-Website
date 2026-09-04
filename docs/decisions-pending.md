@@ -92,8 +92,22 @@ exemption of its own.
 low-end Android at arm's length, and `EXAMPLE` is a truthfulness control — the
 one label that must never be missed. Marker and Status are both Body/S, 14/22.
 
-The code was already at 14/22 and needed no change. **The Figma Tag set is the
-side that diverges**: its Marker is 12/18, and it is the artefact to update.
+The code was already at 14/22 and needed no change. **The Figma Tag set was the
+side that diverged**, and it has been updated: node `15:10` (the Marker's text)
+moved from 12/18 to 14/22, so the Marker variant is now 30px tall and matches
+Status. Done, not pending.
+
+Two smaller differences were **left and are reported rather than changed**,
+because the ruling covered size:
+
+| | Figma | Code |
+|---|---|---|
+| Marker letter-spacing | 0% | 0.06em (0.84px at 14px) |
+| Marker vertical padding | 4px | 2px |
+
+The second makes the built marker 26px against Figma's 30px. Neither is worth a
+baseline regeneration and a fifteen-minute suite on its own; both are worth
+fixing on whichever side is touched next.
 
 ---
 

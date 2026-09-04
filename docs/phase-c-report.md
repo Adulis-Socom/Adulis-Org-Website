@@ -514,11 +514,16 @@ deliberately, so the control had to be re-earned rather than assumed: the flag
 tidied into a solid `rule-card` callout on `surface-2` fails at **602 differing
 pixels**, the two untouched images unchanged.
 
-### 7.3 Tag size
+### 7.3 Tag size — both sides now agree
 
-Already 14/22 in code; no change needed. **The Figma Tag set is the divergent
-artefact** — its Marker is 12/18 — and updating it is a Figma edit, not a code
-one. Recorded under D3.
+The code was already at 14/22, so the divergent artefact was Figma. **It has
+been updated:** the Marker's text node (`15:10`) moved from 12/18 to 14/22, and
+the Marker variant now stands at 30px like Status. Verified by screenshot.
+
+Two smaller differences are reported rather than changed, since the ruling
+covered size: the Marker's letter-spacing (Figma 0%, code 0.06em) and its
+vertical padding (Figma 4px, code 2px, which is why the built marker is 26px
+against Figma's 30px). Recorded in D3 for whichever side is touched next.
 
 ### 7.4 The gold headline rule
 
