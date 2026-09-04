@@ -39,7 +39,7 @@ npm run typecheck  # tsc --noEmit
 npm run lint       # next lint
 npm run check:i18n     # partial-array guard
 npm run check:encoding # UTF-8 end to end, before the Amharic translation lands
-npm run check:font     # the Ethiopic subset's cmap really covers the label
+npm run check:font     # the Ethiopic subset's cmap, and the display face's declaration
 npm run check:copy     # 11 copy and structural invariants
 npm run check:assets   # the sharp advisory condition, checked not remembered
 npm run check:env      # six things that make a build undeployable
@@ -71,8 +71,8 @@ Copy `.env.example` to `.env.local` before deploying anywhere real. Leaving
 | Framework | Next.js 15, App Router, TypeScript | Server-rendered by default; first paint on a low-end Android over a slow connection is the binding constraint |
 | Hosting | Cloudflare Pages + Workers *(not yet configured)* | Zero egress, edge PoPs are the closest realistic answer to "no cloud region operates in Ethiopia", one vendor alongside the R2 decision |
 | i18n | `next-intl`, route-based `/en` and `/am` | Shared links land in the right language, both trees index, nothing depends on JavaScript |
-| Styling | Tailwind, tokens in `tailwind.config.ts` | Tokens come from the approved v4.1 wireframes and are the single source |
-| Fonts | Inter + Noto Sans Ethiopic | See below — this is load-bearing |
+| Styling | Tailwind over CSS custom properties | Every colour is a `var()` into `:root` in `src/app/globals.css` — the one definition. `tailwind.config.ts` only names utilities against it |
+| Fonts | Inter (body, UI, forms) + Instrument Sans (display, headings) + Noto Sans Ethiopic | See below — this is load-bearing |
 | Analytics | None. Self-hosted only, when it exists | The site collects personal data from prospective sellers; adding a third party creates a processor relationship nobody has assessed |
 
 ### The font stack is load-bearing

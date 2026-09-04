@@ -28,7 +28,7 @@ export function ContactForm() {
 
   if (state.ok && state.reference) {
     return (
-      <div className="card-sunken" role="status">
+      <div className="card" role="status">
         <h2 className="section-title">{t('success.title')}</h2>
         <p className="card-body max-w-prose">{t('success.body')}</p>
         <p className="tnum mt-2 text-body font-semibold text-ink">

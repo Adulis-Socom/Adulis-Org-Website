@@ -34,22 +34,36 @@ export default async function HomePage({ params }: LocaleParams) {
           preview down and right, leaving a third of the hero blank. */}
       <section className="container-page section grid items-start gap-8 lg:grid-cols-[1.1fr_1fr]">
         <div>
-          <p className="badge-beta">{common('betaBadge')}</p>
-          <h1 className="page-title mt-4">{t('heading')}</h1>
+          {/* Tag/Status, Display/XL, Body/L, then primary + secondary — the
+              relational register's opening, work order §2.3.
+              The headline is one catalogue string and renders whole. §2.3 asks
+              for its second line in gold; choosing WHICH words are gold is a
+              copy decision, recorded as D6 in docs/decisions-pending.md. The
+              `.display-gold` class is ready for the span once that lands. */}
+          <p className="tag-status">{common('betaBadge')}</p>
+          <h1 className="display mt-5">{t('heading')}</h1>
           <p className="lede">{t('sub')}</p>
-          <Link href={WAITLIST_HREF} className="btn-primary mt-6">
-            {nav('waitlistCta')}
-          </Link>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href={WAITLIST_HREF} className="btn-primary">
+              {nav('waitlistCta')}
+            </Link>
+            <Link href={ROUTES.howItWorks} className="btn-secondary">
+              {nav('howItWorks')}
+            </Link>
+          </div>
         </div>
 
+        {/* The one ink surface this page carries. */}
         <ShopPreview />
       </section>
 
       <section className="container-page section-tight">
         <SectionTitle>{t('sellerChanges.title')}</SectionTitle>
-        <div className="grid gap-4 md:grid-cols-3">
+        {/* Card/Open with generous spacing, not Contained: these are a set,
+            and a grid of boxes asserts a structure they do not have. */}
+        <div className="grid gap-8 md:grid-cols-3 md:gap-10">
           {sellerChanges.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="open" />
           ))}
         </div>
       </section>
@@ -58,7 +72,7 @@ export default async function HomePage({ params }: LocaleParams) {
         <SectionTitle>{t('whatFor.title')}</SectionTitle>
         <div className="grid gap-4 md:grid-cols-2">
           {whatFor.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} variant="tint" />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="contained" />
           ))}
         </div>
       </section>
@@ -74,11 +88,13 @@ export default async function HomePage({ params }: LocaleParams) {
       </section>
 
       <section className="container-page section-tight pb-12">
-        <div className="card-sunken">
+        <div className="card">
           <h2 className="section-title">{t('cohort.title')}</h2>
-          <div className="mt-4 grid gap-4 md:grid-cols-3">
+          {/* Open items inside a Contained block: the block groups them, the
+              items themselves stay a set. */}
+          <div className="mt-4 grid gap-6 md:grid-cols-3">
             {cohort.map((item) => (
-              <InfoCard key={item.title} title={item.title} body={item.body} />
+              <InfoCard key={item.title} title={item.title} body={item.body} variant="open" />
             ))}
           </div>
           <Link href={WAITLIST_HREF} className="btn-primary mt-4">

@@ -35,7 +35,7 @@ export default async function ForBuyersPage({ params }: LocaleParams) {
         <ol className="grid gap-4 md:grid-cols-2">
           {steps.map((step, i) => (
             <li key={step.title}>
-              <InfoCard title={step.title} body={step.body} variant="sunken" index={i + 1} />
+              <InfoCard title={step.title} body={step.body} variant="contained" index={i + 1} />
             </li>
           ))}
         </ol>
@@ -43,9 +43,10 @@ export default async function ForBuyersPage({ params }: LocaleParams) {
 
       <section className="section-tight">
         <SectionTitle>{t('checkHeading')}</SectionTitle>
-        <div className="grid gap-4 md:grid-cols-3">
+        {/* A set, not a sequence: Open, with room, as the value items on Home. */}
+        <div className="grid gap-8 md:grid-cols-3 md:gap-10">
           {checks.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="open" />
           ))}
         </div>
       </section>
@@ -64,7 +65,7 @@ export default async function ForBuyersPage({ params }: LocaleParams) {
         <SectionTitle>{t('limitsHeading')}</SectionTitle>
         <div className="grid gap-4 md:grid-cols-2">
           {limits.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} variant="tint" />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="contained" />
           ))}
         </div>
       </section>

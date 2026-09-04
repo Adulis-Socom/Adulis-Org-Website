@@ -16,9 +16,11 @@
 > headers, and judging whether the screenshots look right. Each is marked
 > **HUMAN** below.
 >
-> Two findings are open from the automated pass and are **expected failures**
-> until triaged: undersized touch targets (Q-01) and one colour-contrast
-> violation (Q-02).
+> The two findings from the first automated pass are **closed**: the
+> undersized touch targets (Q-01) were fixed in Checkpoint 4 and the one
+> colour-contrast violation (Q-02) in the placeholder label. The suite is
+> expected green; a failure is a regression, not a known gap. What the suite
+> enforces, and what it does not, is in [`enforcement.md`](./enforcement.md).
 
 The sections below keep their original wording. Anything marked **AUTOMATED** is
 covered by `npm run qa`; anything marked **HUMAN** still needs a person.

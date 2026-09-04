@@ -209,3 +209,86 @@ and the test failed pointing at the wrong cause.
 
 Use the editor tools for files containing escapes, or write the pattern with no
 backslashes at all. `od -c` reveals it; `grep '\b'` does not.
+
+---
+
+## A flag read in a client component is a build-time constant, not a runtime one
+
+`process.env.X` inside a file that a `'use client'` component imports is
+**inlined by the bundler at build time**. The value the browser sees is whatever
+the build machine had; a value set on the server afterwards never arrives.
+
+The deletion flow's gate was decided that way. It rendered the gated state
+regardless of configuration — correct today by accident, and wrong the moment
+the flag flips, because the decision would be baked into the bundle and
+unreachable by configuration.
+
+**Anything that must be changeable by configuration is decided server-side**
+and arrives at the client as a prop. Server components read the environment per
+request; client components read a snapshot of it.
+
+---
+
+## When a security policy blocks your own tooling, that is the policy working
+
+The G11 snapshot helper injected a stylesheet with `page.addStyleTag` to freeze
+animations. The site's CSP — `style-src 'self' 'nonce-…'`, no `unsafe-inline` —
+refused it.
+
+Nothing in the suite asked the policy to prove itself; it did so unprompted, on
+a test. That is better evidence than any header assertion that the policy is
+real rather than declared. The helper was also unnecessary: `toHaveScreenshot`
+already disables animations and hides the caret. The fix was to delete the
+helper, not to loosen the policy.
+
+**General form:** if a guard obstructs the test tooling, first ask whether the
+tooling is doing something the guard exists to forbid. Usually it is.
+
+---
+
+## `outline-none` is not "no outline", and WebKit ignores box-shadow on native controls
+
+Two facts that together produced a focus ring that passed in both engines
+while being invisible in Safari on every checkbox and select.
+
+Tailwind's `outline-none` emits `outline: 2px solid transparent` (for Windows
+high-contrast mode). Any check written as *outline present and wider than 0*
+passes on it. `focusIsVisible()` was written that way, so every element on the
+site had a "visible" focus indicator by construction.
+
+WebKit does not paint author `box-shadow` on controls with native appearance.
+The ring was box-shadow only. In Chromium it painted; in WebKit it did not, and
+nothing failed, because the transparent outline was carrying the assertion.
+
+The moment the ring switched to an honest `outline: none`, six WebKit tests
+failed — and that was the first time the check had ever measured anything.
+
+**Two rules:** a focus indicator that must paint on native controls uses
+`outline`; and a visibility check must reject transparent colours, or it is a
+presence check that passes on nothing.
+
+---
+
+## npm 10 and npm 11 disagree about whether a lockfile is "in sync"
+
+`npm ci` on CI failed in ten seconds — *Missing: @swc/helpers@0.5.23 from lock
+file* — on a lockfile that installed cleanly on the developer machine and
+inside the Playwright container, repeatedly, the same day. Every local check
+said the lock was fine. PR #12 was merged on that basis, red.
+
+The runner's Node 22.23.2 bundles **npm 10.9.8**. The machine and the
+container run **npm 11**. npm 10 requires a nested entry for a dependency
+whose hoisted copy is a different version (`next-intl` wants `@swc/helpers`
+0.5.23; the hoisted one is 0.5.15); npm 11 lets a lock omit it and resolves
+anyway. So "in sync" is a property of the npm that reads the lock, not of the
+lock.
+
+**Reproduce with the CI's npm, not yours:**
+
+```bash
+docker run --rm -v "$PWD":/w -w /w node:22-slim npm ci --dry-run
+```
+
+and regenerate under it (`npm install --package-lock-only`) when it complains.
+The resulting lock passed both majors. A container that verifies `npm ci` is
+only evidence for the npm inside it.

@@ -30,7 +30,7 @@ export default async function AboutPage({ params }: LocaleParams) {
       </section>
 
       <section className="section-tight">
-        <div className="card-sunken">
+        <div className="card">
           <h2 className="section-title">{t('originTitle')}</h2>
           {/* The final wireframe set replaced the 50-vs-5 comparison with
               "roughly eighty ... against almost nothing". Fewer hard figures,

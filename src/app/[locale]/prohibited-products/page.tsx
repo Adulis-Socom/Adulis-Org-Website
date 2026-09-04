@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import { Link } from '@/i18n/routing';
 import { ROUTES } from '@/lib/routes';
+// Evidentiary register, as Trust & Safety: Card/Open, no surfaces, no gold.
 
 type LocaleParams = { params: Promise<{ locale: string }> };
 
@@ -31,7 +32,7 @@ export default async function ProhibitedProductsPage({ params }: LocaleParams) {
             the page a seller checks before listing something. */}
         <ul className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {categories.map((category) => (
-            <li key={category.title} className="card">
+            <li key={category.title} className="card-open">
               <h2 className="card-title">{category.title}</h2>
               <p className="card-body">{category.body}</p>
             </li>
@@ -40,7 +41,7 @@ export default async function ProhibitedProductsPage({ params }: LocaleParams) {
       </section>
 
       <section className="section-tight pb-12">
-        <div className="card-sunken">
+        <div className="card-open">
           <h2 className="section-title">{t('noteTitle')}</h2>
           <p className="card-body max-w-prose">{t('noteBody')}</p>
           <Link href={ROUTES.report} className="link-arrow-target mt-3 inline-block">

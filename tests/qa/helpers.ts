@@ -193,7 +193,13 @@ export async function focusIsVisible(page: Page) {
     const el = document.activeElement as HTMLElement | null;
     if (!el || el === document.body) return { ok: false, tag: 'none', reason: 'no focused element' };
     const s = getComputedStyle(el);
-    const outline = s.outlineStyle !== 'none' && parseFloat(s.outlineWidth || '0') > 0;
+    // A transparent outline is not a visible one. Tailwind's `outline-none`
+    // leaves `2px solid transparent` behind, and for two checkpoints this
+    // check counted it — which is how a ring WebKit never painted on native
+    // checkboxes and selects passed in both engines.
+    const transparent = /rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0\s*\)|transparent/i.test(s.outlineColor);
+    const outline =
+      s.outlineStyle !== 'none' && parseFloat(s.outlineWidth || '0') > 0 && !transparent;
     const ring = s.boxShadow !== 'none' && s.boxShadow.length > 0;
     const id = el.id ? `#${el.id}` : '';
     return {

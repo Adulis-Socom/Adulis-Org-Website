@@ -63,7 +63,7 @@ export function WaitlistForm() {
   if (state.ok && state.reference) {
     return (
       <div className="form-column">
-        <div className="card-sunken" role="status">
+        <div className="card" role="status">
           <h2 className="section-title">{t('success.title')}</h2>
           <p className="tnum mt-2 text-body font-semibold text-ink">
             {t('success.reference', { reference: state.reference })}

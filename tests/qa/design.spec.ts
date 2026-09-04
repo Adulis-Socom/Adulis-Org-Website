@@ -145,10 +145,11 @@ async function focusStops(page: Page) {
       const style = getComputedStyle(el);
       const raw = [];
       const shadow = style.boxShadow;
+      let layers = [];
       if (shadow && shadow !== 'none') {
         // Split on commas that are NOT inside rgb(...), so each shadow layer is
         // handled whole.
-        const layers = shadow.split(/,(?![^(]*\\))/);
+        layers = shadow.split(/,(?![^(]*\\))/);
         for (const layer of layers) {
           const colour = (layer.match(/rgba?\\([^)]+\\)/) || [])[0];
           if (!colour) continue;
@@ -173,13 +174,48 @@ async function focusStops(page: Page) {
           best = Math.max(best, contrast(stops[i], stops[j]));
         }
       }
+
+      // The two edges of the ring. Layers sort by spread: the smallest touches
+      // the element, the largest touches whatever surrounds it.
+      const bySpread = [];
+      for (const layer of layers) {
+        const colour = (layer.match(/rgba?\\([^)]+\\)/) || [])[0];
+        const c = colour && parseColour(colour);
+        if (!c) continue;
+        const lengths = (layer.replace(colour, '').match(/-?[\\d.]+px/g) || []).map(parseFloat);
+        const spread = lengths[3] || 0;
+        if ((lengths[2] || 0) > 0 || spread > 0) bySpread.push({ spread, c });
+      }
+      bySpread.sort((a, b) => a.spread - b.spread);
+      const inner = bySpread.length ? bySpread[0].c : null;
+      // An outline sits outside every shadow layer, so when one is drawn it is
+      // the outer edge. The ring's ink stop is an outline on purpose: WebKit
+      // paints no author box-shadow on native checkboxes and selects.
+      const outlineColour =
+        style.outlineStyle !== 'none' && parseFloat(style.outlineWidth || '0') > 0
+          ? parseColour(style.outlineColor)
+          : null;
+      const outer = outlineColour || (bySpread.length ? bySpread[bySpread.length - 1].c : null);
+      const elementBg = effectiveBackground(el);
+      const pageBg = el.parentElement ? effectiveBackground(el.parentElement) : [255, 255, 255];
+
       return {
         stops: stops.map((s) => 'rgb(' + s.join(',') + ')'),
         best: Number(best.toFixed(2)),
+        innerVsElement: inner ? Number(contrast(inner, elementBg).toFixed(2)) : 0,
+        outerVsPage: outer ? Number(contrast(outer, pageBg).toFixed(2)) : 0,
+        elementBg: 'rgb(' + elementBg.join(',') + ')',
         tag: el.tagName.toLowerCase() + (el.id ? '#' + el.id : '')
       };
     })()`
-  ) as Promise<{ stops: string[]; best: number; tag: string }>;
+  ) as Promise<{
+    stops: string[];
+    best: number;
+    innerVsElement: number;
+    outerVsPage: number;
+    elementBg: string;
+    tag: string;
+  }>;
 }
 
 test.describe('§7 the focus indicator is dual-tone', () => {
@@ -201,6 +237,25 @@ test.describe('§7 the focus indicator is dual-tone', () => {
         f.best,
         `${c.what} (${f.tag}): best stop pair is ${f.best}:1 across ${JSON.stringify(f.stops)} — ` +
           `a single-tone ring is invisible on a surface of its own colour`
+      ).toBeGreaterThanOrEqual(3);
+
+      // Work order §1.2: the ring must contrast with the ELEMENT, not only with
+      // the surface. Two stops that contrast with each other still vanish when
+      // the inner one matches the element and the outer one matches the page —
+      // an ink-inner ring on the ink CTA, on paper, is exactly that.
+      //
+      // Asserted as "at least one edge is visible": the inner stop against the
+      // element's own background, or the outer stop against what surrounds it.
+      // Not "the inner stop alone": no single fixed ring can put a contrasting
+      // inner tone against both a paper input and an ink button, and the ruling
+      // that made the ring dual-tone was that it must not need to know its
+      // context. Either edge visible is what a person sees; both merging is the
+      // failure.
+      expect(
+        Math.max(f.innerVsElement, f.outerVsPage),
+        `${c.what} (${f.tag}): the ring merges on both edges — inner stop ${f.innerVsElement}:1 ` +
+          `against the element (${f.elementBg}), outer stop ${f.outerVsPage}:1 against the page. ` +
+          `Paper inner, ink outer is the order that holds on every element`
       ).toBeGreaterThanOrEqual(3);
     });
   }

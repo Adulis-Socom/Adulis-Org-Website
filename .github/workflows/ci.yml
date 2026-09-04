@@ -93,6 +93,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
+    # One job per engine, in parallel. Work order §4.5: the matrix measured
+    # past fifteen minutes on a single runner. Nothing is thinned — every spec
+    # still runs in both engines — the two halves just no longer wait for each
+    # other. The `snapshots` job below is a third, pinned to its container.
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [chromium, webkit]
+
     env:
       ALLOW_UNDELIVERED_WAITLIST: '1'
       QA_PORT: '3210'
@@ -127,20 +136,20 @@ jobs:
       # bare ubuntu runner. Without it the engines install but fail to launch.
       # Always run it: on a cache hit it is a fast no-op for the binaries but
       # still installs the apt packages, which are not cached.
-      - name: Install browser engines
-        run: npx playwright install --with-deps chromium webkit
+      - name: Install browser engine
+        run: npx playwright install --with-deps ${{ matrix.project }}
 
       - name: Build
         run: rm -rf .next && npm run build
 
       - name: QA suite
-        run: npm run qa
+        run: npm run qa -- --project=${{ matrix.project }}
 
       - name: Upload screenshots and artefacts
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: qa-artefacts
+          name: qa-artefacts-${{ matrix.project }}
           path: |
             tests/qa/screenshots/
             tests/qa/.artifacts/

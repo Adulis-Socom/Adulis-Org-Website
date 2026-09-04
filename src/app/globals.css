@@ -3,27 +3,47 @@
 @tailwind utilities;
 
 @layer base {
-  /* Fallbacks for the two next/font variables, so a font failure degrades to a
-     real system stack rather than to an unstyled serif. Latin first: an
-     Ethiopic-only family has no Latin or numeral glyphs. */
+  /* ---------------------------------------------------------------- tokens
+
+     The one definition. tailwind.config.ts names utilities against these
+     variables; nothing else declares a colour. Values are space-separated RGB
+     channels so Tailwind's `<alpha-value>` form can compose opacity.
+
+     Sources: the Design Direction §1.2 palette (paper, ink, gold, slate, rule),
+     the Token Rulings §1 derived set (on-ink, surface-2, danger*,
+     border-control), and Phase C work order §1 (surface-2 revised to #EFF1F5,
+     the Contained card border #DDE1E8). Every contrast figure quoted below was
+     computed, not estimated.
+
+     ⚠ Do not define --font-inter, --font-instrument or --font-ethiopic* here.
+     next/font sets them on a class on <html>. A `:root` declaration has the
+     same specificity and, depending on stylesheet order, silently wins — which
+     meant the Ethiopic subset was never used at all: the switcher rendered from
+     a locally installed Nyala on the reviewer's Windows machine and would have
+     been four missing-glyph boxes on the low-end Android this site is built for.
+     Naming 'Noto Sans Ethiopic' here was worse still. next/font/local mangles
+     its family name, but next/font/google keeps the real one, so that
+     "fallback" matched the 198 KB webfont and every English page downloaded
+     the entire face through it. The same applies to 'Instrument Sans'.
+     Fallbacks live inside var() in tailwind.config.ts, where they apply only
+     when the variable is genuinely absent. */
   :root {
-    /* ⚠ Do not define --font-inter or --font-ethiopic* here.
-       next/font sets them on a class on <html>. A `:root` declaration has the
-       same specificity and, depending on stylesheet order, silently wins --
-       which meant the Ethiopic subset was never used at all: the switcher
-       rendered from a locally installed Nyala on the reviewer's Windows machine
-       and would have been four missing-glyph boxes on the low-end Android this
-       site is built for.
-       Naming 'Noto Sans Ethiopic' here was worse still. next/font/local mangles
-       its family name, but next/font/google keeps the real one, so that
-       "fallback" matched the 198 KB webfont and every English page downloaded
-       the entire face through it.
-       Fallbacks now live inside var() in tailwind.config.ts, where they apply
-       only when the variable is genuinely absent. */
+    --paper: 255 255 255; /* #FFFFFF  page ground */
+    --ink: 14 26 51; /* #0E1A33  deep navy from the mark. Text, the one dark surface */
+    --gold: 184 134 43; /* #B8862B  3.24:1 on paper — display sizes only there; 5.34:1 on ink */
+    --slate: 85 96 122; /* #55607A  secondary text on paper, 6.29:1. NEVER on ink: 2.75:1 */
+    --on-ink: 136 144 162; /* #8890A2  secondary text on ink */
+    --surface-2: 239 241 245; /* #EFF1F5  the only secondary surface, 1.13:1 against paper. Ink on it 14.9:1 */
+    --rule: 227 230 237; /* #E3E6ED  decorative hairlines; nothing depends on seeing one */
+    --rule-card: 221 225 232; /* #DDE1E8  the Contained card's border */
+    --border-control: 142 147 159; /* #8E939F  form-field borders, 3.08:1 — WCAG 1.4.11 */
+    --danger: 192 54 44; /* #C0362C  carried forward; three forms already pass on it */
+    --danger-bg: 253 243 242; /* #FDF3F2 */
+    --danger-border: 226 169 163; /* #E2A9A3 */
   }
 
   body {
-    @apply bg-surface text-ink-soft font-sans text-body antialiased;
+    @apply bg-paper text-ink font-sans text-body antialiased;
   }
 
   /* Figures are read as evidence throughout this product -- completed handoff
@@ -34,18 +54,45 @@
     font-variant-numeric: tabular-nums;
   }
 
+  /* Instrument Sans SemiBold for display and headings; Inter for everything
+     else. The display stack carries the same Ethiopic tail as the body stack,
+     so an Amharic heading falls through to Noto Sans Ethiopic at the same fixed
+     line height and nothing shifts. */
   h1,
   h2,
   h3 {
-    @apply text-ink font-semibold text-balance;
+    @apply font-display font-semibold text-ink text-balance;
   }
 
+  /* Dual-tone, PAPER INNER, INK OUTER — work order §1.2.
+
+     The ring must contrast with the element, not only with the surface. An
+     ink inner ring merges with an ink button and a paper outer ring merges with
+     a paper page: invisible on exactly the site's primary CTA. Paper against
+     the button and ink against the page is the order that holds on every
+     element, and it needs no knowledge of what it sits on.
+
+     One design rule falls out: no paper-filled control sits on the ink
+     surface, the single combination where both tones would merge. That
+     surface carries gold or ink controls only.
+
+     ⚠ The outer stop is an OUTLINE, not a second shadow layer. WebKit does not
+     paint author box-shadows on native-appearance controls — checkboxes,
+     selects — so a ring built entirely from box-shadow is invisible on exactly
+     the controls in the site's only conversion, in Safari. It passed before
+     only because Tailwind's `outline-none` leaves a 2px *transparent* outline
+     behind and the focus check counted it. An outline at 2px offset over a 2px
+     paper shadow is the same geometry as the spec's two shadow layers, and it
+     paints everywhere. */
   :focus-visible {
-    @apply outline-none ring-2 ring-ink ring-offset-2 ring-offset-surface rounded;
+    outline: 2px solid rgb(var(--ink));
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px rgb(var(--paper));
+    @apply rounded;
   }
 
   ::selection {
-    @apply bg-ink text-surface;
+    @apply bg-ink text-paper;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -66,76 +113,152 @@
   }
 
   /* Sections size to their content. Amharic runs roughly 40% longer than
-     English, so a fixed height would hide the overflow instead of revealing it. */
+     English, so a fixed height would hide the overflow instead of revealing it.
+
+     Two registers, two rhythms (work order §2.2): relational pages breathe,
+     evidentiary pages are set tighter and read as a document. */
   .section {
-    @apply py-8 md:py-10;
+    @apply py-10 md:py-14;
   }
 
   .section-tight {
-    @apply py-5 md:py-6;
+    @apply py-6 md:py-8;
   }
 
+  /* ------------------------------------------------------------- cards
+
+     Two treatments and only two. Contained: the secondary surface with its own
+     border, for a group that benefits from being held together. Open: a
+     hairline above, no fill, no border, for a set — the second container
+     treatment in this system is the absence of a container.
+
+     (`card-sunken` and `card-tint` were retired names for Contained. They
+     carried the token layer through the page-by-page restyle and were removed
+     in group 5 once no markup used them.) */
   .card {
-    @apply rounded border border-line bg-surface p-4 md:p-5;
+    @apply rounded border border-rule-card bg-surface-2 p-4 md:p-5;
   }
 
-  .card-sunken {
-    @apply rounded border border-line bg-surface-sunken p-4 md:p-5;
-  }
-
-  .card-tint {
-    @apply rounded border border-line bg-surface-tint p-4 md:p-5;
+  .card-open {
+    @apply border-t border-rule pt-4 md:pt-5;
   }
 
   /* The one band on a page that changes audience -- seller side to buyer side,
-     or back. The heavy border is what marks it as a door rather than a card. */
+     or back. The heavy ink border is what marks it as a door rather than a card. */
   .door {
-    @apply rounded border-2 border-line-strong bg-surface p-4 md:p-5;
+    @apply rounded border-2 border-ink bg-paper p-4 md:p-5;
+  }
+
+  /* The one ink surface a relational page carries. Once per page, never as a
+     card, never as a divider. Secondary text on it is on-ink; gold is a text
+     colour here at any size. Controls on it are gold or ink, never paper-filled
+     (see :focus-visible).
+
+     ⚠ The mark's double-curl prow is specified as this surface's top edge. The
+     mark's vector is not in this repository and drawing an approximation would
+     be inventing brand geometry — recorded in docs/decisions-pending.md. The
+     surface is otherwise complete; the prow drops in as a mask on ::before. */
+  .surface-ink {
+    @apply relative rounded bg-ink p-6 text-paper md:p-8;
+  }
+
+  .surface-ink h1,
+  .surface-ink h2,
+  .surface-ink h3 {
+    @apply text-paper;
+  }
+
+  .surface-ink .card-body,
+  .surface-ink .lede,
+  .surface-ink .note {
+    @apply text-on-ink;
+  }
+
+  /* A Contained card nested on the ink surface is back on surface-2, and the
+     rules above must stop at its edge. They did not, once: paper titles at
+     1.13:1 and on-ink body at 2.83:1 on the three illustration cards, caught by
+     axe (G4) on the first suite run after Home was composed. Nothing about the
+     page looked wrong in a screenshot at a glance. */
+  .surface-ink .card h1,
+  .surface-ink .card h2,
+  .surface-ink .card h3,
+  .surface-ink .card .card-title {
+    @apply text-ink;
+  }
+
+  .surface-ink .card .card-body,
+  .surface-ink .card .note {
+    @apply text-slate;
   }
 
   .card-title {
-    @apply text-h3 text-ink;
+    @apply text-heading-m text-ink;
   }
 
   .card-body {
-    @apply mt-1 text-body text-ink-muted;
+    @apply mt-1 text-body text-slate;
   }
 
-  .display,
+  /* Display/M on a phone, Display/L from md. The Home hero alone uses .display
+     for the XL step, and only there may a line be gold — at 40px and 56px it
+     is well above the 24px floor for gold on paper. */
   .page-title {
-    @apply text-h1 md:text-display text-ink font-bold;
+    @apply text-display-m md:text-display-l;
+  }
+
+  .display {
+    @apply text-display-l md:text-display-xl;
+  }
+
+  .display-gold {
+    @apply text-gold;
   }
 
   .section-title {
-    @apply text-h2 text-ink;
+    @apply text-heading-l text-ink;
   }
 
   .lede {
-    @apply mt-2 max-w-prose text-body text-ink-muted;
+    @apply mt-3 max-w-prose text-body-l text-slate;
   }
 
   .note {
-    @apply text-small text-ink-muted;
+    @apply text-body-s text-slate;
   }
 
+  /* ----------------------------------------------------------- buttons */
   .btn {
     @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded px-5 py-2.5 text-body font-semibold transition-colors;
   }
 
   .btn-primary {
-    @apply btn bg-ink text-surface hover:bg-ink-soft;
+    @apply btn bg-ink text-paper hover:bg-slate;
   }
 
+  /* An outlined control's boundary is a component boundary: border-control,
+     not rule, so it meets 3:1 (WCAG 1.4.11). */
   .btn-secondary {
-    @apply btn border border-line bg-surface text-ink hover:bg-surface-sunken;
+    @apply btn border border-border-control bg-paper text-ink hover:bg-surface-2;
+  }
+
+  /* On the ink surface: gold fill, ink text (5.31:1). The only primary control
+     permitted there — a paper-filled button would merge with the focus ring's
+     inner stop. */
+  .btn-gold {
+    @apply btn bg-gold text-ink hover:brightness-110;
   }
 
   .btn-danger {
-    @apply btn bg-danger text-surface hover:brightness-110;
+    @apply btn bg-danger text-paper hover:brightness-110;
   }
 
   .btn-block {
     @apply w-full;
+  }
+
+  .btn:disabled,
+  .btn[aria-disabled='true'] {
+    @apply cursor-not-allowed border border-rule-card bg-surface-2 text-slate;
   }
 
   /* Two classes because there are two roles, and the role decides whether the
@@ -163,26 +286,31 @@
     @apply link-arrow inline-flex min-h-[44px] items-center;
   }
 
+  /* ------------------------------------------------------------- fields */
   .form-column {
     @apply w-full max-w-form;
   }
 
   .field {
-    @apply mt-4 first:mt-0;
+    @apply mt-5 first:mt-0;
   }
 
   .label {
-    @apply block text-small font-semibold text-ink;
+    @apply block text-label font-medium text-ink;
   }
 
   .label-optional {
-    @apply font-normal text-ink-muted;
+    @apply font-normal text-slate;
   }
 
+  /* border-control, not rule. The previous hairline measured ~1.25:1 against
+     paper on the site's only conversion — an existing WCAG 1.4.11 failure, fixed
+     in this pass. Decorative dividers may stay light; a field's boundary is
+     something a person has to find. */
   .input,
   .select,
   .textarea {
-    @apply mt-1.5 block min-h-[44px] w-full rounded border border-line bg-surface px-3 py-2.5 text-body text-ink placeholder:text-ink-muted/60;
+    @apply mt-1.5 block min-h-[44px] w-full rounded border border-border-control bg-paper px-3 py-2.5 text-body text-ink placeholder:text-slate;
   }
 
   .textarea {
@@ -196,11 +324,11 @@
   /* Every validation message gets its own vertical space. In Amharic a message
      set tight against its label collides with it. */
   .field-error {
-    @apply mt-1.5 block text-small font-medium text-danger;
+    @apply mt-1.5 block text-body-s font-medium text-danger;
   }
 
   .field-help {
-    @apply mt-1.5 block text-small text-ink-muted;
+    @apply mt-1.5 block text-body-s text-slate;
   }
 
   .error-summary {
@@ -208,47 +336,60 @@
   }
 
   .checkbox {
-    @apply mt-0.5 h-5 w-5 shrink-0 rounded border-line text-ink;
+    @apply mt-0.5 h-5 w-5 shrink-0 rounded border-border-control text-ink;
   }
 
-  .badge-beta {
-    @apply inline-flex items-center rounded-pill bg-beta-bg px-2.5 py-1 text-micro font-semibold uppercase tracking-wider text-beta-fg;
+  /* --------------------------------------------------------------- tags
+
+     Tag/Status: a state the reader should register — the beta chip.
+     Tag/Marker: a truthfulness control — the EXAMPLE stamp on invented cards.
+     Both are Label-sized; there is no smaller text style. */
+  .badge-beta,
+  .tag-status {
+    @apply inline-flex items-center rounded-pill border border-rule-card bg-surface-2 px-3 py-1 text-label font-medium text-ink;
   }
 
   /* Illustrative seller cards only -- the home hero and the How-it-works shop
      mock. Never the trust ladder: New, Established and Trusted are real level
-     names, and only their thresholds are undecided. */
-  .badge-example {
-    @apply inline-flex items-center rounded bg-surface-sunken px-2 py-0.5 text-micro font-semibold uppercase tracking-wider text-ink-muted;
+     names, and only their thresholds are undecided.
+     Slate on surface-2 is 5.56:1, above the 4.5 a marker this size needs. */
+  .badge-example,
+  .tag-marker {
+    @apply inline-flex items-center rounded bg-surface-2 px-2 py-0.5 text-micro font-semibold uppercase text-slate;
   }
 
   .badge-level {
-    @apply text-small font-semibold text-ink;
+    @apply text-body-s font-semibold text-ink;
   }
 
+  /* ------------------------------------------------------- placeholders
+
+     Unmistakably unfinished, on purpose. G11 holds a pixel baseline of each of
+     these and fails when either is tidied into something that reads as
+     designed. The dashed gold edge is a shape, which is where gold is allowed on
+     paper; the text stays ink, because gold at 14px on paper fails AA. */
   .placeholder-flag {
-    @apply rounded border border-dashed border-beta-fg/40 bg-beta-bg/40 px-2 py-1 text-small text-beta-fg;
+    @apply rounded border border-dashed border-gold bg-gold/10 px-2 py-1 text-body-s text-ink;
   }
 
   .placeholder-line {
-    @apply h-2 rounded bg-surface-sunken;
+    @apply h-2 rounded bg-surface-2;
   }
 
-  /* text-ink-muted at full opacity, not /70. At 70% the label measured 3.02:1
-     against the sunken background, below the 4.5:1 AA floor for 11px text, and
-     it was the only axe violation in the whole suite (QA report 01, Q-02). */
+  /* Slate at full opacity against surface-2: 5.56:1. At 70% the old label
+     measured 3.02:1, below the 4.5:1 AA floor, and it was the only axe
+     violation in the whole suite (QA report 01, Q-02). */
   .placeholder-media {
-    @apply relative flex items-center justify-center rounded border border-line
-           bg-surface-sunken text-micro font-semibold uppercase tracking-wider
-           text-ink-muted;
+    @apply relative flex items-center justify-center rounded border border-rule-card
+           bg-surface-2 text-micro font-semibold uppercase text-slate;
     background-image:
       linear-gradient(to top right, transparent calc(50% - 0.5px),
-        theme('colors.line.DEFAULT') 50%, transparent calc(50% + 0.5px)),
+        rgb(var(--rule-card)) 50%, transparent calc(50% + 0.5px)),
       linear-gradient(to bottom right, transparent calc(50% - 0.5px),
-        theme('colors.line.DEFAULT') 50%, transparent calc(50% + 0.5px));
+        rgb(var(--rule-card)) 50%, transparent calc(50% + 0.5px));
   }
 
   .skip-link {
-    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-ink focus:px-4 focus:py-2 focus:text-surface;
+    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-ink focus:px-4 focus:py-2 focus:text-paper;
   }
 }

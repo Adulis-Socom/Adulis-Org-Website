@@ -19,8 +19,12 @@ export async function ShopPreview() {
   const steps = t.raw('bioToProduct.steps') as Step[];
 
   return (
-    <section className="card-sunken" aria-label={t('bioToProduct.title')}>
-      <h2 className="text-h3 text-ink">{t('bioToProduct.title')}</h2>
+    // The one ink surface on Home (work order §2.3). Paper heading, on-ink
+    // connectors, and each invented step on a Contained card with its EXAMPLE
+    // marker — the marker is a truthfulness control and stays wherever the
+    // card goes.
+    <section className="surface-ink" aria-label={t('bioToProduct.title')}>
+      <h2 className="text-heading-m">{t('bioToProduct.title')}</h2>
 
       <ol className="mt-4 flex flex-col gap-3">
         {steps.map((step, i) => (
@@ -33,7 +37,7 @@ export async function ShopPreview() {
             {i < steps.length - 1 && (
               <span
                 aria-hidden
-                className="select-none py-1 text-center text-h3 font-semibold text-ink-muted"
+                className="select-none py-1 text-center text-heading-m font-semibold text-on-ink"
               >
                 →
               </span>

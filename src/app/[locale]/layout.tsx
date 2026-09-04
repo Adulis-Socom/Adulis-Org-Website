@@ -5,7 +5,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing, type Locale } from '@/i18n/routing';
 import { buildPageMetadata } from '@/lib/metadata';
-import { inter, ethiopicSwitcher, notoEthiopic } from '@/lib/fonts';
+import { inter, instrument, ethiopicSwitcher, notoEthiopic } from '@/lib/fonts';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import '../globals.css';
@@ -152,7 +152,7 @@ export default async function LocaleLayout({
     // routes, so an English page can never pull it -- see src/lib/fonts.ts.
     <html
       lang={locale}
-      className={`${inter.variable} ${ethiopicSwitcher.variable}${
+      className={`${inter.variable} ${instrument.variable} ${ethiopicSwitcher.variable}${
         locale === 'am' ? ` ${notoEthiopic.variable}` : ''
       }`}
     >

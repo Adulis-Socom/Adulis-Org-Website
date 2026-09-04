@@ -32,7 +32,7 @@ export function ReportForm() {
 
   if (state.ok && state.reference) {
     return (
-      <div className="card-sunken" role="status">
+      <div className="card" role="status">
         <h2 className="section-title">{t('success.title')}</h2>
         {/* States the 24-hour commitment outright. Someone who has just reported
             harmful content should not have to guess whether anyone will look. */}

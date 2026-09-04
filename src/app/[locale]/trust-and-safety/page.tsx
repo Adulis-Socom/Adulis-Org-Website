@@ -3,6 +3,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import { ROUTES } from '@/lib/routes';
 import { Link } from '@/i18n/routing';
+// Evidentiary register (work order §2.2): paper ground, ink text, no gold, no
+// surfaces, Card/Open throughout, a document's rhythm. If this page reads as
+// warm, the design has erased a content decision made across four reviews.
 import { InfoCard, SectionTitle, UndecidedFlag } from '@/components/ui';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
@@ -42,7 +45,7 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
         <SectionTitle>{t('boundariesHeading')}</SectionTitle>
         <div className="grid gap-4 md:grid-cols-2">
           {boundaries.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="open" />
           ))}
         </div>
       </section>
@@ -51,7 +54,7 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
         <SectionTitle>{t('verifiedHeading')}</SectionTitle>
         <div className="grid gap-4 md:grid-cols-2">
           {verification.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} variant="sunken" />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="open" />
           ))}
         </div>
         <p className="note mt-4 max-w-prose">{t('verificationNote')}</p>
@@ -71,7 +74,7 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
             keyboard. Stacking removes both rather than papering over either. */}
         <ul className="grid gap-4 md:hidden">
           {ladder.map((row) => (
-            <li key={row.level} className="card">
+            <li key={row.level} className="card-open">
               <h3 className="card-title">{row.level}</h3>
               <p className="mt-2 text-small font-semibold text-ink-muted">
                 {t('ladderColumns.earnedBy')}
@@ -114,7 +117,7 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
 
         <div className="mt-4 grid gap-4 md:grid-cols-3">
           {ladderNotes.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="open" />
           ))}
         </div>
 
@@ -126,9 +129,12 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
 
         {/* One statement below the set, never the same sentence repeated on
             every card. */}
-        <ul className="grid gap-3 sm:grid-cols-2">
+        {/* A hairline-separated list, single column: this is a table of
+            commitments in all but markup, and the evidentiary register sets
+            it as a document, not as cards. */}
+        <ul className="divide-y divide-rule border-y border-rule">
           {published.map((entry) => (
-            <li key={entry} className="card">
+            <li key={entry} className="py-3">
               <span className="card-title">{entry}</span>
             </li>
           ))}
@@ -141,7 +147,7 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
         <SectionTitle>{t('reviewsHeading')}</SectionTitle>
         <div className="grid gap-4 md:grid-cols-2">
           {reviews.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="open" />
           ))}
         </div>
       </section>
@@ -157,7 +163,7 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
             moves, the PRD governs and this follows it. */}
         <div className="grid gap-4 md:grid-cols-3">
           {claims.map((item) => (
-            <div key={item.title} className="card">
+            <div key={item.title} className="card-open">
               <h3 className="card-title">{item.title}</h3>
               {item.body && <p className="card-body">{item.body}</p>}
               {item.lead && <p className="card-body">{item.lead}</p>}
@@ -179,13 +185,13 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
         <SectionTitle>{t('moderationHeading')}</SectionTitle>
         <div className="grid gap-4 md:grid-cols-3">
           {moderation.map((item) => (
-            <InfoCard key={item.title} title={item.title} body={item.body} variant="sunken" />
+            <InfoCard key={item.title} title={item.title} body={item.body} variant="open" />
           ))}
         </div>
       </section>
 
       <section className="section-tight pb-12">
-        <div className="card-sunken">
+        <div className="card-open">
           <p className="flex flex-wrap gap-x-6 gap-y-2">
             <Link href={ROUTES.refunds} className="link-arrow-target">
               {t('refundsLink')}
