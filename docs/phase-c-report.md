@@ -434,6 +434,19 @@ Nothing was found to overstate *enforcement*; one document overstated a gap.
 | Group 5 | 855 s (14.2 min) | green |
 | Closing rulings | 880 s (14.6 min) | green — **821 passed, 0 failed, 1 skipped**, up from 807 with the seven focus-pixel cases in both engines |
 
+**CI on PR #14 (`e495cfb`) — green on all four jobs:**
+
+| Job | Wall time |
+|---|---|
+| `verify` | 71 s |
+| `snapshots` | 99 s |
+| `qa (chromium)` | 497 s |
+| `qa (webkit)` | 822 s (13.7 min) |
+
+WebKit is the long pole, as expected — it is the engine carrying the focus
+cases this work was written for. The matrix's wall time is 13.7 minutes, under
+the fifteen §4.5 names.
+
 All three under the fifteen minutes §4.5 names — **on this machine**, at
 roughly 95% of it. CI is the number that decides it:
 
@@ -465,14 +478,15 @@ under the fifteen, with every spec still running in both.
 | | State |
 |---|---|
 | Sixteen routes carrying a design system, in two registers | Done. Trust & Safety reads plainer than Home |
-| Every ADU-WEB-03 guarantee green, none weakened | 807/0/1 in both engines. Two guards were *touched*: the focus edge assertion (a difference, recorded) and the journey selector (a coupling, fixed). Both stricter, neither weaker |
-| `Placeholder` treatments still failing a snapshot when tidied | 449 pixels against the regenerated baselines |
+| Every ADU-WEB-03 guarantee green, none weakened | **821 passed / 0 failed / 1 skipped**, both engines. Three guards were *touched*: the focus assertion (now pixels, strictly stronger), the journey selector (a coupling, fixed) and G11's baselines (regenerated after a deliberate restyle, then re-proved). None weakened |
+| `Placeholder` treatments still failing a snapshot when tidied | **602 pixels** against the regenerated baselines |
 | Four blocked items still blocked, visibly flagged, not invented | No store, no deletion stub, no Ge'ez, no legal text |
-| A decisions file listing every choice not made | D1–D6 in `decisions-pending.md`; D4 closed by measurement |
+| A decisions file listing every choice not made | **D1–D7** in `decisions-pending.md`. D1 corrected — it was my error, not a missing artefact. D4 closed by measurement; D2, D3, D5, D6 ruled; **D7 is blocked by GitHub's plan, not by engineering** |
 
 The site still will not launch. What remains is a lawyer, a translator, an
-illustrator, a domain, a second repository — and a Figma file with something
-in it.
+illustrator, a domain, a second repository — and, if a red merge is ever to be
+impossible rather than merely noticed, a GitHub plan that permits a required
+check.
 
 ---
 
