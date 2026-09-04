@@ -145,6 +145,7 @@ jobs:
             tests/qa/screenshots/
             tests/qa/.artifacts/
             tests/qa/.results.json
+            test-results/
           # Required. `.artifacts/` and `.results.json` are dot-prefixed, and
           # upload-artifact excludes hidden files by default — the first
           # successful upload carried all 60 screenshots and silently none of
@@ -153,4 +154,53 @@ jobs:
           # The screenshots are the point of this artifact. If they are absent
           # something went wrong upstream and the job should say so, not shrug.
           if-no-files-found: error
+          retention-days: 14
+
+  # ADU-WEB-03 G11 — the placeholder pixel baselines.
+  #
+  # ⚠ Its own job, in a CONTAINER, on purpose. `ubuntu-latest` and this image are
+  # both Ubuntu 24.04 but ship different font packages, so a baseline drawn in
+  # one fails in the other on text rasterisation alone — the cross-platform
+  # flake that gets snapshot tests deleted. `npm run qa:snapshots` runs this
+  # exact image locally, so a developer regenerating baselines and CI comparing
+  # them are running the same browser on the same fonts.
+  #
+  # The tag must track the installed Playwright. When package.json moves, this
+  # and scripts/snapshot-container.mjs move with it, and the baselines are
+  # regenerated in the same commit.
+  snapshots:
+    runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.62.1-noble
+    timeout-minutes: 20
+
+    env:
+      ALLOW_UNDELIVERED_WAITLIST: '1'
+      # Lifts the testIgnore in playwright.config.ts. Without it the run selects
+      # zero tests and exits 0, which is indistinguishable from a pass.
+      QA_SNAPSHOTS: '1'
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Placeholder appearance
+        run: npx playwright test tests/qa/placeholder-appearance.spec.ts --project=chromium
+
+      - name: Upload snapshot diffs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: g11-snapshot-diffs
+          # A pixel ratio with no picture is not reviewable, and an unreviewable
+          # snapshot failure is how snapshot tests end up disabled.
+          path: test-results/
+          # `warn`, not `error`. The job has already failed by the time this
+          # runs; if the webServer never started there is nothing to upload, and
+          # a second failure on top only obscures the first one.
+          if-no-files-found: warn
           retention-days: 14

@@ -916,7 +916,8 @@
       "placeholder": "+251 9XX XXX XXX",
       "note": "This phone check proves identity for this deletion request alone.",
       "submit": "Send deletion OTP",
-      "error": "Enter a full phone number including the area code."
+      "error": "Enter a full phone number including the area code.",
+      "intro": "Enter the phone number on your Adulis account. We will send a six-digit code to it to confirm the request is yours."
     },
     "otp": {
       "label": "Six-digit code",
@@ -924,7 +925,8 @@
       "resendIn": "Resend available in {time}",
       "submit": "Verify code",
       "error": "That code was not correct. Check it and try again.",
-      "intro": "Enter the six-digit code sent to the number you gave."
+      "intro": "Enter the six-digit code sent to the number you gave.",
+      "resend": "Send a new code"
     },
     "confirm": {
       "title": "Confirm account deletion",

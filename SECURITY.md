@@ -5,8 +5,8 @@ Accepted dependency advisories, and why each is not exploitable here.
 An advisory nobody wrote down becomes an advisory nobody remembers deciding
 about. Every entry below names the condition that would change the assessment.
 
-**Last reviewed:** 23 August 2026
-**Next review:** 23 November 2026, or on any change listed under "What would
+**Last reviewed:** 27 August 2026
+**Next review:** 27 November 2026, or on any change listed under "What would
 change this" — whichever comes first.
 
 Run `npm audit` to check the current state against this file. If `npm audit`
@@ -15,7 +15,7 @@ it to this file without one.
 
 ---
 
-## Accepted — 3 high
+## Accepted — 1 high
 
 ### 1. `postcss` ≤ 8.5.22, nested inside `next`
 
@@ -41,35 +41,61 @@ any kind — or moving CSS compilation to request time.
 
 ---
 
-### 2. `sharp` < 0.35.0, nested inside `next`
+### 2. ~~`sharp` < 0.35.0, nested inside `next`~~ — RESOLVED
 
 | | |
 |---|---|
 | **Advisory** | [GHSA-f88m-g3jw-g9cj](https://github.com/advisories/GHSA-f88m-g3jw-g9cj) — inherited libvips CVE-2026-33327, CVE-2026-33328, CVE-2026-35590, CVE-2026-35591 |
 | **Severity** | High |
-| **Path** | `next > sharp@0.34.5` |
-| **Published fix** | `next@16` — a breaking major |
+| **Was** | `next > sharp@0.34.5` |
+| **Now** | `next > sharp@0.35.4`, forced by an override in `package.json` |
 
-**Why it is not exploitable here.** `sharp` backs the `next/image` optimisation
-pipeline. **This site does not use `next/image` anywhere, and ships no raster
-assets at all** — every image slot is a CSS-drawn `.placeholder-media` box
-pending real photography. `sharp` is installed but never invoked, so the libvips
-decoders the CVEs sit in are never handed a byte of input.
+**No longer accepted — fixed.** `sharp` is an *optional* dependency of Next
+(`optionalDependencies.sharp: ^0.34.3`), so an override raises it without
+touching the framework. `next@16` was never required to resolve this; the
+earlier entry assumed it was.
 
-**What would change this.** The day any page imports `next/image`, or any image
-file is added under `public/` or `src/` and served through the optimiser. That
-is expected when founder photographs and category imagery land — **re-assess
-then, before merging that work.**
+**Why the acceptance was withdrawn rather than renewed.** It rested on a
+property nothing checked: that this site imports no `next/image` and ships no
+raster assets. That was true, and it was one design decision away from being
+false — a visual redesign brings a logo, a hero image, an icon set and a
+favicon by default, and none of those would have failed anything. Two tests
+even filter favicon requests out as noise, so adding one changed no result in
+either direction.
+
+An accepted risk whose reversal condition is only written down is an accepted
+risk nobody will notice reversing.
+
+**The condition is now checked, not remembered.** `npm run check:assets`
+(ADU-WEB-03 G13) fails the build when `next/image` or `next/og` is imported, or
+any `.png` `.jpg` `.jpeg` `.webp` `.avif` `.gif` `.tiff` appears under `public/`
+or `src/`, while the installed `sharp` is below 0.35.0.
+
+**SVG is excluded, and that was verified rather than assumed.** `src/app/icon.svg`
+was added, built and served: the response bytes are identical to the source and
+the content-type is `image/svg+xml`. Next serves it directly and does not route
+it through sharp. If that ever changes, the exclusion is wrong and SVG joins the
+list.
+
+⚠ **Removing the override re-opens four High-severity CVEs.** It is safe only
+while no raster asset exists and no image pipeline is imported — which is exactly
+the condition `check:assets` now enforces, in that direction too.
 
 ---
 
 ## Why not `npm audit fix --force`
 
-It resolves both by installing `next@16`. That is a breaking major that would
-land at the same time as an unreviewed framework upgrade, on a codebase with one
-developer and seven routes still unbuilt. The advisories above are not reachable
-in this application; the upgrade risk is real and immediate. The trade is not
-close.
+`npm audit fix --force` resolves the remaining nested `postcss` by installing
+**`next@16`**, a breaking major. That would land an unreviewed framework upgrade
+on a codebase with one developer, and the advisory it fixes is not reachable
+here — no CSS from outside this repository is ever compiled. The upgrade risk is
+real and immediate; the exposure is not. The trade is not close.
+
+**The sharp advisory did not need it.** `sharp` is an *optional* dependency, so
+an override raised it to 0.35.4 without touching Next. The earlier entry assumed
+a major was the only route and was wrong about that — worth recording, because
+"the published fix is a breaking major" is a sentence that closes off cheaper
+options if nobody re-checks it.
 
 Next 16 will be taken deliberately, as its own piece of work. It also forces the
 flat-ESLint-config migration, since `next lint` is removed in 16.
@@ -84,6 +110,7 @@ flat-ESLint-config migration, since `next lint` is removed in 16.
 | 23 Aug 2026 | `next-intl` ≤ 4.9.1 — open redirect ([GHSA-8f24-v5vv-gm5j](https://github.com/advisories/GHSA-8f24-v5vv-gm5j)) and prototype pollution via `experimental.messages.precompile` ([GHSA-4c35-wcg5-mm9h](https://github.com/advisories/GHSA-4c35-wcg5-mm9h)) | Migrated **v3 → v4.13.7**. No v3 fix existed. |
 | 23 Aug 2026 | `eslint` / `@eslint/plugin-kit` — ReDoS ([GHSA-xffm-g5w8-qvg7](https://github.com/advisories/GHSA-xffm-g5w8-qvg7)) | Upgraded `eslint` to **9.39.5** within the major. |
 | 23 Aug 2026 | `postcss` (direct dependency) | Upgraded to **8.5.26**. Only Next's nested copy remains — see above. |
+| 27 Aug 2026 | `sharp` < 0.35.0 — four inherited libvips CVEs, previously **accepted** | Overridden to **0.35.4**. It is an optional dependency of Next, so no major was needed. The acceptance rested on a property nothing checked; `check:assets` now checks it. |
 
 ---
 

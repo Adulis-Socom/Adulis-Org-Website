@@ -42,12 +42,41 @@
  *   7. The blocked list returned only after the code is verified server-side,
  *      never in the same response as the check.
  *   8. **An end-to-end no-JavaScript pass over all five steps**, with the ticket
- *      surviving three boundaries. `check:copy` asserts every form carries an
- *      `action` and none uses `onSubmit`, which proves the flow CAN work without
- *      a bundle — it cannot prove the five steps chain, because nothing can
- *      drive them while this flag is false and no API exists.
+ *      surviving three boundaries. ✅ against a test double —
+ *      `tests/qa/deletion-journey.spec.ts` drives all five with scripting off.
+ *      Repeat it against the real API before certifying; the shape of the
+ *      journey is proven, the integration is not.
+ *
+ *      Worth keeping in view when the rest of this list is signed off: the two
+ *      defects that pass found were invisible to every existing guard.
+ *      `check:copy` asserted every form carries an `action` and none uses
+ *      `onSubmit` — the mechanism — and passed while the page rendered its
+ *      terminal "your account has been deleted" panel to every visitor.
  *
  *      A guard that has only ever asserted a mechanism is the same shape as a
- *      guard that has only ever passed. This is a precondition, not a follow-up.
+ *      guard that has only ever passed.
  */
-export const DELETION_FLOW_ENABLED = false;
+/**
+ * The product decision: has a person certified the eight conditions above?
+ *
+ * Not yet. This stays `false` until someone does, and no environment variable
+ * changes that answer.
+ */
+const CERTIFIED = false;
+
+/**
+ * ⚠ `DELETION_FLOW_TEST_FORCE` exists solely so the QA harness can drive the
+ * five-step journey with JavaScript disabled — condition 8, which cannot be
+ * satisfied while the flow refuses to render.
+ *
+ * It is NOT a way to enable the flow. `scripts/check-env.mjs` refuses a
+ * production build with it set, exactly as it refuses `PSEUDO_AM_FILE`. The
+ * harness points it at a test double in `tests/qa/sink.mjs`; the real API still
+ * does not exist and integration is still untestable.
+ *
+ * The distinction that matters: this proves the JOURNEY — that five form posts
+ * chain and the ticket survives three boundaries without a bundle. It proves
+ * nothing about the API.
+ */
+export const DELETION_FLOW_ENABLED =
+  CERTIFIED || process.env.DELETION_FLOW_TEST_FORCE === '1';

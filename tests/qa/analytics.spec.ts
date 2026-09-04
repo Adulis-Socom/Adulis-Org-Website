@@ -1,5 +1,6 @@
 import { test, expect } from './fixtures';
 import { ANALYTICS_EVENTS, isAnalyticsEvent, sanitiseProperties } from '@/lib/analytics';
+import { allPages } from './helpers';
 
 /**
  * §6.4 — analytics carries counts and nothing that identifies anyone.
@@ -144,8 +145,11 @@ test.describe('§6.4 analytics payload', () => {
       const host = new URL(r.url()).hostname;
       if (host !== 'localhost' && host !== '127.0.0.1') external.push(r.url());
     });
-    for (const route of ['/en', '/en/for-sellers', '/en/contact', '/en/report-content']) {
-      await page.goto(route, { waitUntil: 'networkidle' });
+    // Every route, both locales. This previously visited four English routes,
+    // so a third-party script added to any of the other 26 pages would have
+    // shipped unnoticed.
+    for (const p of allPages()) {
+      await page.goto(p.url, { waitUntil: 'networkidle' });
     }
     expect(external, `off-origin requests:\n${external.join('\n')}`).toEqual([]);
   });

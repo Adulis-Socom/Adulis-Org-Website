@@ -37,8 +37,26 @@ npm run dev        # http://localhost:3000 → redirects to /en
 npm run build      # production build
 npm run typecheck  # tsc --noEmit
 npm run lint       # next lint
-npm run check:i18n # partial-array guard — also runs automatically before build
+npm run check:i18n     # partial-array guard
+npm run check:encoding # UTF-8 end to end, before the Amharic translation lands
+npm run check:font     # the Ethiopic subset's cmap really covers the label
+npm run check:copy     # 11 copy and structural invariants
+npm run check:assets   # the sharp advisory condition, checked not remembered
+npm run check:env      # six things that make a build undeployable
+                       # all six run automatically before `npm run build`
 ```
+
+```bash
+npm run qa             # the Playwright suite, against a production build
+npm run qa:snapshots   # the G11 placeholder baselines, in the pinned container
+npm run qa:snapshots:update   # ...and regenerate them
+```
+
+`qa:snapshots` needs docker. The G11 baselines are pinned to one container
+image, and CI compares them in that same image rather than on the bare runner —
+`ubuntu-latest` ships a different font set, so the same three pictures differ.
+`npm run qa` leaves them out entirely unless `QA_SNAPSHOTS=1`. See the header of
+`tests/qa/placeholder-appearance.spec.ts` for why the pin is the point.
 
 Copy `.env.example` to `.env.local` before deploying anywhere real. Leaving
 `NEXT_PUBLIC_SITE_URL` unset is deliberate: the layout emits
@@ -283,6 +301,19 @@ The code is close to complete. Most of what remains is not engineering.
 `robots.txt` and `sitemap.xml` are done: both read `NEXT_PUBLIC_SITE_URL` per
 request, and the sitemap lists only routes with no entry in `INDEX_POLICY`, so
 it can never advertise a URL the site serves with `noindex`.
+
+## What the tests actually enforce
+
+[`docs/enforcement.md`](docs/enforcement.md) states, per guarantee, the outcome a
+person would observe, what asserts it, and what it does **not** cover — plus four
+places where the implementation had to differ from the specification.
+
+Read it before assuming the suite covers something. An audit of the previous
+constraint list found that of ten claimed guarantees, **one was fully enforced,
+three had no enforcement at all, and every one was breakable past its check.**
+
+A guarantee is listed there only after it has been observed failing. A row that
+has only ever passed is an assumption with a green tick beside it.
 
 ## Traps that have already cost time
 
