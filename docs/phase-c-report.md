@@ -380,7 +380,17 @@ roughly 95% of it. CI is the number that decides it:
 **Decision: split.** The `qa` job now runs as one job per engine, in
 parallel, through a matrix — every spec still runs in both engines; nothing
 is thinned; wall time becomes the slower engine rather than the sum. The
-split's own per-engine durations are recorded from its first run below.
+split's own per-engine durations, from its first run (`3e83406`):
+
+| CI job | Wall time | Result |
+|---|---|---|
+| `qa (chromium)` | 738 s (12.3 min) | green |
+| `qa (webkit)` | 773 s (12.9 min) | green |
+| `snapshots` | 103 s (image cached) | green |
+| `verify` | 892 s | green |
+
+The browser matrix's wall time is now the slower engine — **12.9 minutes** —
+under the fifteen, with every spec still running in both.
 
 ---
 
