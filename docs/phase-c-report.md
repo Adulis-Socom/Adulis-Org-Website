@@ -612,6 +612,19 @@ change, sees the jobs run, and concludes it works everywhere. It works there.
 The same error as reading one Figma node twice — a check performed where the
 defect cannot appear.
 
+**Verified live on PR #15**, which is also the first commit to exercise the new
+design end to end:
+
+| Run | Jobs | Result |
+|---|---|---|
+| `push` | `verify` 74 s, `snapshots` 106 s (`qa` skipped) | green |
+| `pull_request` | `qa (chromium)` 509 s, `qa (webkit)` 783 s (`verify`, `snapshots` skipped) | green |
+
+Both events fired for the same commit, each ran exactly its half, nothing ran
+twice, and all four results attach to the same SHA. ⚠ **That proves the design,
+not the rollout** — this is the branch carrying the change, which is the one
+branch where it cannot fail.
+
 The remedy is branch hygiene, not YAML, and it deletes shared state, so it is
 recorded in **D8** with the branch-by-branch table rather than done here:
 enable *Automatically delete head branches* (currently off), delete the seven
