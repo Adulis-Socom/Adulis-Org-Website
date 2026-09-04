@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import { ROUTES } from '@/lib/routes';
-import { DoorBand, InfoCard, SectionTitle, Sequence } from '@/components/ui';
+import { DisplayHeading, DoorBand, InfoCard, SectionTitle, Sequence } from '@/components/ui';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
 type Item = { title: string; body: string };
@@ -25,7 +25,7 @@ export default async function ForBuyersPage({ params }: LocaleParams) {
   return (
     <div className="container-page">
       <section className="section">
-        <h1 className="page-title">{t('heading')}</h1>
+        <DisplayHeading lead={t('heading')} accent={t('headingAccent')} />
         <p className="lede">{t('sub')}</p>
 
       </section>

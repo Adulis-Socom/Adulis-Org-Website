@@ -42,6 +42,41 @@ export function InfoCard({
   );
 }
 
+/**
+ * A two-line display headline, with the second line in gold.
+ *
+ * The rule, so it is not a per-page judgement: **gold carries the second line
+ * of a two-line display headline, never the first.** The first line names the
+ * subject; the second names the outcome — the thing the reader is being
+ * offered — and that is where the emphasis belongs. One gold phrase per page
+ * keeps it meaningful.
+ *
+ * ⚠ Relational pages only, and display sizes only. Gold on paper is 3.24:1,
+ * which clears AA for large text (≥24px, or ≥18.66px bold) and fails it
+ * outright below that — every size this renders at is 32px or more. It must
+ * never appear on an evidentiary page: Trust & Safety and Prohibited Products
+ * carry no gold at all, headline included.
+ *
+ * Each part is a block, so "the second line" is a fact about the markup rather
+ * than about where a particular viewport happens to wrap.
+ */
+export function DisplayHeading({
+  lead,
+  accent,
+  className = 'page-title'
+}: {
+  lead: string;
+  accent: string;
+  className?: string;
+}) {
+  return (
+    <h1 className={className}>
+      <span className="block">{lead}</span>
+      <span className="display-gold block">{accent}</span>
+    </h1>
+  );
+}
+
 export function SectionTitle({ children }: { children: ReactNode }) {
   return <h2 className="section-title mb-4">{children}</h2>;
 }

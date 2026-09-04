@@ -292,3 +292,28 @@ docker run --rm -v "$PWD":/w -w /w node:22-slim npm ci --dry-run
 and regenerate under it (`npm install --package-lock-only`) when it complains.
 The resulting lock passed both majors. A container that verifies `npm ci` is
 only evidence for the npm inside it.
+
+---
+
+## Run the whole suite after every group, not once at the end
+
+Phase C ran the full suite after each group of pages. Three of the four defects
+it found had been present for **multiple checkpoints and were passing every
+check**:
+
+- a focus ring invisible in Safari on every checkbox and select, since the ring
+  was introduced;
+- a contrast failure in cards nested on the ink surface, introduced and caught
+  within one group;
+- a CI pipeline that had not executed a single test since Phase A, because the
+  install step failed before any of them ran.
+
+None would have surfaced without a phase that touched every route and re-ran
+everything. Two of them were found by a suite run that was only supposed to
+confirm a page group, and the third by looking at CI because a run had been
+recorded rather than assumed.
+
+**The cost is real** — roughly fourteen minutes per group locally. The
+alternative is finding all of it at the end, in one pile, without knowing which
+change caused which failure. A regression found three groups later costs more
+than the group took, and this phase paid that cost once and never again.

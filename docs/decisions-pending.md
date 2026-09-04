@@ -9,11 +9,30 @@ is §0.2 of the Phase C work order: **never invent to unblock yourself.**
 
 ---
 
-## D1 · The Figma file is empty at the key supplied
+## D1 · ~~The Figma file is empty at the key supplied~~ — RESOLVED, and I was wrong
 
-**Observed:** `hndzWhYFqg1kLwCaUr0asC` contains one page, "Page 1", with zero
-nodes and a canvas of 0×0. No Foundations board, no Components, no
-Compositions, no variables reachable.
+**The file is not empty. I queried the wrong node and stopped.**
+
+The link ends `?node-id=0-1`, and `0:1` is a genuinely empty page called
+"Page 1". Asking the tool for the document's pages returned **only that page**,
+so both readings agreed and I concluded the file was empty. It was not: the
+work is on pages the listing did not return — Components `9:22`, Foundations
+`9:23`, Compositions `9:24` (that last one genuinely empty).
+
+**What the mistake was, precisely:** an absence of evidence from one incomplete
+listing, treated as evidence of absence, when a second query would have settled
+it. The same shape as every other defect this project has recorded — a check
+that reported truthfully about the wrong thing.
+
+Everything below is retained as originally written, because what was built from
+the text specification is what shipped, and the comparison against the real
+Figma sets is in `docs/phase-c-report.md`. The tokens matched exactly; five
+component divergences were found and are reported there.
+
+### What was originally recorded
+
+**Observed:** `hndzWhYFqg1kLwCaUr0asC` appeared to contain one page, "Page 1",
+with zero nodes.
 
 The work order describes 45 variables, 10 text styles and five component sets in
 that file. They are not there — either the key is a different file, the system
@@ -30,12 +49,7 @@ Every value is recorded in `src/app/globals.css` with its source.
 component sets"): there is nothing to compare against. `docs/phase-c-report.md`
 carries screenshots of the built components alone.
 
-**Decision needed:**
-
-| Option | Cost |
-|---|---|
-| Supply the correct file key or branch | None beyond a re-check that the built tokens match the Figma variables |
-| Confirm the file is genuinely empty and the text spec is the system of record | The Figma build (Phase B) is redone or dropped. `docs/phase-c-report.md` already documents what was built |
+**Resolved.** No decision needed.
 
 ---
 
@@ -53,10 +67,14 @@ the brand mark.
 prow drops in as a `mask-image` on a `::before` pseudo-element without changing
 markup.
 
-| Option | Cost |
-|---|---|
-| Supply the mark as SVG | One CSS rule and a G11-style baseline for the surface |
-| Ship the surface with a straight top edge | Nothing further; the "one bold element" is absent until the mark lands |
+**RULED: defer, and do not approximate it.** The prow is derived from the mark,
+and the vector redraw has not been commissioned. Drawing an approximation now
+means either replacing it later or shipping something that is nearly the brand.
+The ink surface keeps a plain top edge.
+
+It is **one drawing serving three purposes** — the app icon, the trademark
+vector, and this edge — so it is pending against the same commission as D5, not
+a separate piece of work.
 
 ---
 
@@ -70,10 +88,12 @@ introducing one is a design decision.
 5.56:1, above the 4.5 a marker needs, and the marker no longer needs a size
 exemption of its own.
 
-| Option | Cost |
-|---|---|
-| Accept Label-sized tags | None |
-| Add a Tag text style below Label | A new style in Figma and here, and a contrast re-check at the smaller size |
+**RULED: 14px for both variants.** 12/18 is below the comfortable floor for a
+low-end Android at arm's length, and `EXAMPLE` is a truthfulness control — the
+one label that must never be missed. Marker and Status are both Body/S, 14/22.
+
+The code was already at 14/22 and needed no change. **The Figma Tag set is the
+side that diverges**: its Marker is 12/18, and it is the artefact to update.
 
 ---
 
@@ -94,10 +114,10 @@ The icon commission has not landed. Per work order §4.2 the pipeline is built
 and tested and the artwork is **not** drawn — a placeholder icon cannot be
 visibly flagged and silently becomes the brand mark.
 
-| Option | Cost |
-|---|---|
-| Deliver `src/app/icon.svg` and `src/app/apple-icon.png` | Drop-in; the tests flip from expecting a deliberate 404 to expecting 200 |
-| Keep shipping no icon | A console 404 on every page and a dented best-practices score, both visible on purpose |
+**RULED: founder commission, not an engineering decision.** The pipeline is
+built and the deliberate 404 is correct until the file exists. Delivering
+`src/app/icon.svg` and `src/app/apple-icon.png` flips `tests/qa/icons.spec.ts`
+from asserting a 404 to asserting 200 with no code change. Carries D2 with it.
 
 ---
 
@@ -111,9 +131,72 @@ words that carry the gold is a copy decision, not a styling one.
 **Done:** the headline renders whole at Display/XL in ink. `.display-gold` is
 defined and unused.
 
+**RULED, as a rule rather than a per-page judgement:**
+
+> **Gold carries the second line of a two-line display headline, never the
+> first.** The first line names the subject. The second names the outcome — the
+> thing the reader is being offered. One gold phrase per page keeps it
+> meaningful.
+
+Relational pages only, display sizes only (gold on paper is 3.24:1, which needs
+≥24px). **No gold on any evidentiary page, headline included.**
+
+**Applied** to the three relational headings that are genuinely two-part, each
+split into `heading` + `headingAccent` and rendered by one `DisplayHeading`
+component:
+
+| Page | Subject | Outcome, in gold |
+|---|---|---|
+| Home | "Sell where" | "your audience already knows you." |
+| For sellers | "You already have the audience." | "Stop losing the orders you're already getting." |
+| For buyers | "You followed them." | "This is where you buy from them." |
+
+*How it works* ("How Adulis works") and *About* ("Why we're building Adulis")
+are single-part and take no gold. Trust & Safety and Prohibited Products are
+evidentiary and take none by rule.
+
+⚠ **Where each line breaks is a copy judgement**, and it is the one part of this
+that was not ruled.
+
+Home's is worth a look before it settles. `Sell where` is two words, so at 360px
+the gold runs to **three of the headline's four lines** — see
+`docs/phase-c-screenshots/360-home.png`. It obeys the rule exactly (gold carries
+the second line) while sitting oddly against *"one gold phrase per page keeps it
+meaningful"*. On desktop at 56px it is one ink line over one gold line, which is
+what the rule describes.
+
+The alternative split, `Sell where your audience` / `already knows you.`, is
+balanced at both sizes and puts the emphasis on the relationship rather than on
+the whole claim. It is two catalogue strings either way, and I have left the
+ruled reading in place rather than substitute my own.
+
+---
+
+---
+
+## D7 · Branch protection cannot be configured on this repository
+
+**Blocked, and not by me.** The ruling asks for `Settings → Branches → main`
+with a required status check. That feature returns **403** here:
+
+> Upgrade to GitHub Pro or make this repository public to enable this feature.
+
+Repository rulesets, the modern replacement, return the same. `Adulis-Socom` is
+an **organization on the free plan** and the repository is **private**, which is
+the combination GitHub excludes. The token used has `repo` scope, so this is a
+plan limit and not a permissions problem.
+
+**The two documented ways out are both decisions, not engineering:**
+
 | Option | Cost |
 |---|---|
-| Name the accent span in the catalogue (e.g. `home.headingAccent`) | One key in `en.json`, one `<span>`, and the same decision again when the Amharic lands |
-| Keep the headline in one tone | None; the gold display type appears on the ink surface instead |
+| A paid GitHub plan for the org | A subscription. Restores required checks, and is the only option that makes a red merge *impossible* |
+| Make the repository public | **Forbidden today** — IP registration is incomplete and `README.md` says the repo must stay private |
+
+**What exists in the meantime is a compensating control, not enforcement:** the
+reporting format now requires the PR URL **and its check status**, so a red run
+has to be stated rather than merely not looked at. That is weaker than a gate
+and should not be mistaken for one — nothing currently prevents a third
+unverified merge.
 
 ---

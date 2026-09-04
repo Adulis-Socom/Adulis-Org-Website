@@ -45,7 +45,8 @@
   },
   "home": {
     "pageTitle": "Adulis — a shop for sellers whose buyers already follow them",
-    "heading": "Sell where your audience already knows you.",
+    "heading": "Sell where",
+    "headingAccent": "your audience already knows you.",
     "sub": "Adulis gives creators, small businesses and shops a structured place for the orders now getting buried in direct messages.",
     "bioToProduct": {
       "title": "From bio link to product",
@@ -183,7 +184,8 @@
   },
   "forSellers": {
     "pageTitle": "For sellers",
-    "heading": "You already have the audience. Stop losing the orders you're already getting.",
+    "heading": "You already have the audience.",
+    "headingAccent": "Stop losing the orders you’re already getting.",
     "sub": "For creators, small businesses and shops selling through TikTok or Instagram.",
     "problemsHeading": "The problem",
     "problems": [
@@ -995,7 +997,8 @@
   },
   "forBuyers": {
     "pageTitle": "For buyers",
-    "heading": "You followed them. This is where you buy from them.",
+    "heading": "You followed them.",
+    "headingAccent": "This is where you buy from them.",
     "sub": "Adulis gives buyers a factual shop view for sellers they already know from TikTok or Instagram.",
     "stepsHeading": "How buying works",
     "steps": [

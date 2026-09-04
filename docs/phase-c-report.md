@@ -68,12 +68,77 @@ _(observed-failing result recorded in §3 · C1 below)_
 
 ## 2 · The design system (work order §2)
 
-**The Figma file is empty.** `hndzWhYFqg1kLwCaUr0asC` holds one page with zero
-nodes — no Foundations board, no component sets, no variables. Recorded as
-**D1** in `decisions-pending.md`. Phase C proceeded from the text: §1, §2.1,
-§2.2, §2.3 of the work order, plus the palette and derived tokens from the
-Design Direction and Token Rulings. Screenshots in this report are of the
-built components alone; there is nothing to set them beside.
+### ⚠ The file was never empty. I queried the wrong node and stopped.
+
+The supplied link ends `?node-id=0-1`. Node `0:1` is a page called "Page 1" and
+it is genuinely empty — and asking the tool to list the document's pages
+returned **only that page**. Two readings agreed, so I recorded the file as
+empty and built from the text.
+
+The work is on pages the listing did not return: **Components `9:22`**,
+**Foundations `9:23`**, Compositions `9:24` (that one genuinely empty). One
+further query would have found them.
+
+This is the same shape as every defect this project has recorded — a check that
+reported truthfully about the wrong thing — and I made it about the artefact I
+was told to build against. What follows is the comparison that §5.3 asked for
+and that D1 wrongly declared impossible.
+
+### The tokens matched exactly
+
+The Foundations board carries all nine colours with their contrast figures
+written on it. Every value I derived from the text is identical, including the
+reasoning:
+
+| Token | Figma | Built | Board's note |
+|---|---|---|---|
+| ink | `#0E1A33` | ✓ | Primary text. Dark surfaces |
+| gold | `#B8862B` | ✓ | Text on ink only (5.34). On paper, large text only (3.24) |
+| paper | `#FFFFFF` | ✓ | Page background |
+| slate | `#55607A` | ✓ | Secondary text on paper. 2.75 on ink — never use it there |
+| on-ink | `#8890A2` | ✓ | Secondary text on ink (5.40) |
+| surface-2 | `#EFF1F5` | ✓ | Contained surfaces (1.13). Revised from `#F8F8F9`, which was imperceptible |
+| rule | `#E3E6ED` | ✓ | Decorative dividers only. 1.25 — never a control boundary |
+| border-control | `#8E939F` | ✓ | Form field borders. 3.1 on paper, per WCAG 1.4.11 |
+| danger | `#C0362C` | ✓ | Validation errors. 5.52 on paper |
+
+All ten text styles match at the pixel: Display/XL 56/64 · L 40/48 · M 32/40 ·
+Heading/L 24/32 · M 20/28 · Body/L 18/28 · M 16/26 · M Strong · S 14/22 ·
+Label 14/22. The board states the fixed-line-height reasoning in the same terms
+the work order does, and carries its own `UNDECIDED` flag noting that Ge'ez
+cannot be previewed in Figma.
+
+The board's Focus section confirms the ring exactly — *"Paper inner (2px), ink
+outer (2px). The ring must contrast with the element, not only the surface"* —
+and shows the two cases: an ink button on paper, and a **gold** button on the
+navy surface, which is `.btn-gold`.
+
+**One value is not on the board:** `rule-card` `#DDE1E8`, the Contained card's
+border. It comes from work order §1.1 rather than from Foundations, so the
+board lists nine colours and the build has ten.
+
+### Component divergences, measured
+
+Figma's dimensions come from the component set; mine from the rendered page at
+1280px. **Adopted** means the code moved to Figma.
+
+| Component | Figma | Was | Divergence | Outcome |
+|---|---|---|---|---|
+| Button | 50px tall | 46px | 10px vertical padding, not 12 | **Adopted** — `py-3`; secondary takes `py-[11px]` so its 1px boundary does not make it 2px taller in the same row |
+| Field | 72px block | 76px | label→input gap | **Kept.** The 6px gap is the Amharic collision rule; the input itself must stay ≥44px. 4px, reported |
+| Card/Contained | 24px padding | 20px | `md:p-5` | **Adopted** — `md:p-6`, and `card-open` follows |
+| Tag/Marker | outlined pill, ink edge, paper fill, ink text | 8px radius, no edge, surface-2 fill, slate text | treatment | **Adopted.** This is the truthfulness control; Figma's outlined pill is the stronger reading of "must never be missed". Ink on paper is 17.4:1 |
+| Tag/Status | filled pill, no edge | filled pill **with** edge | border | **Adopted** — dropped. Marker outlined, Status filled, which is a real distinction between the two kinds |
+| Tag sizes | Marker 12/18 | 14/22 | type size | **Figma diverges.** The ruling is 14/22 for both; the code was already there. The Figma set is the artefact to update |
+| Placeholder/Flag | dashed neutral on paper | dashed **gold** on gold tint | colour, padding | **Adopted.** Gold was wrong twice: the ruling permits none on an evidentiary page, and flags appear on Trust & Safety and all four legal pages |
+| Placeholder/Media | dashed edge, no cross | solid edge, diagonal cross | both | **Split.** Took the dashed edge; **kept the cross.** Removing it weakens G11, and §0.2 says a design that weakens a guarantee is the thing that changes |
+
+Two divergences were therefore left standing on purpose (Field, and the Media
+cross), one is Figma's to fix (Tag size), and five were adopted.
+
+**Compositions `9:24` is empty**, so there are still no page comps to compare
+whole pages against — §2.3's guidance remains the only source for those, as the
+work order said it would be.
 
 ---
 
@@ -367,6 +432,7 @@ Nothing was found to overstate *enforcement*; one document overstated a gap.
 | Groups 1–4, second | 818 s (13.6 min) | 2 failures, a selector |
 
 | Group 5 | 855 s (14.2 min) | green |
+| Closing rulings | 880 s (14.6 min) | green — **821 passed, 0 failed, 1 skipped**, up from 807 with the seven focus-pixel cases in both engines |
 
 All three under the fifteen minutes §4.5 names — **on this machine**, at
 roughly 95% of it. CI is the number that decides it:
@@ -407,3 +473,79 @@ under the fifteen, with every spec still running in both.
 The site still will not launch. What remains is a lawyer, a translator, an
 illustrator, a domain, a second repository — and a Figma file with something
 in it.
+
+---
+
+## 7 · Closing rulings (post-Phase-C)
+
+### 7.1 Component comparison — done, §2 above
+
+Five divergences adopted, two kept deliberately, one is Figma's. D1 corrected
+and the mistake recorded rather than quietly fixed.
+
+### 7.2 Focus asserted in pixels
+
+`tests/qa/focus-pixels.spec.ts` replaces the property inspection as the
+guarantee. Screenshot unfocused, focus, screenshot again, require a real change
+in the 8px band outside the element. Seven controls, both engines, including
+the native checkbox and select WebKit will not paint a box-shadow on.
+
+| | Band changed |
+|---|---|
+| Signal, as built, 14 cases | **21.1% – 45.8%** |
+| Noise, ring reduced to a transparent outline | **0.0% — zero pixels, all 14** |
+| Interior, as built | 0.0% – 3.7% |
+
+Threshold **0.10**, set from that, not from intuition. All three historical
+failures paint nothing outside the element and land on exactly zero.
+
+It needs no pinned container: it compares two screenshots from the same browser
+seconds apart, so the platform cancels and it runs in the ordinary suite.
+
+**One thing it caught in itself, before it caught anything else.** The first run
+failed five WebKit cases at 6%. The cause was mine: the screenshot is in device
+pixels and the element rect in CSS pixels, WebKit runs this suite at
+`deviceScaleFactor` 2, so the element landed at a quarter of its area and most
+of its interior was counted as band. The ratio was diluted about twelvefold. It
+now scales by the measured image-to-clip ratio and is correct at any factor.
+
+**G11 re-proved against the regenerated baselines.** The placeholders changed
+deliberately, so the control had to be re-earned rather than assumed: the flag
+tidied into a solid `rule-card` callout on `surface-2` fails at **602 differing
+pixels**, the two untouched images unchanged.
+
+### 7.3 Tag size
+
+Already 14/22 in code; no change needed. **The Figma Tag set is the divergent
+artefact** — its Marker is 12/18 — and updating it is a Figma edit, not a code
+one. Recorded under D3.
+
+### 7.4 The gold headline rule
+
+Applied to the three relational headings that are genuinely two-part, through
+one `DisplayHeading` component so it cannot drift per page. Table in D6. *How it
+works* and *About* are single-part and take none; the evidentiary pages take
+none by rule.
+
+### 7.5 Branch protection — **blocked, and not by me**
+
+`Settings → Branches` and repository rulesets both return **403: Upgrade to
+GitHub Pro or make this repository public.** `Adulis-Socom` is an organization
+on the **free** plan and the repository is **private** — the combination GitHub
+excludes. The token has `repo` scope, so this is a plan limit, not permissions.
+
+Making the repository public is forbidden while IP registration is incomplete.
+So **there is no way to make a red merge impossible on this plan**, and the
+compensating control is weaker than a gate:
+
+**Reporting format, changed as ruled** — every report and PR now carries the PR
+URL **and its check status**, so a red run must be stated rather than merely not
+looked at.
+
+Full detail and the two options in `decisions-pending.md` **D7**.
+
+### 7.6 The argument for the cadence
+
+In `engineering-notes.md`: three of this phase's four findings had been present
+for multiple checkpoints and were passing every check. None would have surfaced
+without a phase that touched every route and re-ran everything after each group.
