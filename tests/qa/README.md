@@ -81,14 +81,16 @@ check this before anything else.
 |---|---|
 | `fixtures.ts` | Per-test rate-limit identity. Import `test` and `expect` from here |
 | `helpers.ts` | Route list read from `src/lib/routes.ts`, console capture, overflow and target measurement, focus visibility |
-| `console.spec.ts` | §2.1 `MISSING_MESSAGE` and runtime errors — the check nothing else can do |
+| `console.spec.ts` | §2.1 `MISSING_MESSAGE` and runtime errors — the check nothing else can do. ⚠ It only sees pages that render: the deletion flow's two missing keys were invisible to it while the flow was gated off |
 | `layout.spec.ts` | §2.2 360px overflow, §2.3 touch targets, screenshots |
 | `menu.spec.ts` | §2.4 mobile menu |
 | `keyboard.spec.ts` | §2.5 focus visibility, tab order, error-summary focus |
 | `nojs.spec.ts` | §2.6 JavaScript disabled, and the F-13 revert gate |
 | `a11y.spec.ts` | §2.7 axe, WCAG 2.1 AA |
 | `headers-fonts.spec.ts` | §2.8 security headers, §2.9 font loading |
-| `sink.mjs` | Local delivery sink, so the waitlist has a destination |
+| `deletion-journey.spec.ts` | ADU-WEB-03 G6 — five steps chained with JS off, on the forced-on instance (port 3212) |
+| `placeholder-appearance.spec.ts` | ADU-WEB-03 G11 — pixel baselines. Excluded from `npm run qa`; run `npm run qa:snapshots` |
+| `sink.mjs` | Local delivery sink, so the waitlist has a destination — and the deletion API double |
 
 ## Things that are not defects
 

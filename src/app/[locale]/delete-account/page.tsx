@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import { ROUTES, indexPolicy } from '@/lib/routes';
 import { DeleteAccountFlow } from '@/components/DeleteAccountFlow';
+import { DELETION_FLOW_ENABLED } from '@/lib/flags';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
 
@@ -26,11 +27,11 @@ export default async function DeleteAccountPage({ params }: LocaleParams) {
   return (
     <div className="container-page section">
       <DeleteAccountFlow
-      // The API URL is server-only, so whether it is configured is passed in
-      // rather than read in the browser. The flow needs BOTH this and
-      // DELETION_FLOW_ENABLED: the flag is a person certifying the seven
-      // conditions in src/lib/flags.ts, the URL is the technical precondition.
-      apiConfigured={Boolean(process.env.DELETION_API_URL)}
+      // Both gates, evaluated on the server where the environment is real.
+      // The flag is a person certifying the eight conditions in src/lib/flags.ts;
+      // the URL is the technical precondition. A client component cannot make
+      // this decision — it would inline process.env at build time.
+      enabled={DELETION_FLOW_ENABLED && Boolean(process.env.DELETION_API_URL)}
     />
     </div>
   );

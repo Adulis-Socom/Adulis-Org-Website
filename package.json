@@ -17,7 +17,9 @@
     "qa:report": "playwright show-report",
     "check:font": "node scripts/build-ethiopic-subset.mjs",
     "check:encoding": "node scripts/check-encoding.mjs",
-    "check:assets": "node scripts/check-assets.mjs"
+    "check:assets": "node scripts/check-assets.mjs",
+    "qa:snapshots": "node scripts/snapshot-container.mjs",
+    "qa:snapshots:update": "node scripts/snapshot-container.mjs --update"
   },
   "dependencies": {
     "next": "15.5.23",

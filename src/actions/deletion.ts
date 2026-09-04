@@ -4,12 +4,12 @@ import { headers } from 'next/headers';
 import { clientKey, rateLimit } from '@/lib/ratelimit';
 import { track } from '@/lib/analytics';
 import { isPlausiblePhone } from '@/lib/validation';
+import { initialDeletionState, type DeletionState } from '@/lib/deletion/state';
 import {
   confirmDeletion,
   previewDeletion,
   requestOtp,
-  verifyOtp,
-  type DeletionBlocker
+  verifyOtp
 } from '@/lib/deletion/client';
 
 /**
@@ -40,34 +40,14 @@ import {
  * takes a phone or a code argument.
  */
 
-export type DeletionStep =
-  | 'explain'
-  | 'phone'
-  | 'otp'
-  | 'confirm'
-  | 'blocked'
-  | 'success'
-  | 'unreachable';
-
-export type DeletionState = {
-  step: DeletionStep;
-  /** Carried across steps in a hidden field. Never persisted. */
-  phone: string;
-  /** Carried across steps in a hidden field. Never a cookie. */
-  ticket: string | null;
-  /** Exactly as the server returned them. */
-  blockers: DeletionBlocker[];
-  /** A key into the `deleteAccount` namespace, never a rendered sentence. */
-  error: string | null;
-};
-
-export const initialDeletionState: DeletionState = {
-  step: 'explain',
-  phone: '',
-  ticket: null,
-  blockers: [],
-  error: null
-};
+// State and its type live in @/lib/deletion/state. A 'use server' module may
+// export only async functions: a plain object exported from here reaches the
+// component as a server reference with none of its fields, which is the defect
+// that made the page render "your account has been deleted" to every visitor.
+//
+// Types only below — they are erased at compile time. Re-exporting the VALUE for
+// the convenience of importers would reintroduce exactly that bug.
+export type { DeletionState, DeletionStep } from '@/lib/deletion/state';
 
 /** Origin required, as on every other action, plus a per-client backstop. */
 async function guard(scope: string): Promise<boolean> {

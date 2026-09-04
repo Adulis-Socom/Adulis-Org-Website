@@ -46,6 +46,18 @@ npm run check:env      # six things that make a build undeployable
                        # all six run automatically before `npm run build`
 ```
 
+```bash
+npm run qa             # the Playwright suite, against a production build
+npm run qa:snapshots   # the G11 placeholder baselines, in the pinned container
+npm run qa:snapshots:update   # ...and regenerate them
+```
+
+`qa:snapshots` needs docker. The G11 baselines are pinned to one container
+image, and CI compares them in that same image rather than on the bare runner —
+`ubuntu-latest` ships a different font set, so the same three pictures differ.
+`npm run qa` leaves them out entirely unless `QA_SNAPSHOTS=1`. See the header of
+`tests/qa/placeholder-appearance.spec.ts` for why the pin is the point.
+
 Copy `.env.example` to `.env.local` before deploying anywhere real. Leaving
 `NEXT_PUBLIC_SITE_URL` unset is deliberate: the layout emits
 `robots: noindex, nofollow` whenever it is missing.

@@ -83,13 +83,14 @@ loudly if it ever leaked into the main instance.
 | **G2** | No sentence is cut off | `scrollHeight > clientHeight` fails on any text-bearing element with `overflow: hidden\|clip`, at 360px and desktop | Deliberate truncation with a visible affordance — needs an exemption, not a weaker assertion |
 | **G3** | Every control is thumb-sized | `smallTargets()` geometry **plus** an axe `target-size` pass | Targets that meet the size but overlap in ways axe misses |
 | **G4** | Usable with a screen reader and keyboard | axe, all routes, both locales, at **360px and 1280px** | Most of WCAG. Roughly a third of failures are machine-detectable |
-| **G5** | An injected inline script does not run | The CSP header — nonce `script-src`, no `unsafe-inline` in any directive | — |
-| **G6** | A person whose bundle never arrives can still submit | Waitlist, contact and report end-to-end with JS off | The deletion journey — see Not enforced |
+| **G5** | An injected inline script does not run | The CSP header — nonce `script-src`, no `unsafe-inline` in any directive. Demonstrated unprompted: it blocked G11's own `page.addStyleTag` helper | — |
+| **G6** | A person whose bundle never arrives can still submit | Waitlist, contact and report end-to-end with JS off, **plus the five-step deletion journey** against a forced-on instance and a test double | The real deletion API, which does not exist |
 | **G7** | No visitor data reaches an unassessed party | Off-origin assertions on **every route, both locales** | — |
 | **G8** | Latin renders from the Latin face | Computed `font-family` resolves Latin first; the switcher subset is Ethiopic-only | See the difference above |
 | **G9** | `/en` does not pay 198 KB | `headers-fonts`, plus the stray-Ge'ez assertion added here | See the difference above |
 | **G10** | Amharic does not overflow, clip or box | A generated pseudo-locale at +48%, every route, asserting no scroll, no clipping, and that the full Ethiopic face loaded | **Real translation.** Word order and break opportunities differ. This does **not** clear the Ge'ez validation launch gate |
-| **G12** | An illustrative card is legibly marked | Computed contrast ≥ 4.5, non-zero rendered size, opacity, visibility | Snapshot — see Not enforced |
+| **G11** | An undecided item looks unfinished | Pixel snapshots of the EXAMPLE badge, the media placeholder and the UNDECIDED flag, `maxDiffPixels` 20 — measured, see below. Its own CI job, in the same container `npm run qa:snapshots` uses, because `ubuntu-latest` ships a different font set | Anything but that image, where it skips loudly rather than comparing against a baseline it cannot trust |
+| **G12** | An illustrative card is legibly marked | Computed contrast ≥ 4.5, non-zero rendered size, opacity, visibility | Appearance, which is G11's snapshot of the same badge |
 | **G13** | Four accepted libvips CVEs stay unreachable | `check:assets` fails when `next/image`/`next/og` is imported or a raster file exists under `public/`/`src/`, while `sharp` < 0.35.0 | SVG, verified excluded: `icon.svg` is served byte-identical and is not routed through sharp |
 
 ---
@@ -98,8 +99,6 @@ loudly if it ever leaked into the main instance.
 
 | Property | Why not | Closes when |
 |---|---|---|
-| **G11** placeholder appearance | "Looks obviously unfinished" is not computable. The class name and the word `UNDECIDED` are asserted; a restyle keeping both while making the flag a designed callout passes | A visual snapshot is added, pinned to one browser and platform |
-| **G6** deletion journey | The five steps cannot be driven while `DELETION_FLOW_ENABLED` is false and no API exists. `check:copy` asserts every form carries an `action` and none uses `onSubmit` — the **mechanism**, not the journey | A fake adapter is injected at the module boundary |
 | Real-device performance | Lighthouse models CPU and network, not memory pressure, thermals or an Android rendering path | A physical low-end Android on an Addis connection |
 | Deletion API integration | The four endpoints do not exist | `adulis-platform` ships them |
 | Real Amharic layout | G10 is synthetic | Translation lands, then a human pass |
@@ -115,6 +114,35 @@ loudly if it ever leaked into the main instance.
 4. Add the row, with what it does not cover.
 
 Step 3 is not optional. Every enforcement failure on this project would have
-been caught by it — including one written *during* this phase: a focus test that
-counted colour stops and passed on a collapsed ring, because Tailwind still emits
-the offset layer at zero spread.
+been caught by it — including two found *during* this phase.
+
+A focus test that counted colour stops and passed on a collapsed ring, because
+Tailwind still emits the offset layer at zero spread.
+
+And the deletion flow, which is the cleanest example this file has. `check:copy`
+asserted every form carries an `action` and none uses `onSubmit`. It passed.
+Meanwhile the page rendered its terminal *"Your account has been deleted"* panel
+to anyone who merely opened it — `initialDeletionState` was a plain object
+exported from a `'use server'` module, so it arrived at the component as a server
+reference with no fields, and every step check fell through. Typechecked, built,
+shipped-looking. Two catalogue keys were also missing, and `next-intl` renders a
+missing message as its own key path, so `phone.intro` would have appeared as body
+copy to a store reviewer.
+
+Neither was visible until the journey was actually driven. The `action`
+attribute was the mechanism; whether a person can delete their account was the
+guarantee.
+
+And a third, in the G11 snapshots, which is the subtlest of them. The tolerance
+was set to `maxDiffPixelRatio: 0.02` — a number chosen by intuition as "small but
+not zero". Restyling `.placeholder-flag` from a dashed amber box into a solid
+grey callout, *precisely* the change the guarantee names, produced **231
+differing pixels: a ratio of 0.02**. It passed. The guard was sitting exactly on
+top of its own signal, and every part of it was otherwise correct — right
+element, right image, right platform.
+
+Measuring instead of guessing settled it: two untouched images differ by **0**
+pixels in the pinned container. Noise floor zero, signal 231, tolerance now 20.
+
+**A threshold nobody has measured is a guess, and a guess is as likely to sit on
+the signal as beside it.** Step 3 is what turns it into a number.

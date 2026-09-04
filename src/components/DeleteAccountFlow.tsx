@@ -4,8 +4,9 @@ import { useActionState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/routing';
 import { ROUTES } from '@/lib/routes';
-import { DELETION_FLOW_ENABLED } from '@/lib/flags';
-import { advanceDeletion, initialDeletionState } from '@/actions/deletion';
+import { advanceDeletion } from '@/actions/deletion';
+// NOT from '@/actions/deletion' — see the warning in @/lib/deletion/state.
+import { initialDeletionState } from '@/lib/deletion/state';
 
 /**
  * The account-deletion path required by both app stores before either app may be
@@ -23,14 +24,18 @@ import { advanceDeletion, initialDeletionState } from '@/actions/deletion';
  * DOM, and neither transmits automatically. What matters is that neither is a
  * cookie, so neither is ever attached to an unrelated request.
  *
- * **Gated on `DELETION_FLOW_ENABLED` AND a configured API.** The flag is a person
- * certifying the seven conditions in `src/lib/flags.ts`; the URL is the technical
- * precondition. While either is missing, the explanation ships and the
- * interactive flow does not — the store requirement is that a person can find and
- * understand the path, not that a flow authenticates against a backend that does
- * not exist.
+ * **Gated by the server, not here.** `enabled` is computed in the page from
+ * `DELETION_FLOW_ENABLED` (a person certifying the eight conditions in
+ * `src/lib/flags.ts`) AND a configured `DELETION_API_URL`.
+ *
+ * ⚠ The decision moved out of this component because it could not be made here.
+ * `flags.ts` reads `process.env`, and a **client component inlines that at BUILD
+ * time**, so a runtime value never arrives — the gated state rendered regardless
+ * of configuration. Correct today by accident, and wrong the moment the flag
+ * flips. Server components read the environment per request; client components
+ * read a snapshot of it.
  */
-export function DeleteAccountFlow({ apiConfigured = false }: { apiConfigured?: boolean }) {
+export function DeleteAccountFlow({ enabled = false }: { enabled?: boolean }) {
   const t = useTranslations('deleteAccount');
   const [state, action] = useActionState(advanceDeletion, initialDeletionState);
 
@@ -50,7 +55,7 @@ export function DeleteAccountFlow({ apiConfigured = false }: { apiConfigured?: b
 
   // The explanation, then the manual route. No phone entry, no OTP, no confirm,
   // no blocked state. The wording must not imply a self-service path exists.
-  if (!DELETION_FLOW_ENABLED || !apiConfigured) {
+  if (!enabled) {
     return (
       <div className="form-column">
         <h1 className="page-title">{t('heading')}</h1>

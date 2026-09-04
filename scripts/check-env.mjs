@@ -234,6 +234,21 @@ const notes = [];
   else notes.push('no NEXT_PUBLIC_SITE_URL — every page noindex, robots.txt disallows all');
 }
 
+/* ------------------------------------------------- deletion test override */
+{
+  if (process.env.DELETION_FLOW_TEST_FORCE === '1' && !optOut) {
+    problems.push(
+      'DELETION_FLOW_TEST_FORCE is set.\n' +
+        '\n     It forces the deletion flow to render without anyone certifying\n' +
+        '     the eight conditions in src/lib/flags.ts. It exists for the QA\n' +
+        '     harness, which points it at a test double. On a deployment it would\n' +
+        '     offer a self-service path on the page both app stores check.'
+    );
+  } else if (process.env.DELETION_FLOW_TEST_FORCE === '1') {
+    notes.push('WARNING — DELETION_FLOW_TEST_FORCE is set. The deletion flow renders uncertified.');
+  }
+}
+
 /* --------------------------------------------------------- pseudo-locale */
 /*
  * PSEUDO_AM_FILE replaces the Amharic catalogue with generated nonsense, for the
@@ -272,7 +287,9 @@ const notes = [];
   let flagged = false;
   try {
     const flags = readFileSync(join(ROOT, 'src/lib/flags.ts'), 'utf8');
-    flagged = /export const DELETION_FLOW_ENABLED\s*=\s*true/.test(flags);
+    flagged =
+      /const CERTIFIED\s*=\s*true/.test(flags) ||
+      process.env.DELETION_FLOW_TEST_FORCE === '1';
   } catch {
     problems.push('src/lib/flags.ts could not be read.');
   }
@@ -285,7 +302,10 @@ const notes = [];
           '\n     The deletion flow would offer itself and then fail on the page both\n' +
           '     app stores check. Set the URL, or set the flag back to false.'
       );
-    } else if (/example\.com|localhost|changeme|TODO/i.test(url)) {
+    } else if (/example\.com|changeme|TODO/i.test(url) || (/localhost/i.test(url) && !optOut)) {
+      // localhost is a placeholder on a deployable build and the correct value
+      // on an undeployable one — the QA harness points at the test double in
+      // tests/qa/sink.mjs. The opt-out already means "I know this cannot ship".
       problems.push(`DELETION_API_URL still looks like a placeholder: ${url}`);
     } else {
       notes.push('deletion flow enabled and pointed at an API');
