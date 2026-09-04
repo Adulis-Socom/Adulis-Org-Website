@@ -266,3 +266,29 @@ failed — and that was the first time the check had ever measured anything.
 **Two rules:** a focus indicator that must paint on native controls uses
 `outline`; and a visibility check must reject transparent colours, or it is a
 presence check that passes on nothing.
+
+---
+
+## npm 10 and npm 11 disagree about whether a lockfile is "in sync"
+
+`npm ci` on CI failed in ten seconds — *Missing: @swc/helpers@0.5.23 from lock
+file* — on a lockfile that installed cleanly on the developer machine and
+inside the Playwright container, repeatedly, the same day. Every local check
+said the lock was fine. PR #12 was merged on that basis, red.
+
+The runner's Node 22.23.2 bundles **npm 10.9.8**. The machine and the
+container run **npm 11**. npm 10 requires a nested entry for a dependency
+whose hoisted copy is a different version (`next-intl` wants `@swc/helpers`
+0.5.23; the hoisted one is 0.5.15); npm 11 lets a lock omit it and resolves
+anyway. So "in sync" is a property of the npm that reads the lock, not of the
+lock.
+
+**Reproduce with the CI's npm, not yours:**
+
+```bash
+docker run --rm -v "$PWD":/w -w /w node:22-slim npm ci --dry-run
+```
+
+and regenerate under it (`npm install --package-lock-only`) when it complains.
+The resulting lock passed both majors. A container that verifies `npm ci` is
+only evidence for the npm inside it.

@@ -11,12 +11,16 @@ is in [`decisions-pending.md`](./decisions-pending.md).
 and triggered no CI. Its last CI run, on `bd31ebd`, was **red**: `verify` and
 `qa` failed in ten seconds at `npm ci` — *Missing: @swc/helpers@0.5.23 from
 lock file* — while the pinned `snapshots` job passed. The branch's
-`package-lock.json` is internally consistent (`next@15.5.23` → `@swc/helpers
-0.5.15`, present) and byte-identical to `main`'s; `npm ci --dry-run` is clean
-under npm 11 locally and `npm ci` succeeded repeatedly inside the Linux
-container today. That run built against a `pull_request` merge ref which no
-longer exists. PR #13's own run is the check that matters, and it is reported
-below rather than assumed.
+`package-lock.json` was consistent **to npm 11** — local, and the Playwright
+container that ran `npm ci` cleanly all day is Node 24 / npm 11.16 — but the
+runner's Node 22.23.2 bundles **npm 10.9.8**, and npm 10 requires a nested
+entry (`node_modules/next-intl/node_modules/@swc/helpers`, 0.5.23) that npm 11
+lets a lock omit. Reproduced exactly in `node:22-slim`: `EUSAGE` before,
+clean after `npm install --package-lock-only` under npm 10. The regenerated
+lock differs by that one added entry — 464 packages to 465, no version moved —
+and passes `npm ci --dry-run` under both majors. PR #13's first two runs
+failed the same way before any test ran; the run after the lock fix is the one
+reported below. **This is why PR #12 merged red.**
 
 ---
 
