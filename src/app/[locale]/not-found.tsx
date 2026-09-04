@@ -7,7 +7,9 @@ export default function LocaleNotFound() {
 
   return (
     <div className="container-page section">
-      <p className="tnum text-display font-bold text-ink-muted">{t('code')}</p>
+      {/* Display/L in slate, Instrument Sans: the code is a numeral, not a
+          headline, and it must stay inside 360px — G1 walks this page. */}
+      <p className="tnum font-display text-display-l font-semibold text-slate">{t('code')}</p>
       <h1 className="page-title mt-2">{t('heading')}</h1>
 
       {/* W20 is deliberately spare: the code, one sentence, one way out. The

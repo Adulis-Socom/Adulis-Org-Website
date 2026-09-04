@@ -5,18 +5,12 @@ import { DoorLink } from './DoorLink';
  * Two treatments (work order §2.2): `contained` holds a group on the secondary
  * surface with its own border; `open` is a hairline above and nothing else —
  * the second container treatment in this system is the absence of a container.
- *
- * `plain`, `sunken` and `tint` are retired names for `contained`, kept until
- * every page has been restyled and then removed.
  */
-type CardVariant = 'contained' | 'open' | 'plain' | 'sunken' | 'tint';
+type CardVariant = 'contained' | 'open';
 
 const CARD_CLASS: Record<CardVariant, string> = {
   contained: 'card',
-  open: 'card-open',
-  plain: 'card',
-  sunken: 'card',
-  tint: 'card'
+  open: 'card-open'
 };
 
 /**
@@ -29,7 +23,7 @@ const CARD_CLASS: Record<CardVariant, string> = {
 export function InfoCard({
   title,
   body,
-  variant = 'plain',
+  variant = 'contained',
   index
 }: {
   title: string;

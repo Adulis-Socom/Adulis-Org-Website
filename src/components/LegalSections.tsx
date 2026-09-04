@@ -47,39 +47,46 @@ export async function LegalSections({ namespace }: { namespace: string }) {
         <p className="lede">{t('sub')}</p>
       </section>
 
-      <nav aria-labelledby="on-this-page" className="section-tight">
-        <h2 id="on-this-page" className="section-title">
-          {common('onThisPage')}
-        </h2>
-        <ol className="grid gap-2 sm:grid-cols-2">
-          {sections.map((section) => (
-            <li key={section.title}>
-              <a
-                href={`#${sectionId(section.title)}`}
-                className="inline-flex min-h-[44px] items-center text-body text-ink hover:underline"
-              >
-                {section.title}
-              </a>
-            </li>
-          ))}
-        </ol>
-      </nav>
+      {/* Sidebar and body (work order §2.3), from the one section map. The
+          contents list stacks above the body on a phone and becomes a sticky
+          sidebar from lg; the sections themselves are a document: Heading/M,
+          Body/M, a hairline between each. Evidentiary register — no gold, no
+          surfaces. */}
+      <div className="section-tight pb-12 lg:grid lg:grid-cols-[16rem_1fr] lg:gap-12">
+        <nav aria-labelledby="on-this-page" className="lg:sticky lg:top-8 lg:self-start">
+          <h2 id="on-this-page" className="text-heading-m text-ink">
+            {common('onThisPage')}
+          </h2>
+          <ol className="mt-2 grid gap-1 sm:grid-cols-2 lg:grid-cols-1">
+            {sections.map((section) => (
+              <li key={section.title}>
+                <a
+                  href={`#${sectionId(section.title)}`}
+                  className="inline-flex min-h-[44px] items-center text-body text-ink hover:underline"
+                >
+                  {section.title}
+                </a>
+              </li>
+            ))}
+          </ol>
+        </nav>
 
-      <div className="section-tight pb-12">
-        {sections.map((section) => (
-          <section
-            key={section.title}
-            id={sectionId(section.title)}
-            className="scroll-mt-8 border-t border-line py-6"
-          >
-            <h2 className="section-title">{section.title}</h2>
-            {section.body ? (
-              <p className="card-body max-w-prose">{section.body}</p>
-            ) : (
-              <UndecidedFlag>{common('undecidedLegal')}</UndecidedFlag>
-            )}
-          </section>
-        ))}
+        <div className="mt-8 lg:mt-0">
+          {sections.map((section) => (
+            <section
+              key={section.title}
+              id={sectionId(section.title)}
+              className="scroll-mt-8 border-t border-rule py-6"
+            >
+              <h2 className="text-heading-m text-ink">{section.title}</h2>
+              {section.body ? (
+                <p className="card-body max-w-prose">{section.body}</p>
+              ) : (
+                <UndecidedFlag>{common('undecidedLegal')}</UndecidedFlag>
+              )}
+            </section>
+          ))}
+        </div>
       </div>
     </div>
   );

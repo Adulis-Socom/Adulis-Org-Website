@@ -132,12 +132,10 @@
      hairline above, no fill, no border, for a set — the second container
      treatment in this system is the absence of a container.
 
-     `card-sunken` and `card-tint` are retired names for Contained. They exist
-     so the token layer could change before the pages did; each page drops them
-     as it is restyled, and they are deleted when no markup carries them. */
-  .card,
-  .card-sunken,
-  .card-tint {
+     (`card-sunken` and `card-tint` were retired names for Contained. They
+     carried the token layer through the page-by-page restyle and were removed
+     in group 5 once no markup used them.) */
+  .card {
     @apply rounded border border-rule-card bg-surface-2 p-4 md:p-5;
   }
 

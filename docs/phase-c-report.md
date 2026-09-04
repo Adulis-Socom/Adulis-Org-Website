@@ -4,7 +4,19 @@ Written as the run went, not at the end. Unattended, 4 September 2026, from
 the Phase C work order and ADU-WEB-03 v1.2. Every choice this run could not make
 is in [`decisions-pending.md`](./decisions-pending.md).
 
-**PR:** _(filled in when opened)_
+**PR:** https://github.com/Adulis-Socom/Adulis-Org-Website/pull/13
+
+**A CI finding on the way in.** PR #12 (Phase A) had been **merged into
+`main`** before this run, so the first Phase C push had no open pull request
+and triggered no CI. Its last CI run, on `bd31ebd`, was **red**: `verify` and
+`qa` failed in ten seconds at `npm ci` — *Missing: @swc/helpers@0.5.23 from
+lock file* — while the pinned `snapshots` job passed. The branch's
+`package-lock.json` is internally consistent (`next@15.5.23` → `@swc/helpers
+0.5.15`, present) and byte-identical to `main`'s; `npm ci --dry-run` is clean
+under npm 11 locally and `npm ci` succeeded repeatedly inside the Linux
+container today. That run built against a `pull_request` merge ref which no
+longer exists. PR #13's own run is the check that matters, and it is reported
+below rather than assumed.
 
 ---
 
@@ -251,6 +263,44 @@ own: the deletion journey's blocked-branch test located items by
 engines the moment the name went. A journey test coupled to a token asserts
 the token. It now locates the list structurally (`main ul li`).
 
+#### Group 5 — Four legal pages · 404
+
+**Changed:** `src/components/LegalSections.tsx`, `src/app/[locale]/not-found.tsx`,
+`src/app/globals.css`, `src/components/ui.tsx`.
+
+- **Legal pages** — sidebar and body from `INDEX_POLICY`'s single section map:
+  the contents list stacks above the body on a phone and becomes a sticky
+  sidebar from `lg`; each section is Heading/M over Body/M with a hairline
+  between; `Placeholder/Flag` for every undecided body, untouched. Evidentiary
+  register — no gold, no surfaces.
+- **404** — the numeral is Display/L in slate, Instrument Sans; the page stays
+  inside 360px, which G1 walks.
+- **Aliases retired.** `card-sunken` and `card-tint` are gone from `globals.css`
+  and `InfoCard` has exactly two variants, `contained` (the default) and
+  `open`. The old *utility* names (`text-ink-muted`, `border-line`, …) remain
+  as documented aliases in `tailwind.config.ts`: renaming ~200 class
+  attributes is rebuilding, not restyling, and each alias says what it is.
+
+**Suite (group 5, both engines):** **807 passed, 0 failed, 1 skipped, 14.2 min
+(855 s).** Green in both engines on every route.
+
+### Screenshots
+
+Chromium at 360px, the product's stated floor, captured by the layout spec on
+the final build. There is no Figma component set to place beside them (D1).
+
+| Page | File |
+|---|---|
+| Home — relational: Tag/Status, Display/XL, the one ink surface, Open value items | [`360-home.png`](./phase-c-screenshots/360-home.png) |
+| How it works — Contained cards, EXAMPLE markers, media placeholders | [`360-how-it-works.png`](./phase-c-screenshots/360-how-it-works.png) |
+| For sellers — the conversion form, `border-control` fields, error-summary form | [`360-for-sellers.png`](./phase-c-screenshots/360-for-sellers.png) |
+| Trust & Safety — evidentiary: Open only, no gold, hairline list | [`360-trust-and-safety.png`](./phase-c-screenshots/360-trust-and-safety.png) |
+| Terms — legal: contents list over a document, UNDECIDED flags | [`360-terms.png`](./phase-c-screenshots/360-terms.png) |
+| 404 — Display/L numeral inside 360px | [`360-404.png`](./phase-c-screenshots/360-404.png) |
+
+The full set (every route, both locales, both engines) is the `qa-artefacts`
+artifact on every CI run.
+
 ---
 
 ## 4 · Everything else (work order §4)
@@ -312,5 +362,25 @@ Nothing was found to overstate *enforcement*; one document overstated a gap.
 | Groups 1–2, first | 853 s (14.2 min) | 8 failures, all the suite's own |
 | Groups 1–4, second | 818 s (13.6 min) | 2 failures, a selector |
 
-Both under the fifteen minutes §4.5 names, on this machine. _(group 5 and the
-decision below)_
+| Group 5 | 855 s (14.2 min) | green |
+
+All three under the fifteen minutes §4.5 names — **on this machine**, at
+roughly 95% of it. The number that decides the split is CI's, where the same
+suite has historically run slower, and the split itself (one job per engine,
+nothing thinned) is prepared. _(CI figure and decision below, from PR #13's run)_
+
+---
+
+## 6 · What complete looks like (work order §6)
+
+| | State |
+|---|---|
+| Sixteen routes carrying a design system, in two registers | Done. Trust & Safety reads plainer than Home |
+| Every ADU-WEB-03 guarantee green, none weakened | 807/0/1 in both engines. Two guards were *touched*: the focus edge assertion (a difference, recorded) and the journey selector (a coupling, fixed). Both stricter, neither weaker |
+| `Placeholder` treatments still failing a snapshot when tidied | 449 pixels against the regenerated baselines |
+| Four blocked items still blocked, visibly flagged, not invented | No store, no deletion stub, no Ge'ez, no legal text |
+| A decisions file listing every choice not made | D1–D6 in `decisions-pending.md`; D4 closed by measurement |
+
+The site still will not launch. What remains is a lawyer, a translator, an
+illustrator, a domain, a second repository — and a Figma file with something
+in it.
