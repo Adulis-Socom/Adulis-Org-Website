@@ -1,0 +1,1071 @@
+{
+  "meta": {
+    "siteName": "Adulis",
+    "titleTemplate": "{page} · Adulis",
+    "defaultDescription": "Adulis is a commerce layer for sellers whose audience already lives on TikTok and Instagram. Sellers pay a subscription. Buyers pay sellers directly."
+  },
+  "nav": {
+    "skipToContent": "Skip to content",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "howItWorks": "How it works",
+    "forSellers": "For sellers",
+    "forBuyers": "For buyers",
+    "about": "About",
+    "trustAndSafety": "Trust & Safety",
+    "help": "Help",
+    "waitlistCta": "Join the seller waitlist",
+    "logIn": "Log in",
+    "languageLabel": "Language",
+    "languageSwitch": "EN / አማርኛ"
+  },
+  "footer": {
+    "contact": "Contact",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "sellerTerms": "Seller Terms",
+    "refunds": "Refunds & Disputes",
+    "prohibited": "Prohibited Products",
+    "report": "Report content",
+    "deleteAccount": "Delete my account",
+    "address": "Addis Ababa, Ethiopia",
+    "copyright": "© 2026"
+  },
+  "common": {
+    "betaBadge": "Controlled beta · not publicly available yet",
+    "exampleTag": "EXAMPLE",
+    "required": "Required",
+    "optional": "Optional",
+    "undecidedLegal": "UNDECIDED LEGAL BODY COPY — plain-language text to be approved.",
+    "onThisPage": "On this page",
+    "errorSummaryTitle": "There is a problem",
+    "consentLink": "Privacy →",
+    "photoPlaceholder": "PHOTO PLACEHOLDER",
+    "mutedProductImage": "MUTED PRODUCT IMAGE"
+  },
+  "home": {
+    "pageTitle": "Adulis — a shop for sellers whose buyers already follow them",
+    "heading": "Sell where your audience",
+    "headingAccent": "already knows you.",
+    "sub": "Adulis gives creators, small businesses and shops a structured place for the orders now getting buried in direct messages.",
+    "bioToProduct": {
+      "title": "From bio link to product",
+      "steps": [
+        {
+          "title": "Seller profile bio",
+          "body": "One Adulis link in the TikTok or Instagram bio."
+        },
+        {
+          "title": "Adulis storefront",
+          "body": "Products organised in a structured shop."
+        },
+        {
+          "title": "Product",
+          "body": "Glow Set · 1,250 ETB · In stock · confirmed 12m ago · Trusted seller · 340 completed orders"
+        }
+      ]
+    },
+    "sellerChanges": {
+      "title": "What changes for the seller",
+      "items": [
+        {
+          "title": "The people already following you",
+          "body": "Bring the audience you already earned into a commerce destination."
+        },
+        {
+          "title": "Your real products, in order",
+          "body": "Products are structured instead of buried among old social posts."
+        },
+        {
+          "title": "Every order leaves a record",
+          "body": "Reservation, receipt upload, seller confirmation and handoff create evidence."
+        }
+      ]
+    },
+    "whatFor": {
+      "title": "What Adulis is for",
+      "items": [
+        {
+          "title": "Physical goods",
+          "body": "Clothing, cosmetics and electronics. Buyers pay by bank transfer directly to the seller, then pick up or receive delivery."
+        },
+        {
+          "title": "Not a link-in-bio, merch or tipping product",
+          "body": "Adulis is a commerce layer for real physical products."
+        }
+      ]
+    },
+    "buyerDoorTitle": "Buying from a seller you follow?",
+    "buyerDoorBody": "The buyer page explains what you can check before buying and what Adulis does not do.",
+    "buyerDoorLink": "For buyers →",
+    "cohort": {
+      "title": "Controlled beta",
+      "items": [
+        {
+          "title": "Selected seller cohort",
+          "body": "Selected sellers are contacted directly."
+        },
+        {
+          "title": "Founder review",
+          "body": "Applications are read by a founder within 5–7 business days."
+        },
+        {
+          "title": "Apply for consideration",
+          "body": "Submission does not guarantee access."
+        }
+      ]
+    }
+  },
+  "howItWorks": {
+    "pageTitle": "How Adulis works",
+    "heading": "How Adulis works",
+    "sub": "A buyer-facing explanation of the loop—from the seller's social bio to a recorded handoff.",
+    "steps": [
+      {
+        "title": "The seller shares their shop",
+        "body": "One Adulis link in their TikTok or Instagram bio."
+      },
+      {
+        "title": "The buyer sees the real thing",
+        "body": "Seller identity, verification status, trust level, completed order count, live stock and when it was last confirmed."
+      },
+      {
+        "title": "Identity starts in the app",
+        "body": "Browsing needs no account. A buyer signs in with their phone the first time they reserve."
+      },
+      {
+        "title": "The buyer pays the seller directly",
+        "body": "Adulis shows the seller's bank details. The buyer transfers and uploads the receipt. The seller checks their own bank account and confirms."
+      },
+      {
+        "title": "The handoff becomes a record",
+        "body": "The item changes hands, the handoff is confirmed by QR scan, and the order becomes a record both sides can point to."
+      }
+    ],
+    "shopSectionTitle": "Shop previews",
+    "shopPreviews": [
+      {
+        "seller": "Liya Closet",
+        "product": "Denim jacket",
+        "price": "2,450 ETB",
+        "stock": "In stock · confirmed 18m ago",
+        "level": "Established · 126 completed orders"
+      },
+      {
+        "seller": "Sena Beauty",
+        "product": "Glow Set",
+        "price": "1,250 ETB",
+        "stock": "In stock · confirmed 12m ago",
+        "level": "Trusted · 340 completed orders"
+      },
+      {
+        "seller": "Addis Tech",
+        "product": "Wireless earbuds",
+        "price": "3,800 ETB",
+        "stock": "2 left · confirmed 31m ago",
+        "level": "New · 14 completed orders"
+      }
+    ],
+    "findAgain": {
+      "title": "Finding the seller again",
+      "items": [
+        {
+          "title": "Paste the post link",
+          "body": "Copy the TikTok or Instagram post and paste it into the app; it resolves to that seller's tagged products."
+        },
+        {
+          "title": "Search the seller's handle",
+          "body": "Exact lookup, one seller."
+        }
+      ]
+    },
+    "moneyTitle": "Money boundary",
+    "moneyBody": "Adulis never holds or processes buyer money and never decides whether a transfer is genuine. It records the buyer's receipt upload and the seller's confirmation."
+  },
+  "forSellers": {
+    "pageTitle": "For sellers",
+    "heading": "You already have the audience.",
+    "headingAccent": "Stop losing the orders you’re already getting.",
+    "sub": "For creators, small businesses and shops selling through TikTok or Instagram.",
+    "problemsHeading": "The problem",
+    "problems": [
+      {
+        "title": "Orders buried in DMs",
+        "body": "Commercial intent disappears inside a personal messaging queue."
+      },
+      {
+        "title": "The same question forty times",
+        "body": "Repeated buyer questions consume seller time."
+      },
+      {
+        "title": "Proving you're real repeatedly",
+        "body": "Sellers repeatedly rebuild basic credibility with each buyer."
+      },
+      {
+        "title": "Run the business you already have",
+        "body": "Structure existing demand rather than asking sellers to become something else."
+      }
+    ],
+    "getHeading": "What Adulis gives you",
+    "benefits": [
+      {
+        "title": "Structured shop",
+        "body": "Products and policies in one ordered destination."
+      },
+      {
+        "title": "Repetitive-question handling",
+        "body": "Bounded assistance for repeated buyer questions."
+      },
+      {
+        "title": "Stock timestamps",
+        "body": "Buyers can see when stock was last confirmed."
+      },
+      {
+        "title": "Buyer communication",
+        "body": "Keep commerce conversations tied to the product and order."
+      },
+      {
+        "title": "Order records",
+        "body": "Reservation, transfer evidence, seller confirmation and handoff are recorded."
+      }
+    ],
+    "handleTitle": "What you handle",
+    "handleBody": "You are the payment verifier. Adulis relays the buyer's receipt; you check your own bank account and decide whether the money arrived. Adulis never confirms a payment for you.",
+    "sequenceHeading": "Commercial sequence",
+    "sequence": [
+      {
+        "title": "Controlled beta",
+        "body": "Hand-picked cohort, free."
+      },
+      {
+        "title": "Open free period",
+        "body": "60 days from your own signup, everything except the blue tick, free."
+      },
+      {
+        "title": "Paid plans",
+        "body": "After that."
+      }
+    ],
+    "sequenceNote": "Free during the beta and for your first 60 days. Part of a paid plan after that.",
+    "nextHeading": "What happens next",
+    "next": [
+      {
+        "title": "Founder review",
+        "body": "Applications are read within 5–7 business days."
+      },
+      {
+        "title": "Phone contact",
+        "body": "Selected sellers are contacted by phone."
+      },
+      {
+        "title": "No guarantee",
+        "body": "Submitting the form does not guarantee access."
+      }
+    ]
+  },
+  "waitlist": {
+    "heading": "Join the seller waitlist",
+    "sub": "Access is limited during the controlled beta. Everyone who applies is reviewed.",
+    "errorSummaryTitle": "There is a problem",
+    "fields": {
+      "fullName": "Full name",
+      "fullNamePlaceholder": "Enter full name",
+      "phone": "Phone number",
+      "phonePlaceholder": "+251 911 284 763",
+      "platform": "Primary platform",
+      "platformPlaceholder": "Select…",
+      "handle": "Primary handle",
+      "handlePlaceholder": "@mekdesstyle",
+      "alsoSellOn": "Also sell on",
+      "alsoSellOnPlaceholder": "Instagram",
+      "secondHandle": "Second handle",
+      "secondHandlePlaceholder": "@mekdes.style",
+      "secondHandleHelp": "Only if you sell on a second platform.",
+      "followers": "Follower count (approx.)",
+      "followersPlaceholder": "18,400",
+      "followersHelp": "We're still learning what size of audience works best. Tell us yours — everyone who applies is considered.",
+      "sells": "What do you sell?",
+      "sellsPlaceholder": "Women's clothing and accessories",
+      "city": "City",
+      "cityPlaceholder": "Addis Ababa",
+      "consentLabel": "Consent",
+      "consent": "I consent to Adulis using this information to review my seller application. Waitlist data is kept for up to 12 months.",
+      "consentLink": "Privacy →"
+    },
+    "options": {
+      "tiktok": "TikTok",
+      "instagram": "Instagram",
+      "neither": "Neither"
+    },
+    "submit": "Submit seller waitlist",
+    "errors": {
+      "fullNameRequired": "Enter your full name.",
+      "phoneRequired": "Enter your phone number.",
+      "phoneInvalid": "Enter a full phone number including the area code.",
+      "platformRequired": "Choose TikTok or Instagram.",
+      "handleRequired": "Enter the handle for that platform.",
+      "sellsRequired": "Tell us what you sell.",
+      "cityRequired": "Enter your city.",
+      "consentRequired": "Consent is required to submit.",
+      "rateLimited": "Too many applications from this connection. Try again later.",
+      "unexpected": "Something went wrong on our side. Your details were not saved — try again.",
+      "fullNameTooLong": "Enter a name of 100 characters or fewer.",
+      "phoneTooLong": "Enter a phone number of 32 characters or fewer.",
+      "handleTooLong": "Enter a handle of 64 characters or fewer.",
+      "secondHandleTooLong": "Enter a handle of 64 characters or fewer.",
+      "followersTooLong": "Enter a follower count of 16 digits or fewer.",
+      "sellsTooLong": "Describe what you sell in 100 characters or fewer.",
+      "cityTooLong": "Enter a city name of 100 characters or fewer."
+    },
+    "success": {
+      "title": "Application received",
+      "reference": "Reference: {reference}",
+      "next": "A founder will read the application within 5–7 business days. Selected sellers are contacted by phone.",
+      "noGuarantee": "Submission does not guarantee access.",
+      "correctPhone": "Mistyped your phone number? Correct it →",
+      "correctPhoneHelp": "Wrong number? You can correct it here — nothing else changes."
+    }
+  },
+  "trust": {
+    "pageTitle": "Trust & Safety",
+    "heading": "Trust & Safety",
+    "sub": "These are the mechanics that make buying from someone you follow accountable.",
+    "boundariesHeading": "Clear boundaries",
+    "boundaries": [
+      {
+        "title": "Never holds buyer money",
+        "body": "Adulis never holds or touches buyer money."
+      },
+      {
+        "title": "Never authenticates payment",
+        "body": "Adulis never verifies whether a payment is genuine."
+      },
+      {
+        "title": "Never labels a seller",
+        "body": "Adulis never labels a seller good, bad, safe or risky."
+      }
+    ],
+    "verifiedHeading": "Verification",
+    "verification": [
+      {
+        "title": "Phone",
+        "body": "Phone control is verified."
+      },
+      {
+        "title": "Proven control of a real social account",
+        "body": "The seller proves control of a real TikTok or Instagram account."
+      },
+      {
+        "title": "Government ID where required",
+        "body": "Government ID is used where required."
+      }
+    ],
+    "verificationNote": "Adulis never stores identity photographs.",
+    "ladderHeading": "The trust ladder",
+    "ladderColumns": {
+      "level": "Level",
+      "earnedBy": "Earned by",
+      "meaning": "What it means"
+    },
+    "ladder": [
+      {
+        "level": "New",
+        "earnedBy": "Eligibility satisfied",
+        "meaning": "Limited published products · new-seller badge · transaction value cap."
+      },
+      {
+        "level": "Established",
+        "earnedBy": "A sustained run of scanned handoffs with good ratings",
+        "meaning": "Full catalogue for the plan · cap lifted."
+      },
+      {
+        "level": "Trusted",
+        "earnedBy": "Sustained volume, high scan completion, low claims",
+        "meaning": "Priority placement · broadcast eligibility."
+      }
+    ],
+    "ladderNotes": [
+      {
+        "title": "Levels fall as well as rise",
+        "body": "An upheld claim always demotes."
+      },
+      {
+        "title": "A level is never purchasable",
+        "body": "No plan, payment or advertising spend moves a seller up."
+      },
+      {
+        "title": "Large following does not skip New",
+        "body": "A seller with a large following and no sales starts at New, exactly like everyone else."
+      }
+    ],
+    "ladderUndecided": "Trust-ladder thresholds are not set yet. When set they are published, never secret.",
+    "publishHeading": "Published statistics",
+    "published": [
+      "Trust level",
+      "Completed handoff count",
+      "Cancellation rate",
+      "Confirmation rate",
+      "Scan completion rate",
+      "Unresolved claims",
+      "Missed payment-confirmation windows",
+      "Stock confidence"
+    ],
+    "publishNote": "These are counted from Adulis's own records. There is no free-text field, and no opinion is published about anyone.",
+    "reviewsHeading": "Reviews",
+    "reviews": [
+      {
+        "title": "Reviews always publish",
+        "body": "A confirmed handoff earns the strongest badge; refusing to confirm does not remove the review."
+      },
+      {
+        "title": "Separate ratings",
+        "body": "Item quality and seller quality are rated separately and never averaged."
+      }
+    ],
+    "claimsHeading": "Claims",
+    "claims": [
+      {
+        "title": "What can be claimed",
+        "lead": "A buyer can raise a claim when:",
+        "items": [
+          "payment was confirmed and the seller did not respond in time",
+          "the seller cancelled because stock was not kept current",
+          "goods did not arrive after payment",
+          "goods were materially not as described",
+          "a promised refund was not delivered"
+        ]
+      },
+      {
+        "title": "Review time",
+        "body": "Claims are reviewed within 2 days."
+      },
+      {
+        "title": "Outcome",
+        "body": "A claim can be upheld or not upheld, including bad-faith claims."
+      },
+      {
+        "title": "Demotion",
+        "body": "An upheld claim always demotes."
+      },
+      {
+        "title": "Evidence export",
+        "body": "Adulis produces an evidence export and does not file police reports."
+      }
+    ],
+    "moderationHeading": "Moderation",
+    "moderation": [
+      {
+        "title": "Report-and-takedown",
+        "body": "Reported content can be reviewed and taken down."
+      },
+      {
+        "title": "Audit trail",
+        "body": "Moderation actions are recorded in an audit trail."
+      },
+      {
+        "title": "Reasoning privacy",
+        "body": "Moderation reasoning is never disclosed to third parties."
+      }
+    ],
+    "refundsLink": "Refunds & Disputes →",
+    "reportLink": "Report content →"
+  },
+  "prohibited": {
+    "pageTitle": "Prohibited Products",
+    "heading": "Prohibited products",
+    "sub": "What may not be sold through Adulis.",
+    "categories": [
+      {
+        "title": "Illegal goods",
+        "body": "Products whose sale, possession or distribution is prohibited by law."
+      },
+      {
+        "title": "Stolen goods",
+        "body": "Items obtained without the lawful owner's permission or right to sell."
+      },
+      {
+        "title": "Counterfeit goods",
+        "body": "Imitations presented as genuine branded or authenticated products."
+      },
+      {
+        "title": "Fraudulent goods",
+        "body": "Products offered through false claims, fabricated provenance or deceptive representation."
+      },
+      {
+        "title": "Exploitative goods",
+        "body": "Items whose production, sale or distribution involves exploitation or abuse."
+      },
+      {
+        "title": "Firearms, ammunition, explosives and prohibited weapons",
+        "body": "Weapons and weapon-related products that are prohibited or restricted from sale."
+      },
+      {
+        "title": "Illegal drugs and unauthorised controlled substances",
+        "body": "Drugs or controlled substances sold without lawful authorisation."
+      },
+      {
+        "title": "Sexual exploitation material",
+        "body": "Material involving sexual exploitation, coercion or abuse."
+      },
+      {
+        "title": "Prohibited hazardous goods",
+        "body": "Dangerous materials that cannot lawfully or safely be sold, transported or handled."
+      },
+      {
+        "title": "Intellectual-property-infringing products",
+        "body": "Products that unlawfully copy, reproduce or use someone else's protected rights."
+      },
+      {
+        "title": "Anything barred by local law or an applicable foreign jurisdiction",
+        "body": "A product may be prohibited because a law applying to the seller, buyer or transaction bars it."
+      },
+      {
+        "title": "Anything barred by a payment or logistics partner, or by Adulis policy",
+        "body": "Some products cannot be supported because a required partner or Adulis policy does not permit them."
+      }
+    ],
+    "noteTitle": "Enforcement",
+    "noteBody": "Adulis uses report-and-takedown and safety suspension.",
+    "reportLink": "Report content →"
+  },
+  "help": {
+    "pageTitle": "Help",
+    "heading": "Help",
+    "sub": "Answers to the most important questions about Adulis before the product is publicly available.",
+    "faqs": [
+      {
+        "q": "What is Adulis?",
+        "a": "A commerce layer for sellers whose audiences live on TikTok and Instagram."
+      },
+      {
+        "q": "Is it available yet?",
+        "a": "No. Adulis is in controlled beta and is not publicly available yet."
+      },
+      {
+        "q": "Who can sell on Adulis?",
+        "a": "Creators, small businesses and shops using TikTok or Instagram may apply."
+      },
+      {
+        "q": "Is there a minimum follower count?",
+        "a": "No. Every application is read."
+      },
+      {
+        "q": "What does it cost?",
+        "a": "Free during the beta and for the first 60 days; paid plans after, not yet published."
+      },
+      {
+        "q": "How do buyers pay?",
+        "a": "Buyers transfer money directly to the seller's own bank account."
+      },
+      {
+        "q": "Does Adulis hold my money?",
+        "a": "No. Adulis never holds or processes buyer money."
+      },
+      {
+        "q": "What happens if an order goes wrong?",
+        "a": "A buyer can raise a claim and Adulis can produce the evidence record."
+      },
+      {
+        "q": "How are sellers verified?",
+        "a": "Verification includes phone, proven social-account control and government ID where required."
+      },
+      {
+        "q": "What are reviews based on?",
+        "a": "Reviews always publish. Confirming the handoff earns the review its strongest badge."
+      },
+      {
+        "q": "How do I delete my account?",
+        "a": "Use the public Delete my account path."
+      }
+    ],
+    "stillNeedHelp": "Still need help?",
+    "contactLink": "Contact →"
+  },
+  "contact": {
+    "pageTitle": "Contact",
+    "heading": "Contact",
+    "sub": "Institutional contact routes and a short privacy-aware enquiry form.",
+    "routesHeading": "Contact routes",
+    "routes": [
+      {
+        "title": "General enquiries",
+        "value": "UNDECIDED EMAIL"
+      },
+      {
+        "title": "Press",
+        "value": "UNDECIDED EMAIL"
+      },
+      {
+        "title": "Partnerships",
+        "value": "UNDECIDED EMAIL"
+      }
+    ],
+    "locationTitle": "Location",
+    "formHeading": "Send a message",
+    "fields": {
+      "name": "Name",
+      "namePlaceholder": "Enter name",
+      "email": "Email",
+      "emailPlaceholder": "Enter email",
+      "subject": "Subject",
+      "subjectPlaceholder": "Enter subject",
+      "message": "Message",
+      "messagePlaceholder": "Enter your message",
+      "consentLabel": "Consent",
+      "consent": "I consent to Adulis using this information to respond to my enquiry. Enquiry data is kept for up to 12 months.",
+      "consentLink": "Privacy →"
+    },
+    "submit": "Submit contact request",
+    "errors": {
+      "nameRequired": "Enter your name.",
+      "emailRequired": "Enter your email address.",
+      "emailInvalid": "Enter a valid email address.",
+      "subjectRequired": "Enter a subject.",
+      "messageRequired": "Enter your message.",
+      "consentRequired": "Consent is required to submit.",
+      "rateLimited": "Too many messages from this connection. Try again later.",
+      "unexpected": "Something went wrong on our side. Your message was not sent — try again.",
+      "nameTooLong": "Enter a name of 100 characters or fewer.",
+      "emailTooLong": "Enter an email address of 254 characters or fewer.",
+      "subjectTooLong": "Enter a subject of 150 characters or fewer.",
+      "messageTooLong": "Enter a message of 2,000 characters or fewer."
+    },
+    "success": {
+      "title": "Message received",
+      "body": "Your enquiry has been submitted. Adulis will respond through the institutional contact route associated with the request.",
+      "reference": "Reference: {reference}"
+    },
+    "privacyTitle": "Privacy principle",
+    "privacyBody": "Institutional routes only. Founders' personal contact details stay private.",
+    "errorSummaryTitle": "There is a problem"
+  },
+  "terms": {
+    "pageTitle": "Terms",
+    "heading": "Terms",
+    "sub": "The section map is fixed. Legal body text remains a visibly flagged undecided content item.",
+    "sections": [
+      {
+        "title": "1. Scope"
+      },
+      {
+        "title": "2. Who we are"
+      },
+      {
+        "title": "3. Website use"
+      },
+      {
+        "title": "4. Product status"
+      },
+      {
+        "title": "5. Waitlist submissions"
+      },
+      {
+        "title": "6. Acceptable use"
+      },
+      {
+        "title": "7. Intellectual property"
+      },
+      {
+        "title": "8. Third-party links"
+      },
+      {
+        "title": "9. Limitations"
+      },
+      {
+        "title": "10. Changes and governing law"
+      },
+      {
+        "title": "11. Contact"
+      }
+    ]
+  },
+  "privacy": {
+    "pageTitle": "Privacy",
+    "heading": "Privacy",
+    "sub": "The section map is fixed. Legal body text remains a visibly flagged undecided content item.",
+    "sections": [
+      {
+        "title": "1. Who we are"
+      },
+      {
+        "title": "2. Information we handle",
+        "body": "Waitlist, enquiry and report data are each kept for up to 12 months."
+      },
+      {
+        "title": "3. Where information comes from"
+      },
+      {
+        "title": "4. Verification data",
+        "body": "Adulis never stores identity photographs."
+      },
+      {
+        "title": "5. Why we use it"
+      },
+      {
+        "title": "6. Who else sees it"
+      },
+      {
+        "title": "7. Sellers as independent controllers",
+        "body": "Buyer name, phone and delivery details reach an independent seller, and Adulis manages that by contract, disclosure and takedown rather than by a technical control it does not have."
+      },
+      {
+        "title": "8. Security"
+      },
+      {
+        "title": "9. Retention",
+        "body": "Waitlist, enquiry and report data are each kept for up to 12 months."
+      },
+      {
+        "title": "10. Deletion and your rights"
+      },
+      {
+        "title": "11. Where information is stored"
+      },
+      {
+        "title": "12. Children"
+      },
+      {
+        "title": "13. Changes to this notice"
+      },
+      {
+        "title": "14. Contact and complaints"
+      }
+    ]
+  },
+  "refunds": {
+    "pageTitle": "Refunds & Disputes",
+    "heading": "Refunds & Disputes",
+    "sub": "The section map is fixed. Legal body text remains a visibly flagged undecided content item.",
+    "sections": [
+      {
+        "title": "1. Scope"
+      },
+      {
+        "title": "2. Who is responsible"
+      },
+      {
+        "title": "3. Cancellation"
+      },
+      {
+        "title": "4. Refunds"
+      },
+      {
+        "title": "5. Buyer evidence"
+      },
+      {
+        "title": "6. Claims and review"
+      },
+      {
+        "title": "7. What Adulis does not do"
+      }
+    ]
+  },
+  "sellerTerms": {
+    "pageTitle": "Seller Terms",
+    "heading": "Seller Terms",
+    "sub": "The section map is fixed. Legal body text remains a visibly flagged undecided content item.",
+    "sections": [
+      {
+        "title": "1. Eligibility"
+      },
+      {
+        "title": "2. Verification"
+      },
+      {
+        "title": "3. Seller obligations"
+      },
+      {
+        "title": "4. Products"
+      },
+      {
+        "title": "5. Stock"
+      },
+      {
+        "title": "6. Payments"
+      },
+      {
+        "title": "7. Fulfilment"
+      },
+      {
+        "title": "8. Claims & evidence"
+      },
+      {
+        "title": "9. Reviews"
+      },
+      {
+        "title": "10. Trust level"
+      },
+      {
+        "title": "11. Suspension"
+      },
+      {
+        "title": "12. Deletion"
+      }
+    ]
+  },
+  "about": {
+    "pageTitle": "About Adulis",
+    "heading": "Why we're building Adulis",
+    "sub": "The company story for sellers, investors, accelerators and grant reviewers.",
+    "originTitle": "Origin story",
+    "originBody": "Naod Solomon spent three years running a shop selling through TikTok and Instagram—roughly eighty orders a month through direct messages, against almost nothing on the classifieds sites everyone recommends. The pattern was clear: people follow a seller for months, want a real product from that seller, and then have to finish the purchase inside a DM thread. Adulis is being built around that reality.",
+    "foundersHeading": "Founders",
+    "founders": [
+      {
+        "name": "Naod Solomon",
+        "role": "CEO"
+      },
+      {
+        "name": "Abenezer Libamu",
+        "role": "COO/CTO"
+      },
+      {
+        "name": "Tsion Asegid",
+        "role": "CMO/CSO"
+      }
+    ],
+    "foundersUndecided": "UNDECIDED CONTENT TASK → Founder biography copy for all three cards.",
+    "whereHeading": "Where we are",
+    "registrationLabel": "Company registration number",
+    "registrationUndecided": "UNDECIDED → Company registration number.",
+    "statusLabel": "Status",
+    "status": [
+      "Pre-launch",
+      "Controlled beta",
+      "Recruiting the first seller cohort"
+    ],
+    "companyContactLabel": "Company contact",
+    "companyContactUndecided": "UNDECIDED → Institutional company email address.",
+    "companyNote": "Institutional routes only. No founder phone numbers or home addresses."
+  },
+  "notFound": {
+    "pageTitle": "Page not found",
+    "code": "404",
+    "heading": "We couldn't find that page.",
+    "home": "Home"
+  },
+  "report": {
+    "pageTitle": "Report content",
+    "heading": "Report content",
+    "sub": "Report content or seller/product activity for review.",
+    "fields": {
+      "what": "What is reported",
+      "whatPlaceholder": "Seller / product / page / other reference",
+      "reason": "Reason category",
+      "reasonPlaceholder": "UNDECIDED — report categories",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe the issue",
+      "link": "Optional link or reference",
+      "linkPlaceholder": "Paste relevant link/reference",
+      "contact": "Contact for follow-up",
+      "contactPlaceholder": "Email or phone",
+      "consentLabel": "Consent",
+      "consent": "I consent to Adulis using this information to review and follow up on this report. Report data is kept for up to 12 months.",
+      "consentLink": "Privacy →"
+    },
+    "submit": "Submit report",
+    "errors": {
+      "whatRequired": "Say what is being reported.",
+      "reasonRequired": "Choose a reason category.",
+      "descriptionRequired": "Describe the issue.",
+      "contactRequired": "Enter an email address or phone number.",
+      "consentRequired": "Consent is required to submit.",
+      "rateLimited": "Too many reports from this connection. Try again later.",
+      "unexpected": "Something went wrong on our side. Your report was not sent — try again.",
+      "whatTooLong": "Describe what is reported in 200 characters or fewer.",
+      "descriptionTooLong": "Describe the issue in 2,000 characters or fewer.",
+      "linkTooLong": "Enter a link of 500 characters or fewer.",
+      "contactTooLong": "Enter a contact of 254 characters or fewer."
+    },
+    "success": {
+      "title": "Report received",
+      "body": "Adulis has received the report. The team aims to respond within 24 hours.",
+      "reference": "Reference: {reference}"
+    },
+    "errorSummaryTitle": "There is a problem"
+  },
+  "deleteAccount": {
+    "pageTitle": "Delete my account",
+    "heading": "Delete my account",
+    "sub": "This is not a sign-in and grants access to nothing else.",
+    "steps": [
+      "Explain",
+      "Phone",
+      "OTP",
+      "Confirm",
+      "Success"
+    ],
+    "explain": {
+      "title": "Before you continue",
+      "items": [
+        {
+          "title": "What deletion does",
+          "body": "Deletes the account when no unresolved obligations block deletion."
+        },
+        {
+          "title": "What is retained",
+          "body": "Reviews are anonymised, not deleted, and the verification record is retained."
+        },
+        {
+          "title": "What this OTP is not",
+          "body": "This is not a sign-in and grants access to nothing else."
+        }
+      ],
+      "continue": "Continue to phone"
+    },
+    "phone": {
+      "label": "Phone number",
+      "placeholder": "+251 9XX XXX XXX",
+      "note": "This phone check proves identity for this deletion request alone.",
+      "submit": "Send deletion OTP",
+      "error": "Enter a full phone number including the area code.",
+      "intro": "Enter the phone number on your Adulis account. We will send a six-digit code to it to confirm the request is yours."
+    },
+    "otp": {
+      "label": "Six-digit code",
+      "expiresIn": "Code expires in {time}",
+      "resendIn": "Resend available in {time}",
+      "submit": "Verify code",
+      "error": "That code was not correct. Check it and try again.",
+      "intro": "Enter the six-digit code sent to the number you gave.",
+      "resend": "Send a new code"
+    },
+    "confirm": {
+      "title": "Confirm account deletion",
+      "body": "You are about to permanently delete the account subject to the retained records described earlier.",
+      "checkbox": "I understand this action is irreversible.",
+      "submit": "Delete my account",
+      "cancel": "Cancel and return",
+      "error": "Confirm you understand this action is irreversible."
+    },
+    "blocked": {
+      "title": "Deletion is temporarily blocked",
+      "intro": "The request cannot complete while specific obligations remain unresolved.",
+      "reasons": {
+        "RESERVATION_NON_TERMINAL": {
+          "title": "Reservation in a non-terminal state",
+          "action": "Complete or cancel the reservation."
+        },
+        "PAYMENT_EVIDENCE_PENDING": {
+          "title": "Payment evidence awaiting confirmation",
+          "action": "Wait for the payment-confirmation workflow to reach a terminal state."
+        },
+        "ORDER_AWAITING_HANDOFF": {
+          "title": "Order awaiting handoff",
+          "action": "Complete or resolve the handoff."
+        },
+        "REFUND_UNACKNOWLEDGED": {
+          "title": "Refund reported but not acknowledged",
+          "action": "Resolve the outstanding refund acknowledgement."
+        },
+        "CLAIM_OPEN": {
+          "title": "Open claim",
+          "action": "Wait until the claim is resolved."
+        },
+        "SUBSCRIPTION_PAST_DUE": {
+          "title": "Past-due subscription",
+          "action": "Clear the past-due subscription obligation."
+        }
+      },
+      "note": "Deletion can proceed after every outstanding item above is cleared.",
+      "home": "Back to home",
+      "unknownTitle": "An outstanding obligation",
+      "unknownAction": "This must be resolved before the account can be deleted."
+    },
+    "success": {
+      "title": "Account deleted",
+      "body": "Your account has been deleted. Reviews were anonymised rather than removed, and the verification record was retained as previously explained.",
+      "home": "Go home"
+    },
+    "manual": {
+      "title": "How to request deletion",
+      "body": "Deletion is handled by a person, not by a form on this page. Contact Adulis from the phone number on your account and ask for your account to be deleted. We confirm when it is done, and everything described above applies.",
+      "cta": "Contact Adulis →"
+    },
+    "errors": {
+      "phoneInvalid": "Enter a full phone number including the area code.",
+      "otpInvalid": "That code was not correct. Check it and try again.",
+      "confirmRequired": "Confirm you understand this action is irreversible.",
+      "expired": "That code or session expired. Start again with your phone number.",
+      "rateLimited": "Too many attempts. Wait a few minutes and try again.",
+      "invalid": "That was not accepted. Check it and try again."
+    },
+    "unreachable": {
+      "title": "Self-service deletion is unavailable right now",
+      "body": "The deletion service is not responding, so this request cannot be completed here. Contact Adulis from the phone number on your account and ask for your account to be deleted — everything described above still applies."
+    }
+  },
+  "forBuyers": {
+    "pageTitle": "For buyers",
+    "heading": "You followed them.",
+    "headingAccent": "This is where you buy from them.",
+    "sub": "Adulis gives buyers a factual shop view for sellers they already know from TikTok or Instagram.",
+    "stepsHeading": "How buying works",
+    "steps": [
+      {
+        "title": "Open the seller's shop",
+        "body": "Use the seller's Adulis bio link."
+      },
+      {
+        "title": "See real stock and history",
+        "body": "Check verification status, trust level, completed orders and stock timestamps."
+      },
+      {
+        "title": "Reserve in the app",
+        "body": "Identity begins when you reserve."
+      },
+      {
+        "title": "Pay the seller and confirm the handoff",
+        "body": "Transfer directly to the seller, then confirm the item handoff."
+      }
+    ],
+    "checkHeading": "What you can check before buying",
+    "checks": [
+      {
+        "title": "Verification status",
+        "body": "Whether the seller has proven control of their social account."
+      },
+      {
+        "title": "Trust level",
+        "body": "New, Established or Trusted — earned through completed handoffs."
+      },
+      {
+        "title": "Completed orders",
+        "body": "How many orders this seller has finished."
+      },
+      {
+        "title": "Cancellation rate",
+        "body": "How often this seller cancels after a buyer reserves."
+      },
+      {
+        "title": "Stock last-confirmed time",
+        "body": "When the seller last confirmed the item was available."
+      }
+    ],
+    "appsHeading": "Apps",
+    "appStore": "App Store",
+    "googlePlay": "Google Play",
+    "appsNote": "The apps have not shipped yet.",
+    "limitsHeading": "Honest limits",
+    "limits": [
+      {
+        "title": "Your money",
+        "body": "Adulis never holds your money. You transfer directly to the seller's own bank account."
+      },
+      {
+        "title": "Payment checking",
+        "body": "Adulis never decides whether a payment is genuine. The seller checks their own bank."
+      },
+      {
+        "title": "What Adulis provides",
+        "body": "Adulis records what happened and provides the evidence. It does not protect buyers, guarantee purchases, or recover money."
+      },
+      {
+        "title": "If something goes wrong",
+        "body": "You can raise a claim, and Adulis produces the evidence record. That is recourse, not a refund guarantee."
+      }
+    ],
+    "sellerDoorTitle": "Selling on TikTok or Instagram?",
+    "sellerDoorLink": "For sellers →"
+  }
+}
