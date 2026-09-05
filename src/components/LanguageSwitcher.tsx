@@ -38,7 +38,16 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
               locale={code}
               hrefLang={code}
               aria-current={current ? 'true' : undefined}
-              className={`inline-flex min-h-[44px] items-center px-1 font-semibold ${
+              // min-W as well as min-H, and justify-center so the label sits in
+              // the middle of the target rather than at its left edge.
+              //
+              // ⚠ `EN` is two characters. With `px-1` it measured **27×44** —
+              // under the 44×44 invariant on its width, on every route, in both
+              // locales. Nothing caught it because the switcher does not render
+              // while AM_ENABLED is false, so the target has never existed to be
+              // measured. The landing rehearsal turned the flag on and the whole
+              // 360px layout suite failed on it.
+              className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center px-1 font-semibold ${
                 current ? 'text-ink' : 'text-ink-muted hover:text-ink'
               }`}
               // Emits nothing today: track() has no transport until Checkpoint 4,

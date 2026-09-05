@@ -282,3 +282,49 @@ test.describe('§5 waitlist, no JavaScript', () => {
     expect(r!.secondHandle, 'the second handle must be discarded, not stored').toBeNull();
   });
 });
+
+/**
+ * A rejected submission returns every answer, including the ones in a select.
+ *
+ * ⚠ The select is the whole point. Text inputs keep what was typed because
+ * their DOM node is never replaced, so they pass this whether the echo works or
+ * not — which is exactly why every field appeared fine for four checkpoints
+ * while `platform` was silently lost. React applies `defaultValue` to a select
+ * at mount only.
+ *
+ * Found by the landing rehearsal, on a stand-in select standing in for the
+ * report-content taxonomy; the defect was here, on the site's only conversion.
+ * Asserted on both, so the text field is the control and the select is the test.
+ */
+test.describe('§5 a rejected submission keeps the answers', () => {
+  test('a chosen platform survives, alongside the typed fields', async ({ page }) => {
+    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+
+    await page.fill('#fullName', 'Selam Tesfaye');
+    await page.fill('#handle', '@selam');
+    await page.selectOption('#platform', 'tiktok');
+
+    // Phone, sells, city and consent left empty, so the server rejects it.
+    await page.locator('button[type="submit"]').click();
+    await expect(page.locator('[role="alert"]')).toBeVisible();
+    await expect(page.locator('button[type="submit"]')).toHaveAttribute('aria-busy', 'false');
+
+    // Settle before reading, and this line is the whole reason the test is
+    // trustworthy. React resets the select about 250 ms AFTER the error
+    // summary paints, in a later commit. A read taken the moment the alert
+    // appears still sees the chosen value and passes on a BROKEN build —
+    // measured: ["tiktok","","","", …] sampled every 250 ms.
+    // The first version of this test did exactly that and passed with the fix
+    // reverted. Do not replace this with a wait on the alert.
+    await page.waitForTimeout(1200);
+
+    await expect(
+      page.locator('#platform'),
+      'the chosen platform was lost — a seller has to find and re-pick it'
+    ).toHaveValue('tiktok');
+
+    // The control: these pass even when the echo is broken.
+    await expect(page.locator('#fullName')).toHaveValue('Selam Tesfaye');
+    await expect(page.locator('#handle')).toHaveValue('@selam');
+  });
+});
