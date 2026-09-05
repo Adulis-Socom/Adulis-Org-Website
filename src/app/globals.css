@@ -162,6 +162,60 @@
     @apply relative rounded bg-ink p-6 text-paper md:p-8;
   }
 
+  /* ------------------------------------------------------- the prow slot
+
+     §2.3 places the mark's double-curl prow as the top edge of the one ink
+     surface a relational page carries. The drawing does not exist yet — it is
+     commissioned with the icon, one drawing serving three purposes — so this is
+     the SLOT, not the shape.
+
+     Current state: a plain top edge, which is what `.surface-ink` already has.
+     Nothing renders, because `--prow` is undefined.
+
+     When `prow.svg` lands, one rule makes it real:
+
+         :root { --prow: url('/prow.svg'); --prow-on: 1; }
+
+     The mask is what keeps this a file drop. The band's height and position are
+     fixed here, the ink comes from the surface, and the SVG supplies only the
+     silhouette — so the drawing can change without touching layout, and a
+     drawing that is the wrong colour still works.
+
+     `mask-size: 100% 100%` stretches one path across the band, which is why the
+     brief asks for a curve that survives both compression and extension: the
+     same path renders at 312px on a phone and 1216px on a desktop. Verified at
+     both in the landing rehearsal.
+
+     ⚠ Used ONCE per page. If it appears on a second surface it has become
+     decoration and should be removed entirely. */
+  .surface-ink::before {
+    content: '';
+    display: block;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 14px;
+    background-color: rgb(var(--ink));
+    -webkit-mask-image: var(--prow, none);
+    mask-image: var(--prow, none);
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    /* Off until a drawing exists. `mask-image: none` would otherwise paint the
+       whole band as a plain ink bar on an ink surface — invisible, but still a
+       box. Keeping it out of the render means the pre-artwork state is
+       genuinely "a plain edge", not "an edge that happens to look plain".
+
+       ⚠ Two variables, not one, and the rehearsal is why. The first version
+       switched on a descendant selector (`[style*='--prow'] .surface-ink`),
+       which never matched: the variable is set ON the surface, not on an
+       ancestor of it. A companion variable cannot miss — there is no selector
+       to get wrong. */
+    opacity: var(--prow-on, 0);
+  }
+
   .surface-ink h1,
   .surface-ink h2,
   .surface-ink h3 {

@@ -539,14 +539,99 @@ covered size: the Marker's letter-spacing (Figma 0%, code 0.06em) and its
 vertical padding (Figma 4px, code 2px, which is why the built marker is 26px
 against Figma's 30px). Recorded in D3 for whichever side is touched next.
 
-### 7.4 The gold headline rule
+### 7.4 The gold rule — corrected from a line to a phrase
 
-Applied to the three relational headings that are genuinely two-part, through
-one `DisplayHeading` component so it cannot drift per page. Table in D6. *How it
-works* and *About* are single-part and take none; the evidentiary pages take
-none by rule.
+The first rule said *gold carries the second line of a two-line display
+headline*, and each part was a block so that "second line" was true of the
+markup. **At 360px the headline reflows to four lines**, so "the second line"
+became three of them and most of the headline went gold. A mechanism named where
+the guarantee was semantic — the project's signature failure, in my own work.
 
-### 7.5 Branch protection — **blocked, and not by me**
+> **Gold marks a phrase, not a line.** Choose the words once. They stay gold at
+> every width, in every locale. The phrase names the outcome, and never exceeds
+> roughly half the rendered headline at 360px.
+
+Now one inline span and two catalogue strings, so the choice lives where a
+translator can see it. Home takes the approved alternative split.
+
+| Page | Gold phrase | Share at 360px |
+|---|---|---|
+| Home | "already knows you." | 30% |
+| For sellers | "Stop losing the orders you're already getting." | 37% |
+| For buyers | "This is where you buy from them." | 39% |
+
+**Measured by rendered area, not character count** — and that mattered. On
+characters, two of the three read 60% and 63% and would have prompted a rewrite
+of approved copy; by the area they actually occupy at 360px all three are
+comfortably under half, because the lead text wraps across more line-boxes than
+its length suggests. The third time on this project that measuring a threshold
+instead of estimating it changed the decision.
+
+Carried into `src/messages/README.md`: the accent is translated as its own
+phrase and **never derived positionally**, because Ge'ez reflows differently and
+any positional rule lands on the wrong words.
+
+### 7.5 The push trigger — the third gap closed at the trigger
+
+The gap had no signal at all: a branch whose PR has closed still accepts pushes,
+and under `pull_request` + `push: [main]` those pushes ran nothing. Not a red
+run — no run, and nothing to notice.
+
+`push` now fires on **every branch**, with the jobs split by cost rather than
+duplicated across events:
+
+| Job | Runs on | Cost |
+|---|---|---|
+| `verify`, `snapshots` | every push, every branch | ~3 min |
+| `qa` (chromium + webkit) | `pull_request`, `main`, `workflow_dispatch` | ~22 min |
+
+The split is deliberate arithmetic, not caution: the free private-repo allowance
+is 2,000 minutes a month, and the matrix on every push would exhaust it in about
+a fortnight. Assigning jobs to events rather than duplicating them also means a
+push to a branch with an open PR — which fires **both** events — runs each job
+exactly once, with all four attaching to the same commit.
+
+**This matters more than an ordinary CI tweak because §7.6 means there is no
+gate.** A trigger that always fires is the only available mechanism that does
+not depend on a person remembering to look.
+
+**⚠ And it does not reach the branches it was written for.** Reviewing the
+change adversarially before shipping it — rather than waiting for it to fail —
+turned up a blocking defect and two real bugs:
+
+| Found | Severity |
+|---|---|
+| For a `push`, GitHub resolves the workflow from **the pushed commit's tree, not main**. Nine of the ten other branches still carry the old `push: [main]`; two have no workflow file at all. The incident is unchanged on every one of them | **blocking** |
+| `cancel-in-progress` on `main`: two merges within ~14 minutes cancel the first merge's run mid-WebKit, leaving that commit with no verdict and a grey mark that reads like infrastructure noise | fixed |
+| `workflow_dispatch` and `push` resolve `github.ref` to the same string, so a trivial push cancels a deliberately requested matrix — and the push run does not run `qa`, so nothing replaces it | fixed |
+| While a PR has a merge conflict, no `pull_request` workflow runs; the push run still paints two green rows and the merge box reads "All checks have passed" with `qa` simply **absent** | documented, D8 |
+
+The first is the important one, and its shape is the lesson: **verifying it
+would have confirmed it.** Anyone checking pushes to the branch carrying the
+change, sees the jobs run, and concludes it works everywhere. It works there.
+The same error as reading one Figma node twice — a check performed where the
+defect cannot appear.
+
+**Verified live on PR #15**, which is also the first commit to exercise the new
+design end to end:
+
+| Run | Jobs | Result |
+|---|---|---|
+| `push` | `verify` 74 s, `snapshots` 106 s (`qa` skipped) | green |
+| `pull_request` | `qa (chromium)` 509 s, `qa (webkit)` 783 s (`verify`, `snapshots` skipped) | green |
+
+Both events fired for the same commit, each ran exactly its half, nothing ran
+twice, and all four results attach to the same SHA. ⚠ **That proves the design,
+not the rollout** — this is the branch carrying the change, which is the one
+branch where it cannot fail.
+
+The remedy is branch hygiene, not YAML, and it deletes shared state, so it is
+recorded in **D8** with the branch-by-branch table rather than done here:
+enable *Automatically delete head branches* (currently off), delete the seven
+branches that outlived merged PRs, and decide about the two that never had a
+PR at all. Verify by pushing an empty commit to an **old** branch.
+
+### 7.6 Branch protection — **blocked, and the decision is the founder's**
 
 `Settings → Branches` and repository rulesets both return **403: Upgrade to
 GitHub Pro or make this repository public.** `Adulis-Socom` is an organization
@@ -563,7 +648,7 @@ looked at.
 
 Full detail and the two options in `decisions-pending.md` **D7**.
 
-### 7.6 PR #13 merged green — and the next two commits had no CI at all
+### 7.7 PR #13 merged green — and the next two commits had no CI at all
 
 Worth recording, because it is the same class of gap as §7.5 wearing different
 clothes.
@@ -582,10 +667,12 @@ on a branch whose PR has closed looks exactly like a commit awaiting review.
 Those two commits are now **PR #14**, with their own run.
 
 Under branch protection this would be moot — the commits could not reach `main`
-unverified. Without it (§7.5), the only control is noticing, which is precisely
-the control that failed twice before.
+unverified. Without it (§7.6), the only control was noticing, which is precisely
+the control that failed twice before. **§7.5 removes this shape entirely**: every
+push now runs `verify` and `snapshots`, so there is no longer a way to add a
+commit and get no signal.
 
-### 7.7 The argument for the cadence
+### 7.8 The argument for the cadence
 
 In `engineering-notes.md`: three of this phase's four findings had been present
 for multiple checkpoints and were passing every check. None would have surfaced
