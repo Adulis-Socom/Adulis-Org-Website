@@ -35,6 +35,7 @@ export function WaitlistForm() {
   // visible so that it is present without JavaScript, and this component only
   // ever narrows it -- never the other way round.
   const [alsoSellOn, setAlsoSellOn] = useState(state.values.alsoSellOn ?? '');
+
   const [hydrated, setHydrated] = useState(false);
   useEffect(() => setHydrated(true), []);
   const showSecondHandle = !hydrated || (alsoSellOn !== '' && alsoSellOn !== 'neither');
@@ -140,7 +141,27 @@ export function WaitlistForm() {
       </Field>
 
       <Field id="platform" label={t('fields.platform')} required error={err('platform')}>
+        {/*
+          ⚠ `key`, not `value`. React applies `defaultValue` to a select at
+          MOUNT ONLY, so a rejected submission returned this field empty while
+          every text input beside it kept what was typed — a text input's DOM
+          node is never replaced, so `defaultValue` never has to work. Measured
+          on this form: name and handle survived, platform did not. With
+          JavaScript disabled the same submission returns it intact, which is
+          what pinned the fault to the client rather than the action.
+
+          Keying on the echoed value remounts the select exactly when the server
+          sends a different one, and `defaultValue` then applies to a fresh
+          mount, which is the one time it works.
+
+          NOT a controlled select. Making it controlled resets the field on
+          hydration if someone chose before the bundle arrived — and a slow
+          connection on a low-end Android is the constraint this whole site is
+          built around, so that trade is the wrong way round. Verified: the
+          controlled version failed this same check.
+        */}
         <select
+          key={`platform-${state.values.platform ?? ''}`}
           id="platform"
           name="platform"
           defaultValue={state.values.platform ?? ''}
