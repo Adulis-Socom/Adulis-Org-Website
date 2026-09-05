@@ -172,6 +172,12 @@ Symptoms that mean "stale server", not "broken code":
 Check `curl -s -o /dev/null -w '%{http_code}' http://localhost:3210/en` before
 diagnosing anything else. CI is unaffected — `reuseExistingServer` is false there.
 
+⚠ **The check this corrupts most completely is *observe it failing*.** Reverting
+a fix and re-running against a server that still carries it produces a pass, and
+a pass is the shape of "my new test is worthless" — so the trap does not look
+like a stale server, it looks like a finding. Force a fresh server with `CI=1`
+before drawing any conclusion from a deliberate breakage.
+
 ## Never substring-match a catalogue string against page HTML
 
 `NextIntlClientProvider` serialises `nav`, `waitlist` and `deleteAccount` into
@@ -351,3 +357,74 @@ reproduced the incident.
 
 **So ask where the check would have to run to be able to fail.** If the answer
 is "somewhere other than where I ran it", the green means nothing yet.
+
+---
+
+## React applies `defaultValue` to a `<select>` at mount only
+
+Every form on this site echoes the person's answers back after a rejected
+submission, and every text field appeared to prove it worked. None of them did.
+
+A text input keeps what was typed because **the DOM node is never replaced** —
+`defaultValue` never has to do anything. A `<select>` is different: when the
+form re-renders after a rejection the element is remounted, React applies
+`defaultValue` from the state current at that moment, and the choice is gone.
+
+Measured on the live waitlist form: `fullName` and `handle` survived a rejected
+submission; `platform` came back empty. **With JavaScript disabled the same
+submission returned the platform intact** — which is what pinned the fault to
+the client rather than the action, and is the experiment worth copying. If a
+value survives without JavaScript and vanishes with it, the server is fine and
+React is the difference.
+
+So a seller who misses a required field silently lost their platform, on the
+only conversion this site has.
+
+**Rule: any `<select>` whose value must survive a failed submission is
+controlled** — `value` plus `onChange`, seeded from the echoed state, exactly as
+`alsoSellOn` already was. The report-content category select must be built that
+way when the taxonomy lands.
+
+**The general lesson is about the evidence.** Four text fields passing is not
+evidence that echoing works; it is evidence that text inputs do not need it.
+A guarantee tested only where it cannot fail has not been tested — the same
+shape as reading one Figma node twice, and as verifying a CI trigger on the
+branch that carries it.
+
+## A retrying assertion is a race when the broken state arrives late
+
+The permanent guard for the note above **passed on a build with the fix
+reverted.** Twice, for two different reasons, and the second one is the
+interesting one.
+
+The first false pass was the stale-server trap already described above — worth
+noting because *observe it failing* is the single check that trap corrupts most
+completely. Forcing a fresh server with `CI=1` did not fix it. The test still
+passed with the defect restored.
+
+Sampling the value every 250 ms after the error summary painted:
+
+```
+["tiktok","","","","","","","","", …]
+```
+
+**The chosen value survives the alert and is cleared about 250 ms later, in a
+later commit.** So an assertion made the moment the alert appears reads the
+value while it is still correct, on a build where it is about to be destroyed.
+
+Playwright's `toHaveValue` retries, which feels like protection and is the
+opposite here. **Retrying only helps when the value moves toward what you
+expect.** This one starts at the expected value and moves away, so the first
+poll succeeds instantly and the assertion never sees the failure it exists to
+catch. Waiting on `aria-busy` does not help either — pending clears in the same
+commit that paints the alert, one commit before the reset.
+
+The guard now settles for 1200 ms first, with the sampled series in a comment
+so nobody replaces it with a wait on the alert.
+
+**The lesson is about what counts as observing a failure.** Reverting the fix
+and watching the test still pass was the only thing that found this, and it very
+nearly did not: a green run is what you expect to see when reverting a fix
+*correctly restores nothing*. Observing a failure is only evidence when the test
+fails **for the stated reason** — check the message, and check the timing.
+A test that cannot fail is worse than no test, because it is counted.

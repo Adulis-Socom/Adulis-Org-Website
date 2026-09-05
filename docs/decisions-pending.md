@@ -322,3 +322,43 @@ repository has wanted so far, and pointless next to simply having a required
 status check (D7). Documented rather than built.
 
 ---
+
+---
+
+## D9 · Two landings need a manual step no test can catch
+
+Both surfaced in the landing rehearsal (`docs/landing-rehearsal.md`).
+
+### The legal bodies do not un-hide themselves
+
+`INDEX_POLICY` marks Terms, Privacy, Refunds and Seller Terms `unbuilt`, which
+makes them `noindex`. That is correct today: their bodies are placeholders.
+
+When the drafted bodies land they are **catalogue strings** — a pure drop-in
+that changes no code. So nothing clears the flag, and **the four finished legal
+pages stay invisible to search engines** until someone edits
+`src/lib/routes.ts` by hand.
+
+No test can catch it. "The bodies are real now" is not a fact the code can read
+— a lawyer's paragraph and a placeholder are both just strings.
+
+**Whoever lands the bodies must also remove `unbuilt: true` for those four
+routes.** Rehearsed with all eleven Terms sections filled: everything else
+worked, and the page stayed `noindex`, exactly as it will on the day.
+
+### The Ethiopic font assertion is wrong for the future
+
+`tests/qa/headers-fonts.spec.ts` asserts that **neither** locale loads the full
+Ethiopic face. That passes today only because the Amharic tree serves English
+fallback text.
+
+The day Amharic is real, the Amharic routes **must** load it — otherwise the
+Ge'ez is drawn from a system fallback, which is the missing-glyph failure the
+whole two-face split exists to prevent. The assertion should be "the English
+routes must not", which is the guarantee that was always meant.
+
+Not changed here, because changing it today would weaken a green check for a
+condition that does not yet exist. It belongs in the same commit as the
+translation.
+
+---
