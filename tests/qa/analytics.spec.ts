@@ -72,12 +72,12 @@ test.describe('§6.4 analytics payload', () => {
     // its own state, because a beacon has no use for the information and a
     // prober should learn nothing either.
     const good = await request.post('/api/events', {
-      data: { event: 'language_switched', route: '/en', properties: { to: 'am' } }
+      data: { event: 'language_switched', route: '/', properties: { to: 'am' } }
     });
     expect(good.status()).toBe(204);
 
     const bad = await request.post('/api/events', {
-      data: { event: 'not_a_real_event', route: '/en' }
+      data: { event: 'not_a_real_event', route: '/' }
     });
     expect(bad.status()).toBe(204);
   });
@@ -116,7 +116,7 @@ test.describe('§6.4 analytics payload', () => {
     // networkidle, not load: the blur handler is attached at hydration, and
     // focusing before that fires a blur nothing is listening for. WebKit hydrates
     // slowly enough at 360px for the difference to be the whole test.
-    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    await page.goto('/for-sellers', { waitUntil: 'networkidle' });
 
     // The conditional second-handle field is removed once hydrated, so its
     // absence is a reliable signal that React has taken over.

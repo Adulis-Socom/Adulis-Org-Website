@@ -86,7 +86,7 @@ Copy `.env.example` to `.env.local` before deploying anywhere real. Leaving
 |---|---|---|
 | Framework | Next.js 15, App Router, TypeScript | Server-rendered by default; first paint on a low-end Android over a slow connection is the binding constraint |
 | Hosting | Cloudflare Pages + Workers *(not yet configured)* | Zero egress, edge PoPs are the closest realistic answer to "no cloud region operates in Ethiopia", one vendor alongside the R2 decision |
-| i18n | `next-intl`, route-based `/en` and `/am` | Shared links land in the right language, both trees index, nothing depends on JavaScript |
+| i18n | `next-intl`, English unprefixed (`/`, `/about`) and Amharic under `/am` (`localePrefix: 'as-needed'`) | Shared links land in the right language, nothing depends on JavaScript |
 | Styling | Tailwind over CSS custom properties | Every colour is a `var()` into `:root` in `src/app/globals.css` — the one definition. `tailwind.config.ts` only names utilities against it |
 | Fonts | Inter (body, UI, forms) + Instrument Sans (display, headings) + Noto Sans Ethiopic | See below — this is load-bearing |
 | Analytics | None. Self-hosted only, when it exists | The site collects personal data from prospective sellers; adding a third party creates a processor relationship nobody has assessed |
@@ -136,8 +136,9 @@ any other Ge'ez appearing there renders as a box. That is the signal you want.
 
 ## Routes
 
-Every route is locale-prefixed: `/en/...` and `/am/...`. All sixteen resolve in
-both locales.
+English routes are unprefixed (`/`, `/how-it-works`, …) and Amharic routes carry
+`/am` (founder ruling D-01). `/en/...` redirects to the unprefixed URL. Every
+route resolves in both locales.
 
 | Wireframe | Route | Notes |
 |---|---|---|
@@ -276,7 +277,7 @@ While the flag is false:
 
 - the language switcher is not rendered on any surface
 - `/am/*` still resolves, so URLs stay stable and translation can land key by key
-- `/am/*` is `noindex` regardless of `NEXT_PUBLIC_SITE_URL`, and only `/en` is
+- `/am/*` is `noindex` regardless of `NEXT_PUBLIC_SITE_URL`, and only English is
   advertised in `alternates.languages`
 - the English fallback works exactly as it will when the catalogue arrives
 

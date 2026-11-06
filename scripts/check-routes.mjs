@@ -32,6 +32,11 @@ const block = routesSource.slice(
 const paths = [...block.matchAll(/:\s*'([^']+)'/g)].map((m) => m[1]);
 const locales = ['en', 'am'];
 
+// English is unprefixed (founder ruling D-01); every other locale is prefixed.
+// The same rule as localeHref() in src/lib/metadata.ts.
+const localePath = (locale, path) =>
+  locale === 'en' ? path : `/${locale}${path === '/' ? '' : path}`;
+
 if (paths.length === 0) {
   console.error('routes: could not parse any path out of src/lib/routes.ts');
   process.exit(1);
@@ -57,7 +62,7 @@ async function waitForServer(deadlineMs = 60_000) {
   const started = Date.now();
   while (Date.now() - started < deadlineMs) {
     try {
-      await fetch(`${BASE}/en`);
+      await fetch(`${BASE}/`);
       return true;
     } catch {
       await new Promise((r) => setTimeout(r, 500));
@@ -77,7 +82,7 @@ let checked = 0;
 
 for (const locale of locales) {
   for (const path of paths) {
-    const url = `${BASE}/${locale}${path === '/' ? '' : path}`;
+    const url = `${BASE}${localePath(locale, path)}`;
     checked++;
     try {
       const res = await fetch(url, { redirect: 'manual' });
@@ -90,18 +95,23 @@ for (const locale of locales) {
 
 // An unknown path must 404, not 200. A soft-404 is indexable and invisible to
 // monitoring.
-for (const url of [`${BASE}/en/no-such-page`, `${BASE}/am/no-such-page`]) {
+for (const url of [`${BASE}/no-such-page`, `${BASE}/am/no-such-page`]) {
   checked++;
   const res = await fetch(url, { redirect: 'manual' });
   if (res.status !== 404) failures.push(`${res.status} (expected 404)  ${url}`);
 }
 
-// / must resolve to the default locale deterministically.
-checked++;
-const root = await fetch(`${BASE}/`, { redirect: 'manual' });
-const location = root.headers.get('location') ?? '';
-if (![307, 308].includes(root.status) || !location.endsWith('/en')) {
-  failures.push(`${root.status} -> ${location || '(none)'} (expected redirect to /en)  ${BASE}/`);
+// /en must never serve a second copy of the English site. next-intl redirects
+// it, and anything under it, to the unprefixed canonical URL (D-01). `/` itself
+// is covered above: it is the English home route and must answer 200.
+for (const [from, to] of [['/en', '/'], ['/en/about', '/about']]) {
+  checked++;
+  const res = await fetch(`${BASE}${from}`, { redirect: 'manual' });
+  const location = res.headers.get('location') ?? '';
+  const target = location ? new URL(location, BASE).pathname : '(none)';
+  if (![307, 308].includes(res.status) || target !== to) {
+    failures.push(`${res.status} -> ${target} (expected redirect to ${to})  ${BASE}${from}`);
+  }
 }
 
 stop();
@@ -113,5 +123,5 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`routes: ${checked} checks passed (${paths.length} routes x ${locales.length} locales, plus 404s and /)`);
+console.log(`routes: ${checked} checks passed (${paths.length} routes x ${locales.length} locales, plus 404s and /en redirects)`);
 process.exit(0);

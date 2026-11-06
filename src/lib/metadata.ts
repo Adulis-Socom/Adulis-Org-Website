@@ -71,9 +71,18 @@ export function noIndexReasons({
   return reasons;
 }
 
-/** `/en`, `/en/about` — never `/en/` for the home route. */
-function localeHref(locale: string, path: RoutePath): string {
-  return path === '/' ? `/${locale}` : `/${locale}${path}`;
+/**
+ * The public URL path of a route in a locale: `/`, `/about`, `/am`, `/am/about`.
+ *
+ * English is unprefixed (founder ruling D-01) and every other locale is
+ * prefixed, mirroring `localePrefix: 'as-needed'` in `src/i18n/routing.ts`.
+ * The sitemap builds its URLs with this too, so canonical, hreflang and the
+ * sitemap cannot disagree about where a page lives.
+ */
+export function localeHref(locale: string, path: RoutePath): string {
+  const prefix = locale === defaultLocale ? '' : `/${locale}`;
+  if (path === '/') return prefix || '/';
+  return `${prefix}${path}`;
 }
 
 export function buildPageMetadata({

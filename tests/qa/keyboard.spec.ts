@@ -30,7 +30,7 @@ test.describe('§2.5 keyboard', () => {
       testInfo.project.name === 'webkit',
       'WebKit excludes links from the Tab order by default — see the comment above'
     );
-    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     await page.keyboard.press('Tab');
 
     const first = await page.evaluate(() => {
@@ -112,7 +112,7 @@ test.describe('§2.5 keyboard', () => {
   }
 
   test('error summary links move focus to the field they name', async ({ page }) => {
-    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    await page.goto('/for-sellers', { waitUntil: 'networkidle' });
     await page.locator('form button[type="submit"]').click();
 
     const summary = page.locator('.error-summary');
@@ -135,7 +135,7 @@ test.describe('§2.5 keyboard', () => {
   });
 
   test('submit button stays enabled in the error state', async ({ page }) => {
-    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    await page.goto('/for-sellers', { waitUntil: 'networkidle' });
     const submit = page.locator('form button[type="submit"]');
     await submit.click();
     await expect(page.locator('.error-summary')).toBeVisible();

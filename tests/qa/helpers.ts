@@ -20,6 +20,16 @@ export function routePaths(): string[] {
 export const LOCALES = ['en', 'am'] as const;
 
 /**
+ * The public URL of a route in a locale. English is unprefixed (founder ruling
+ * D-01); every other locale carries its prefix. Mirrors `localeHref()` in
+ * src/lib/metadata.ts.
+ */
+export function localeUrl(locale: string, path: string): string {
+  if (locale === 'en') return path;
+  return `/${locale}${path === '/' ? '' : path}`;
+}
+
+/**
  * Every page under test: 15 routes x 2 locales, **plus the 404**.
  *
  * The 404 is not a ROUTES entry — it has no path of its own, being whatever
@@ -33,11 +43,12 @@ export function allPages(): { locale: string; path: string; url: string; label: 
   const out: { locale: string; path: string; url: string; label: string }[] = [];
   for (const locale of LOCALES) {
     for (const path of routePaths()) {
-      const url = `/${locale}${path === '/' ? '' : path}`;
+      const url = localeUrl(locale, path);
       out.push({ locale, path, url, label: url });
     }
     // Any path that does not exist renders [locale]/not-found.tsx.
-    out.push({ locale, path: '/not-found', url: `/${locale}/__not-found__`, label: `/${locale} [404]` });
+    const missing = localeUrl(locale, '/__not-found__');
+    out.push({ locale, path: '/not-found', url: missing, label: `${missing} [404]` });
   }
   return out;
 }

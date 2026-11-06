@@ -56,7 +56,7 @@ test.describe('§2.8 security headers', () => {
   });
 
   test('CSP carries every directive', async ({ request }) => {
-    const res = await request.get('/en');
+    const res = await request.get('/');
     const csp = res.headers()['content-security-policy'] ?? '';
     record('headers.jsonl', { csp, all: res.headers() });
     const absent = CSP_DIRECTIVES.filter((d) => !csp.includes(d));
@@ -64,7 +64,7 @@ test.describe('§2.8 security headers', () => {
   });
 
   test("script-src carries a nonce and no 'unsafe-inline'", async ({ request }) => {
-    const csp = (await request.get('/en')).headers()['content-security-policy'] ?? '';
+    const csp = (await request.get('/')).headers()['content-security-policy'] ?? '';
     const scriptSrc = (csp.split(';').find((d) => d.trim().startsWith('script-src')) ?? '').trim();
     expect(scriptSrc, `script-src was "${scriptSrc}"`).toMatch(/'nonce-[A-Za-z0-9+/=]{16,}'/);
     expect(scriptSrc, `script-src was "${scriptSrc}"`).not.toContain("'unsafe-inline'");
@@ -73,7 +73,7 @@ test.describe('§2.8 security headers', () => {
 
   test('the nonce is per-request, not a build constant', async ({ request }) => {
     const nonceOf = async () => {
-      const csp = (await request.get('/en')).headers()['content-security-policy'] ?? '';
+      const csp = (await request.get('/')).headers()['content-security-policy'] ?? '';
       return (csp.match(/'nonce-([A-Za-z0-9+/=]+)'/) ?? [])[1] ?? '';
     };
     const a = await nonceOf();
@@ -93,7 +93,7 @@ test.describe('§2.8 security headers', () => {
    * between that change and production.
    */
   test('every inline script carries the nonce from its own response', async ({ request }) => {
-    for (const url of ['/en', '/am', '/en/for-sellers']) {
+    for (const url of ['/', '/am', '/for-sellers']) {
       const res = await request.get(url);
       const csp = res.headers()['content-security-policy'] ?? '';
       const headerNonce = (csp.match(/'nonce-([A-Za-z0-9+/=]+)'/) ?? [])[1] ?? '';
@@ -127,7 +127,7 @@ test.describe('§2.8 security headers', () => {
   test('every subresource actually loads', async ({ page }) => {
     const failed: string[] = [];
     page.on('requestfailed', (r) => failed.push(`${r.url()} <- ${r.failure()?.errorText ?? ''}`));
-    await page.goto('/en/for-sellers', { waitUntil: 'load' });
+    await page.goto('/for-sellers', { waitUntil: 'load' });
     await page.waitForTimeout(1500);
     // An aborted request is a cancellation, not a failure. Next prefetches RSC
     // payloads for links in view and cancels them when the page tears down, which
@@ -140,7 +140,7 @@ test.describe('§2.8 security headers', () => {
   });
 
   test('upgrade-insecure-requests is absent over http', async ({ request, baseURL }) => {
-    const csp = (await request.get('/en')).headers()['content-security-policy'] ?? '';
+    const csp = (await request.get('/')).headers()['content-security-policy'] ?? '';
     if ((baseURL ?? '').startsWith('https:')) {
       expect(csp).toContain('upgrade-insecure-requests');
     } else {
@@ -158,12 +158,12 @@ test.describe('§2.8 security headers', () => {
     page.on('pageerror', (e) => {
       if (/Content Security Policy/i.test(e.message)) violations.push(e.message);
     });
-    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    await page.goto('/for-sellers', { waitUntil: 'networkidle' });
     expect(violations, `CSP violations:\n${violations.join('\n')}`).toEqual([]);
   });
 
   test('HSTS does NOT carry preload', async ({ request }) => {
-    const res = await request.get('/en');
+    const res = await request.get('/');
     const hsts = res.headers()['strict-transport-security'] ?? '';
     expect(hsts, `HSTS is "${hsts}"`).not.toContain('preload');
     expect(hsts).toContain('includeSubDomains');
@@ -233,7 +233,7 @@ test.describe('§2.9 fonts', () => {
         /* body already discarded; ignore */
       }
     });
-    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    await page.goto('/for-sellers', { waitUntil: 'networkidle' });
     await page.waitForTimeout(1200);
 
     const total = sizes.reduce((a, s) => a + s.bytes, 0);
@@ -256,7 +256,7 @@ test.describe('§2.9 fonts', () => {
    * this measures what a browser actually got.
    */
   test('the display face loads on /en, Latin-only, one weight', async ({ page }) => {
-    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     await page.waitForTimeout(600);
 
     // Not the metric-adjusted local stand-in next/font also registers as
@@ -296,8 +296,8 @@ test.describe('§2.9 fonts', () => {
       const u = new URL(r.url());
       if (u.hostname !== 'localhost' && u.hostname !== '127.0.0.1') external.push(r.url());
     });
-    await page.goto('/en', { waitUntil: 'networkidle' });
-    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await page.goto('/for-sellers', { waitUntil: 'networkidle' });
     expect(external, `off-origin requests:\n${external.join('\n')}`).toEqual([]);
   });
 });

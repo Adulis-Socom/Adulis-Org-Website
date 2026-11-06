@@ -69,7 +69,9 @@ export async function POST(request: Request): Promise<Response> {
   // length-bounded, and never reflected anywhere.
   const rawRoute = typeof input.route === 'string' ? input.route : '';
   const route = /^\/[A-Za-z0-9/_-]{0,120}$/.test(rawRoute) ? rawRoute : null;
-  const locale = route?.startsWith('/am') ? 'am' : route?.startsWith('/en') ? 'en' : null;
+  // English routes are unprefixed (D-01), so a route is Amharic only when it
+  // carries the `/am` segment, and English otherwise.
+  const locale = route === null ? null : /^\/am(\/|$)/.test(route) ? 'am' : 'en';
 
   sink().record({
     event: input.event,

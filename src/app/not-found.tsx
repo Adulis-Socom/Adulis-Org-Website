@@ -10,7 +10,7 @@ import Link from 'next/link';
  * guessing one would be worse than not trying.
  *
  * In practice almost nothing lands here -- the middleware prefixes a locale onto
- * anything it matches, so a wrong path under `/en` or `/am` gets the localised
+ * anything it matches, so a wrong English or `/am` path gets the localised
  * 404 instead.
  */
 export default function GlobalNotFound() {
@@ -58,7 +58,7 @@ export default function GlobalNotFound() {
           </p>
           <p style={{ margin: '1.5rem 0 0' }}>
             <Link
-              href="/en"
+              href="/"
               style={{
                 display: 'inline-flex',
                 minHeight: '44px',

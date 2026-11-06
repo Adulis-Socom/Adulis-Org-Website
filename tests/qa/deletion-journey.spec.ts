@@ -21,7 +21,8 @@ import { test, expect } from './fixtures';
  */
 
 const PORT = Number(process.env.QA_DELETION_PORT ?? 3212);
-const at = (path: string) => `http://localhost:${PORT}/en${path}`;
+// English is unprefixed (D-01).
+const at = (path: string) => `http://localhost:${PORT}${path}`;
 
 /** The one code the double accepts. */
 const CODE = '123456';

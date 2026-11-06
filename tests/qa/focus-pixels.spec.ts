@@ -179,13 +179,13 @@ const MIN_BAND_CHANGE = 0.1;
 
 test.describe('§7 focus is visible in pixels, not in properties', () => {
   const CASES = [
-    { route: '/en', selector: 'header a[href="/en"]', what: 'the wordmark link' },
-    { route: '/en/for-sellers', selector: '#fullName', what: 'a text input' },
-    { route: '/en/for-sellers', selector: '#platform', what: 'a native select' },
-    { route: '/en/for-sellers', selector: '#consent', what: 'a native checkbox' },
-    { route: '/en/for-sellers', selector: 'button[type="submit"]', what: 'the primary button' },
-    { route: '/en/for-sellers', selector: 'a.btn-secondary', what: 'a secondary button' },
-    { route: '/en/help', selector: 'details summary', what: 'an accordion summary' }
+    { route: '/', selector: 'header a[href="/"]', what: 'the wordmark link' },
+    { route: '/for-sellers', selector: '#fullName', what: 'a text input' },
+    { route: '/for-sellers', selector: '#platform', what: 'a native select' },
+    { route: '/for-sellers', selector: '#consent', what: 'a native checkbox' },
+    { route: '/for-sellers', selector: 'button[type="submit"]', what: 'the primary button' },
+    { route: '/for-sellers', selector: 'a.btn-secondary', what: 'a secondary button' },
+    { route: '/help', selector: 'details summary', what: 'an accordion summary' }
   ];
 
   for (const c of CASES) {

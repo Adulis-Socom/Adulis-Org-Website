@@ -98,7 +98,7 @@ ${JSON.stringify(v, null, 2)}`).toEqual([]);
 
   test('axe: waitlist error state', async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 360, height: 640 });
-    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    await page.goto('/for-sellers', { waitUntil: 'networkidle' });
     await page.locator('form button[type="submit"]').click();
     await expect(page.locator('.error-summary')).toBeVisible();
     const v = await scan(page, `${testInfo.project.name} /en/for-sellers [error state]`);
@@ -107,7 +107,7 @@ ${JSON.stringify(v, null, 2)}`).toEqual([]);
 
   test('axe: mobile menu open', async ({ page }, testInfo) => {
     await page.setViewportSize({ width: 360, height: 640 });
-    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     await page.locator('header button[aria-controls]').click();
     const v = await scan(page, `${testInfo.project.name} /en [menu open]`);
     expect(v, `mobile menu open: ${v.length} violation(s)\n${JSON.stringify(v, null, 2)}`).toEqual([]);
@@ -115,7 +115,7 @@ ${JSON.stringify(v, null, 2)}`).toEqual([]);
 
   test('prefers-reduced-motion is respected', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     const moving = await page.evaluate(() => {
       const bad: string[] = [];
       for (const el of Array.from(document.querySelectorAll<HTMLElement>('body *'))) {

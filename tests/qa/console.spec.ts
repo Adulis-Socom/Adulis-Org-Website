@@ -28,7 +28,7 @@ test.describe('§2.1 runtime console', () => {
     const { problems } = collectProblems(page);
 
     // Mobile menu open/close — Header is a client component using `nav`.
-    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     const trigger = page.locator('header button[aria-controls]');
     await trigger.click();
     await expect(page.locator('header nav >> visible=true').last()).toBeVisible();
@@ -40,7 +40,7 @@ test.describe('§2.1 runtime console', () => {
     await page.keyboard.press('Escape');
 
     // Every waitlist field — WaitlistForm is a client component using `waitlist`.
-    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    await page.goto('/for-sellers', { waitUntil: 'networkidle' });
     for (const id of ['fullName', 'phone', 'platform', 'handle', 'alsoSellOn', 'followers', 'sells', 'city']) {
       const el = page.locator(`#${id}`);
       if (await el.count()) await el.first().focus();
@@ -54,7 +54,7 @@ test.describe('§2.1 runtime console', () => {
     await page.waitForTimeout(1500);
 
     // Deletion page, as far as the flag allows.
-    await page.goto('/en/delete-account', { waitUntil: 'networkidle' });
+    await page.goto('/delete-account', { waitUntil: 'networkidle' });
     await page.waitForTimeout(300);
     await page.goto('/am/delete-account', { waitUntil: 'networkidle' });
     await page.waitForTimeout(300);

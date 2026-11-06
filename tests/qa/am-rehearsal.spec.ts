@@ -41,7 +41,7 @@ test.describe('rehearsal: the Amharic landing', () => {
 
   test('the switcher renders, and both scripts appear on it', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 900 });
-    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     const group = page.locator('[role="group"]').filter({ hasText: /EN/ }).first();
     await expect(group, 'the language switcher did not render with the flag on').toBeVisible();
@@ -52,7 +52,7 @@ test.describe('rehearsal: the Amharic landing', () => {
   });
 
   test('the switcher subset covers every glyph it renders', async ({ page }) => {
-    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     await page.waitForTimeout(800);
 
     const result = await page.evaluate(() => {
@@ -98,7 +98,7 @@ test.describe('rehearsal: the Amharic landing', () => {
       `/am did not load the full Ethiopic face, so its Ge’ez is drawn from a fallback:\n${JSON.stringify(am, null, 2)}`
     ).toBe(true);
 
-    const en = await facesOn('/en');
+    const en = await facesOn('/');
     expect(
       en.filter((f) => f.status === 'loaded'),
       `/en loaded the full Ethiopic face — the 198 KB regression is back`

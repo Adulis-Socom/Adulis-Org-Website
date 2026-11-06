@@ -59,7 +59,8 @@ test.describe('§6.5 crawler discovery', () => {
   test('every route with an index policy is served WITH noindex', async ({ request }) => {
     const missing: string[] = [];
     for (const key of Object.keys(INDEX_POLICY) as (keyof typeof ROUTES)[]) {
-      const path = `/en${ROUTES[key] === '/' ? '' : ROUTES[key]}`;
+      // English is unprefixed (D-01).
+      const path = ROUTES[key];
       const html = await request.get(path).then((r) => r.text());
       if (!/name="robots"[^>]*content="[^"]*noindex/.test(html)) missing.push(path);
     }

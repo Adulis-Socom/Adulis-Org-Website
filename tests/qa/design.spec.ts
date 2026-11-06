@@ -94,7 +94,7 @@ async function badgeAudit(page: Page) {
 }
 
 test.describe('§7 the EXAMPLE marker survives a restyle', () => {
-  for (const route of ['/en', '/en/how-it-works']) {
+  for (const route of ['/', '/how-it-works']) {
     test(`${route}: every EXAMPLE badge is rendered and legible`, async ({ page }) => {
       await page.goto(route, { waitUntil: 'networkidle' });
       const badges = await badgeAudit(page);
@@ -220,10 +220,10 @@ async function focusStops(page: Page) {
 
 test.describe('§7 the focus indicator is dual-tone', () => {
   const CASES = [
-    { route: '/en', selector: 'header a[href="/en"]', what: 'the wordmark link' },
-    { route: '/en/for-sellers', selector: '#fullName', what: 'a text input' },
-    { route: '/en/for-sellers', selector: 'button[type="submit"]', what: 'the submit button' },
-    { route: '/en/help', selector: 'details summary', what: 'an accordion summary' }
+    { route: '/', selector: 'header a[href="/"]', what: 'the wordmark link' },
+    { route: '/for-sellers', selector: '#fullName', what: 'a text input' },
+    { route: '/for-sellers', selector: 'button[type="submit"]', what: 'the submit button' },
+    { route: '/help', selector: 'details summary', what: 'an accordion summary' }
   ];
 
   for (const c of CASES) {
@@ -375,7 +375,7 @@ ${JSON.stringify(clipped, null, 2)}`
  */
 test.describe('§7 the font stack resolves Latin-first', () => {
   test('body text names the Latin family before any Ethiopic family', async ({ page }) => {
-    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     const stack = await page.evaluate(() => {
       const el = document.querySelector('p, h1, body') as HTMLElement;
@@ -397,7 +397,7 @@ test.describe('§7 the font stack resolves Latin-first', () => {
   });
 
   test('every Ethiopic @font-face is restricted by unicode-range', async ({ page }) => {
-    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
 
     const faces = await page.evaluate(() => {
       const out: { family: string; range: string }[] = [];
@@ -517,7 +517,7 @@ test.describe('§7 stray Ge\u2019ez on an English page fetches nothing', () => {
       }
     });
 
-    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
     await page.waitForTimeout(400);
     const before = fetched.reduce((a, b) => a + b, 0);
 

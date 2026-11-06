@@ -107,7 +107,7 @@ test.describe('§7 G11 — placeholders look unfinished', () => {
   };
 
   test('the EXAMPLE badge on an invented shop', async ({ page }) => {
-    await page.goto('/en/how-it-works');
+    await page.goto('/how-it-works');
     await settle(page);
 
     const badge = page.locator('.badge-example').first();
@@ -119,7 +119,7 @@ test.describe('§7 G11 — placeholders look unfinished', () => {
   });
 
   test('the media placeholder standing in for a photo', async ({ page }) => {
-    await page.goto('/en/how-it-works');
+    await page.goto('/how-it-works');
     await settle(page);
 
     const media = page.locator('.placeholder-media').first();
@@ -131,7 +131,7 @@ test.describe('§7 G11 — placeholders look unfinished', () => {
   });
 
   test('an UNDECIDED flag in running copy', async ({ page }) => {
-    await page.goto('/en/about');
+    await page.goto('/about');
     await settle(page);
 
     const flag = page.locator('.placeholder-flag').first();

@@ -24,14 +24,14 @@ test.use({ javaScriptEnabled: false });
 
 test.describe('§2.6 JavaScript disabled', () => {
   test('page renders its content without JavaScript', async ({ page }) => {
-    await page.goto('/en/for-sellers');
+    await page.goto('/for-sellers');
     await expect(page.locator('h1')).toBeVisible();
     await expect(page.locator('form')).toBeVisible();
     await expect(page.locator('footer')).toBeVisible();
   });
 
   test('the Second handle field is visible before hydration', async ({ page }) => {
-    await page.goto('/en/for-sellers');
+    await page.goto('/for-sellers');
     // It starts visible and only narrows once hydrated. With JS off it must
     // never narrow, or a no-JS seller on two platforms cannot give the second
     // handle at all.
@@ -46,7 +46,7 @@ test.describe('§2.6 JavaScript disabled', () => {
       }
     });
 
-    await page.goto('/en/for-sellers');
+    await page.goto('/for-sellers');
 
     await page.fill('#fullName', 'No JS Tester');
     await page.fill('#phone', '+251911223344');
@@ -104,7 +104,7 @@ test.describe('§2.6 JavaScript disabled', () => {
   });
 
   test('server-side validation returns the error summary with no JavaScript', async ({ page }) => {
-    await page.goto('/en/for-sellers');
+    await page.goto('/for-sellers');
     await Promise.all([
       page.waitForLoadState('load'),
       page.locator('form button[type="submit"]').click()
@@ -124,7 +124,7 @@ test.describe('§2.6 JavaScript disabled', () => {
    * connection is the reader this page exists for.
    */
   test('the Help accordion opens with no JavaScript', async ({ page }) => {
-    await page.goto('/en/help');
+    await page.goto('/help');
     const items = page.locator('details');
     const count = await items.count();
     expect(count, 'no <details> on /en/help — has it become a scripted accordion?').toBeGreaterThan(5);
@@ -155,7 +155,7 @@ test.describe('§2.6 JavaScript disabled', () => {
    * removes it.
    */
   test('legal pages render flagged placeholders, not invented prose', async ({ page }) => {
-    for (const route of ['/en/terms', '/en/privacy', '/en/seller-terms', '/en/refunds-and-disputes']) {
+    for (const route of ['/terms', '/privacy', '/seller-terms', '/refunds-and-disputes']) {
       await page.goto(route);
 
       const sections = page.locator('section[id]');
@@ -190,7 +190,7 @@ test.describe('§2.6 JavaScript disabled', () => {
    * that is a refusal with an error, not a silent discard.
    */
   test('contact and report forms work with no JavaScript', async ({ page }) => {
-    for (const route of ['/en/contact', '/en/report-content']) {
+    for (const route of ['/contact', '/report-content']) {
       await page.goto(route);
       expect(await page.locator('form').count(), `${route} renders no form`).toBeGreaterThan(0);
 
@@ -210,7 +210,7 @@ test.describe('§2.6 JavaScript disabled', () => {
   });
 
   test('footer legal links resolve without JavaScript', async ({ page }) => {
-    await page.goto('/en');
+    await page.goto('/');
     for (const label of ['Terms', 'Privacy', 'Report content', 'Delete my account']) {
       const link = page.locator('footer a', { hasText: new RegExp(`^${label}$`) }).first();
       await expect(link, `${label} missing from the footer`).toHaveCount(1);

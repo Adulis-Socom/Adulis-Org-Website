@@ -149,7 +149,7 @@ test.describe('§6.3 deletion client', () => {
 
 test.describe('§6.3 deletion page while the API does not exist', () => {
   test('renders the explanation and the manual route, and offers no flow', async ({ page }) => {
-    await page.goto('/en/delete-account');
+    await page.goto('/delete-account');
 
     // The Phase 0b job: exist, be reachable, explain. A store reviewer looks for
     // the explanation on the landing step.
@@ -164,7 +164,7 @@ test.describe('§6.3 deletion page while the API does not exist', () => {
   });
 
   test('sets no cookie, because a ticket is not a session', async ({ page }) => {
-    await page.goto('/en/delete-account');
+    await page.goto('/delete-account');
     const cookies = await page.context().cookies();
     expect(
       cookies.filter((c) => /ticket|deletion|session/i.test(c.name)),

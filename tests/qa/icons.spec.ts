@@ -49,7 +49,7 @@ test.describe('§4.2 icon pipeline', () => {
     });
 
     test(`/en ${present ? 'links' : 'does not advertise'} ${icon.url}`, async ({ request }) => {
-      const html = await (await request.get('/en')).text();
+      const html = await (await request.get('/')).text();
       const links = html.match(new RegExp(`<link[^>]*rel="${icon.rel}"[^>]*>`, 'g')) ?? [];
       if (present) {
         expect(links.length, `no <link rel="${icon.rel}"> on /en although ${icon.file} exists`).toBeGreaterThan(0);

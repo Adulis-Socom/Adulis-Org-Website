@@ -29,7 +29,7 @@ test.describe('§6.2 contact form', () => {
     page
   }, testInfo) => {
     const subject = uniq(testInfo.project.name, 'partnership');
-    await page.goto('/en/contact');
+    await page.goto('/contact');
     await page.fill('#name', 'Mekdes Tesfaye');
     await page.fill('#email', 'mekdes@example.com');
     await page.fill('#subject', subject);
@@ -48,7 +48,7 @@ test.describe('§6.2 contact form', () => {
   });
 
   test('a blank email asks for one; a malformed email is called invalid', async ({ page }) => {
-    await page.goto('/en/contact');
+    await page.goto('/contact');
 
     // Blank: the person has not typed anything wrong yet, so telling them their
     // empty field is malformed would be both untrue and unhelpful.
@@ -67,7 +67,7 @@ test.describe('§6.2 contact form', () => {
   });
 
   test('valid fields keep their values through a failure', async ({ page }) => {
-    await page.goto('/en/contact');
+    await page.goto('/contact');
     await page.fill('#name', 'Mekdes Tesfaye');
     await page.fill('#subject', 'Press');
     // email and message left blank, consent unticked
@@ -81,7 +81,7 @@ test.describe('§6.2 contact form', () => {
   });
 
   test('the error summary is a list of links pointing at real fields', async ({ page }) => {
-    await page.goto('/en/contact');
+    await page.goto('/contact');
     await page.click('button[type="submit"]');
     await expect(page.locator('.error-summary')).toBeVisible();
     const links = page.locator('.error-summary ul li a');
@@ -99,7 +99,7 @@ test.describe('§6.2 contact form', () => {
 
   test('an unconsented enquiry is refused and never delivered', async ({ page }, testInfo) => {
     const subject = uniq(testInfo.project.name, 'no-consent');
-    await page.goto('/en/contact');
+    await page.goto('/contact');
     await page.evaluate(() => document.querySelector('#consent')?.remove());
     await page.fill('#name', 'Mekdes Tesfaye');
     await page.fill('#email', 'mekdes@example.com');
@@ -118,7 +118,7 @@ test.describe('§6.2 report content form', () => {
     page
   }, testInfo) => {
     const what = uniq(testInfo.project.name, 'seller-page');
-    await page.goto('/en/report-content');
+    await page.goto('/report-content');
     await page.fill('#what', what);
     await page.fill('#description', 'This listing appears to be counterfeit.');
     await page.fill('#contact', 'reporter@example.com');
@@ -142,7 +142,7 @@ test.describe('§6.2 report content form', () => {
    * the gap is shown rather than filled.
    */
   test('the reason category is a flagged placeholder, not invented options', async ({ page }) => {
-    await page.goto('/en/report-content');
+    await page.goto('/report-content');
     expect(
       await page.locator('select[name="reason"]').count(),
       'a select here would publish a moderation policy nobody approved'
@@ -154,7 +154,7 @@ test.describe('§6.2 report content form', () => {
 
   test('an optional link may be omitted', async ({ page }, testInfo) => {
     const what = uniq(testInfo.project.name, 'no-link');
-    await page.goto('/en/report-content');
+    await page.goto('/report-content');
     await page.fill('#what', what);
     await page.fill('#description', 'Describing the issue.');
     await page.fill('#contact', '+251911777888');
@@ -170,7 +170,7 @@ test.describe('§6.2 report content form', () => {
 test.describe('§6.2 forms without JavaScript', () => {
   test.use({ javaScriptEnabled: false });
 
-  for (const route of ['/en/contact', '/en/report-content']) {
+  for (const route of ['/contact', '/report-content']) {
     test(`${route} validates server-side with no JavaScript`, async ({ page }) => {
       await page.goto(route);
       await Promise.all([

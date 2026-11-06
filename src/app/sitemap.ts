@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
-import { indexableRoutes } from '@/lib/routes';
+import { indexableRoutes, type RoutePath } from '@/lib/routes';
+import { localeHref } from '@/lib/metadata';
 import { AM_ENABLED, defaultLocale, locales } from '@/i18n/config';
 
 /**
@@ -46,7 +47,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const base = siteUrl.replace(/\/$/, '');
   const offered = locales.filter((locale) => locale === defaultLocale || AM_ENABLED);
-  const href = (locale: string, path: string) => `${base}/${locale}${path === '/' ? '' : path}`;
+  // Same path rule as every page's canonical: English unprefixed (D-01).
+  const href = (locale: string, path: RoutePath) => `${base}${localeHref(locale, path)}`;
 
   return indexableRoutes().flatMap((path) =>
     offered.map((locale) => ({

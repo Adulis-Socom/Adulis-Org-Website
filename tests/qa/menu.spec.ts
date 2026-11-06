@@ -4,7 +4,7 @@ import { test, expect } from './fixtures';
 test.describe('§2.4 mobile menu', () => {
   test.beforeEach(async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 640 });
-    await page.goto('/en', { waitUntil: 'networkidle' });
+    await page.goto('/', { waitUntil: 'networkidle' });
   });
 
   const trigger = (page: import('@playwright/test').Page) =>

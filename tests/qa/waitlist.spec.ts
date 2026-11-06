@@ -67,7 +67,7 @@ async function submit(
   page: Page,
   values: Partial<Record<string, string>> & { phone: string }
 ): Promise<string> {
-  await page.goto('/en/for-sellers');
+  await page.goto('/for-sellers');
   await page.fill('#fullName', values.fullName ?? 'Mekdes Tesfaye');
   await page.fill('#phone', values.phone);
   await page.selectOption('#platform', values.platform ?? 'tiktok');
@@ -169,7 +169,7 @@ test.describe('§5 waitlist', () => {
    * applicant's behalf.
    */
   test('a submission with no consent field at all is refused', async ({ page }, testInfo) => {
-    await page.goto('/en/for-sellers');
+    await page.goto('/for-sellers');
 
     // Remove the checkbox entirely, which is what an unticked box amounts to on
     // the wire — and what a hand-built POST would send.
@@ -190,7 +190,7 @@ test.describe('§5 waitlist', () => {
   });
 
   test('the error summary is a list of links', async ({ page }, testInfo) => {
-    await page.goto('/en/for-sellers');
+    await page.goto('/for-sellers');
     await page.click('button[type="submit"]');
     const summary = page.locator('.error-summary');
     await expect(summary).toBeVisible();
@@ -246,7 +246,7 @@ test.describe('§5 waitlist, no JavaScript', () => {
 
   test('Neither discards a typed second handle without erroring', async ({ page }, testInfo) => {
     const phone = phoneFor(testInfo.project.name, 10);
-    await page.goto('/en/for-sellers');
+    await page.goto('/for-sellers');
 
     // Visible from the start with scripting off — assert that, since the rest of
     // this test is meaningless if the field is not reachable.
@@ -298,7 +298,7 @@ test.describe('§5 waitlist, no JavaScript', () => {
  */
 test.describe('§5 a rejected submission keeps the answers', () => {
   test('a chosen platform survives, alongside the typed fields', async ({ page }) => {
-    await page.goto('/en/for-sellers', { waitUntil: 'networkidle' });
+    await page.goto('/for-sellers', { waitUntil: 'networkidle' });
 
     await page.fill('#fullName', 'Selam Tesfaye');
     await page.fill('#handle', '@selam');

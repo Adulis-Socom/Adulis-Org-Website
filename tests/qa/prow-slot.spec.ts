@@ -21,7 +21,7 @@ test.describe('§7 the prow slot', () => {
   test('the prow slot takes a mask at 360px and 1440px', async ({ page }) => {
     for (const width of [360, 1440]) {
       await page.setViewportSize({ width, height: 900 });
-      await page.goto('/en', { waitUntil: 'networkidle' });
+      await page.goto('/', { waitUntil: 'networkidle' });
 
       const surfaces = page.locator('.surface-ink');
       expect(await surfaces.count(), `no ink surface at ${width}px`).toBe(1);
