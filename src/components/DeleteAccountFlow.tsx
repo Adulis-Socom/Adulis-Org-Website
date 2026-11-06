@@ -208,7 +208,7 @@ export function DeleteAccountFlow({ enabled = false }: { enabled?: boolean }) {
               />
               <label
                 htmlFor="delete-ack"
-                className="block min-h-[44px] py-1.5 text-small text-ink-muted"
+                className="block min-h-[44px] py-1.5 text-body-s text-content-secondary"
               >
                 {t('confirm.checkbox')}
               </label>

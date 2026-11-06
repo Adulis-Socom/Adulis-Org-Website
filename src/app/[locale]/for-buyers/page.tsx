@@ -86,10 +86,10 @@ function StoreBadge({ name, status }: { name: string; status: string }) {
   return (
     <span
       aria-disabled="true"
-      className="inline-flex min-h-[44px] flex-col justify-center rounded border border-line bg-surface-sunken px-4 py-2 text-ink-muted"
+      className="inline-flex min-h-[44px] flex-col justify-center rounded border border-border bg-surface-2 px-4 py-2 text-content-secondary"
     >
-      <span className="text-body font-semibold text-ink">{name}</span>
-      <span className="text-small">{status}</span>
+      <span className="text-body font-semibold text-content">{name}</span>
+      <span className="text-body-s">{status}</span>
     </span>
   );
 }

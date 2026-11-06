@@ -43,9 +43,9 @@ export default async function HelpPage({ params }: LocaleParams) {
           {faqs.map((faq) => (
             <li key={faq.q}>
               <details className="card group">
-                <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-4 text-body font-semibold text-ink">
+                <summary className="flex min-h-[44px] cursor-pointer items-center justify-between gap-4 text-body font-semibold text-content">
                   {faq.q}
-                  <span aria-hidden className="select-none text-ink-muted transition-transform group-open:rotate-180">
+                  <span aria-hidden className="select-none text-content-secondary transition-transform group-open:rotate-180">
                     ⌄
                   </span>
                 </summary>
@@ -58,7 +58,7 @@ export default async function HelpPage({ params }: LocaleParams) {
 
       <section className="section-tight pb-12">
         <div className="door flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-h3 text-ink">{t('stillNeedHelp')}</h2>
+          <h2 className="text-heading-m text-content">{t('stillNeedHelp')}</h2>
           <Link href={ROUTES.contact} className="link-arrow-target">
             {t('contactLink')}
           </Link>

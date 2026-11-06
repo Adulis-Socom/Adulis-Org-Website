@@ -242,12 +242,12 @@ test.describe('§7 the focus indicator is dual-tone', () => {
       // Work order §1.2: the ring must contrast with the ELEMENT, not only with
       // the surface. Two stops that contrast with each other still vanish when
       // the inner one matches the element and the outer one matches the page —
-      // an ink-inner ring on the ink CTA, on paper, is exactly that.
+      // a dark-inner ring on a dark CTA, on a light page, is exactly that.
       //
       // Asserted as "at least one edge is visible": the inner stop against the
       // element's own background, or the outer stop against what surrounds it.
       // Not "the inner stop alone": no single fixed ring can put a contrasting
-      // inner tone against both a paper input and an ink button, and the ruling
+      // inner tone against both a white input and a brand button, and the ruling
       // that made the ring dual-tone was that it must not need to know its
       // context. Either edge visible is what a person sees; both merging is the
       // failure.
@@ -255,7 +255,7 @@ test.describe('§7 the focus indicator is dual-tone', () => {
         Math.max(f.innerVsElement, f.outerVsPage),
         `${c.what} (${f.tag}): the ring merges on both edges — inner stop ${f.innerVsElement}:1 ` +
           `against the element (${f.elementBg}), outer stop ${f.outerVsPage}:1 against the page. ` +
-          `Paper inner, ink outer is the order that holds on every element`
+          `Surface inner, focus outer is the order that holds on every element`
       ).toBeGreaterThanOrEqual(3);
     });
   }
@@ -383,7 +383,8 @@ test.describe('§7 the font stack resolves Latin-first', () => {
     });
 
     const families = stack.split(',').map((f) => f.trim().replace(/^['"]|['"]$/g, ''));
-    const latin = families.findIndex((f) => /inter/i.test(f));
+    // Outfit is the body face since WEB-MIG-002 (it was Inter).
+    const latin = families.findIndex((f) => /outfit/i.test(f));
     const ethiopic = families.findIndex((f) => /ethiopic|nyala/i.test(f));
 
     expect(latin, `no Latin family in the stack: ${stack}`).toBeGreaterThanOrEqual(0);

@@ -37,7 +37,7 @@ export async function ShopPreview() {
             {i < steps.length - 1 && (
               <span
                 aria-hidden
-                className="select-none py-1 text-center text-heading-m font-semibold text-on-ink"
+                className="select-none py-1 text-center text-heading-m font-semibold text-content-muted"
               >
                 →
               </span>

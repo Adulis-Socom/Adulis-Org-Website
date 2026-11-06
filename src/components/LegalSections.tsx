@@ -54,7 +54,7 @@ export async function LegalSections({ namespace }: { namespace: string }) {
           surfaces. */}
       <div className="section-tight pb-12 lg:grid lg:grid-cols-[16rem_1fr] lg:gap-12">
         <nav aria-labelledby="on-this-page" className="lg:sticky lg:top-8 lg:self-start">
-          <h2 id="on-this-page" className="text-heading-m text-ink">
+          <h2 id="on-this-page" className="text-heading-m text-content">
             {common('onThisPage')}
           </h2>
           <ol className="mt-2 grid gap-1 sm:grid-cols-2 lg:grid-cols-1">
@@ -62,7 +62,7 @@ export async function LegalSections({ namespace }: { namespace: string }) {
               <li key={section.title}>
                 <a
                   href={`#${sectionId(section.title)}`}
-                  className="inline-flex min-h-[44px] items-center text-body text-ink hover:underline"
+                  className="inline-flex min-h-[44px] items-center text-body text-content hover:underline"
                 >
                   {section.title}
                 </a>
@@ -76,9 +76,9 @@ export async function LegalSections({ namespace }: { namespace: string }) {
             <section
               key={section.title}
               id={sectionId(section.title)}
-              className="scroll-mt-8 border-t border-rule py-6"
+              className="scroll-mt-8 border-t border-divider py-6"
             >
-              <h2 className="text-heading-m text-ink">{section.title}</h2>
+              <h2 className="text-heading-m text-content">{section.title}</h2>
               {section.body ? (
                 <p className="card-body max-w-prose">{section.body}</p>
               ) : (

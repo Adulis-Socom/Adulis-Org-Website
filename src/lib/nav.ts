@@ -8,13 +8,18 @@ import { ROUTES, SELLER_CONSOLE_URL } from './routes';
  * `key` indexes into the `nav` and `footer` namespaces in messages/*.json.
  * `href` comes from ROUTES, never from a literal.
  */
+/**
+ * The prototype's header order (`f448d06`). Availability joins between Trust &
+ * Safety and About when its route exists (WEB-MIG-005) — a nav entry must
+ * never point at a page that 404s. Help moved to the footer, as in the
+ * prototype.
+ */
 export const primaryNav = [
   { key: 'howItWorks', href: ROUTES.howItWorks },
   { key: 'forSellers', href: ROUTES.forSellers },
   { key: 'forBuyers', href: ROUTES.forBuyers },
-  { key: 'about', href: ROUTES.about },
   { key: 'trustAndSafety', href: ROUTES.trustAndSafety },
-  { key: 'help', href: ROUTES.help }
+  { key: 'about', href: ROUTES.about }
 ] as const;
 
 /**
@@ -30,6 +35,35 @@ export const legalNav = [
   { key: 'prohibited', href: ROUTES.prohibited },
   { key: 'report', href: ROUTES.report },
   { key: 'deleteAccount', href: ROUTES.deleteAccount }
+] as const;
+
+/**
+ * The footer's three groups, after the prototype's Platform / Company / Legal
+ * columns, built from the entries above so a link cannot exist in the header
+ * and be missing here.
+ *
+ * Two deliberate departures from the prototype: Trust & Safety is listed
+ * (the prototype omitted it), and Legal keeps Refunds & Disputes, because every
+ * page must reach the full legal row. Press is absent until approved content
+ * exists (founder ruling D-04); Pricing and Availability join when their routes
+ * exist (WEB-MIG-004, WEB-MIG-005).
+ *
+ * `key` resolves in the `footer` namespace first and `nav` second.
+ */
+export const footerNav = [
+  {
+    key: 'platform',
+    links: primaryNav.filter((item) => item.key !== 'about')
+  },
+  {
+    key: 'company',
+    links: [
+      { key: 'about', href: ROUTES.about },
+      { key: 'help', href: ROUTES.help },
+      { key: 'contact', href: ROUTES.contact }
+    ]
+  },
+  { key: 'legal', links: legalNav }
 ] as const;
 
 /**

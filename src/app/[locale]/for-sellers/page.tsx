@@ -90,7 +90,7 @@ export default async function ForSellersPage({ params }: LocaleParams) {
         <p className="card-body mt-4 max-w-prose">{t('sequenceNote')}</p>
       </section>
 
-      <section id="waitlist" className="mt-12 scroll-mt-8 border-t border-line pb-4 pt-10">
+      <section id="waitlist" className="mt-12 scroll-mt-8 border-t border-border pb-4 pt-10">
         <h2 className="section-title">{waitlist('heading')}</h2>
         <p className="lede mb-6">{waitlist('sub')}</p>
         <WaitlistForm />

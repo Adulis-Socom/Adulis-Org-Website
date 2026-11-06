@@ -122,11 +122,12 @@ test.describe('§7 G11 — placeholders look unfinished', () => {
     await page.goto('/how-it-works');
     await settle(page);
 
-    const media = page.locator('.placeholder-media').first();
+    const media = page.locator('.photo-slot').first();
     await expect(media).toBeVisible();
 
-    // The crossed box is the whole signal — a plain grey rectangle with a label
-    // is what stock photography looks like before it arrives.
+    // The visible "Photography · …" brief is the whole signal (WEB-MIG-002): a
+    // plain tonal panel without it is what stock photography looks like before
+    // it arrives.
     await expect(media).toHaveScreenshot('media-placeholder.png', TOLERANCE);
   });
 

@@ -144,7 +144,7 @@ export function ConsentField({
             measures as a control. An inline link inside running text is text. */}
         <label
           htmlFor="consent"
-          className="block min-h-[44px] py-1.5 text-small text-ink-muted"
+          className="block min-h-[44px] py-1.5 text-body-s text-content-secondary"
         >
           {label}{' '}
           <Link href={ROUTES.privacy} className="link-arrow">

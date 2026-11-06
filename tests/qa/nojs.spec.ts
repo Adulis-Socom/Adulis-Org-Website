@@ -211,7 +211,7 @@ test.describe('§2.6 JavaScript disabled', () => {
 
   test('footer legal links resolve without JavaScript', async ({ page }) => {
     await page.goto('/');
-    for (const label of ['Terms', 'Privacy', 'Report content', 'Delete my account']) {
+    for (const label of ['Terms of Service', 'Privacy Policy', 'Report Content', 'Account Deletion']) {
       const link = page.locator('footer a', { hasText: new RegExp(`^${label}$`) }).first();
       await expect(link, `${label} missing from the footer`).toHaveCount(1);
       const href = await link.getAttribute('href');

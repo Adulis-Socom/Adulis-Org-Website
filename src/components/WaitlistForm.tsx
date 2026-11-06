@@ -66,7 +66,7 @@ export function WaitlistForm() {
       <div className="form-column">
         <div className="card" role="status">
           <h2 className="section-title">{t('success.title')}</h2>
-          <p className="tnum mt-2 text-body font-semibold text-ink">
+          <p className="tnum mt-2 text-body font-semibold text-content">
             {t('success.reference', { reference: state.reference })}
           </p>
           <p className="card-body">{t('success.next')}</p>
@@ -279,7 +279,7 @@ export function WaitlistForm() {
               not drift, because the invariant is identical on both. */}
           <label
             htmlFor="consent"
-            className="block min-h-[44px] py-1.5 text-small text-ink-muted"
+            className="block min-h-[44px] py-1.5 text-body-s text-content-secondary"
           >
             {t('fields.consent')}{' '}
             <Link href={ROUTES.privacy} className="link-arrow">

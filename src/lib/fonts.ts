@@ -1,52 +1,62 @@
-import { Inter, Instrument_Sans, Noto_Sans_Ethiopic } from 'next/font/google';
+import { DM_Mono, Fraunces, Noto_Sans_Ethiopic, Outfit } from 'next/font/google';
 import localFont from 'next/font/local';
 
 /**
- * The display face — Phase C. Headlines and headings only; body, UI and forms
- * stay Inter, because the subset pipeline, the `unicode-range` split and the
- * cmap guard are built around it.
+ * The three Latin faces of the approved prototype (`f448d06`): Fraunces for
+ * display and headings, Outfit for body and UI, DM Mono for labels, prices and
+ * step numbers.
  *
- * Same route as Inter (`next/font/google`, self-hosted at build, Latin subset),
- * one weight: SemiBold is the only weight the ten text styles use, and every
- * extra weight is another file on the low-end Android this site is built for.
+ * The prototype loads them from a Google Fonts stylesheet at runtime. Here they
+ * go through `next/font/google`, which downloads them at BUILD time and serves
+ * them from this origin — so `font-src 'self'` holds (ADU-CSP-01 §20), no
+ * visitor contacts Google, nothing is committed to the repository, and
+ * next/font's metric-adjusted fallbacks keep the swap from shifting layout.
  *
- * `scripts/check-font.mjs` reads this declaration and refuses a build where the
- * subset or the weight list has widened, and `tests/qa/headers-fonts.spec.ts`
- * measures what actually reaches the browser against the byte budget.
+ * Latin subset and the fewest weights the type styles use, because every weight
+ * is another file on the low-end Android this site is built for:
  *
- * ⚠ `next/font/google` keeps the real family name. Never write 'Instrument
- * Sans' as a literal anywhere in CSS — it would match this face and defeat the
- * `var()` fallback, the same defect that once shipped 198 KB of Ethiopic on
- * every English page.
+ *   Fraunces  600            every heading is SemiBold
+ *   Outfit    400 500 600    body, medium nav/labels, semibold buttons
+ *   DM Mono   500            mono labels and figures
+ *
+ * `scripts/check-font.mjs` refuses a build where a subset or weight list
+ * widens, and `tests/qa/headers-fonts.spec.ts` measures what reaches the
+ * browser against the byte budget.
+ *
+ * ⚠ `next/font/google` keeps the real family names. Never write 'Fraunces',
+ * 'Outfit' or 'DM Mono' as a literal anywhere in CSS — it would match the
+ * webfont and defeat the `var()` fallback, the same defect that once shipped
+ * 198 KB of Ethiopic on every English page.
+ *
+ * Latin comes first and Ethiopic is the fallback (tailwind.config.ts). Each
+ * face declares its own `unicode-range`, so the browser fetches an Ethiopic
+ * file only when Ge'ez glyphs actually appear — an Ethiopic-only family once
+ * rendered `ADULIS`, `TikTok` and every number on Amharic pages as boxes.
  */
-export const instrument = Instrument_Sans({
+export const fraunces = Fraunces({
   subsets: ['latin'],
   weight: ['600'],
   display: 'swap',
-  variable: '--font-instrument',
+  variable: '--font-fraunces',
   preload: true
 });
 
-/**
- * The font stack is load-bearing, and this is the fix for a real defect rather
- * than a preference.
- *
- * An earlier wireframe round applied an Ethiopic-only family. A font covering
- * only the Ethiopic block has no Latin letters, no digits and no punctuation, so
- * on every Amharic page `ADULIS`, `TikTok`, `Instagram` and every number
- * rendered as a missing-glyph box -- including every published figure the
- * product exists to show. The Ge'ez itself looked correct, so a reviewer who
- * does not read Amharic would not have noticed.
- *
- * Latin comes first and Ethiopic is the fallback. Because each face declares its
- * own `unicode-range`, the browser fetches an Ethiopic file only when Ge'ez
- * glyphs actually appear.
- */
-export const inter = Inter({
+export const outfit = Outfit({
   subsets: ['latin'],
+  weight: ['400', '500', '600'],
   display: 'swap',
-  variable: '--font-inter',
+  variable: '--font-outfit',
   preload: true
+});
+
+export const dmMono = DM_Mono({
+  subsets: ['latin'],
+  weight: ['500'],
+  display: 'swap',
+  variable: '--font-dm-mono',
+  // Labels sit below the fold more often than not; preloading this would
+  // compete with the faces that draw the first heading and paragraph.
+  preload: false
 });
 
 /**

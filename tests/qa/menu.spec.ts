@@ -17,7 +17,8 @@ test.describe('§2.4 mobile menu', () => {
     expect(box!.height, `trigger height ${box!.height}`).toBeGreaterThanOrEqual(44);
   });
 
-  test('opens, shows six nav items and a full-width waitlist button', async ({ page }) => {
+  // Five since WEB-MIG-002: the prototype's header order, with Help in the footer.
+  test('opens, shows five nav items and a full-width waitlist button', async ({ page }) => {
     await trigger(page).click();
     await expect(trigger(page)).toHaveAttribute('aria-expanded', 'true');
 
@@ -26,7 +27,7 @@ test.describe('§2.4 mobile menu', () => {
     await expect(panel).toBeVisible();
 
     const items = panel.locator('nav ul li a');
-    await expect(items).toHaveCount(6);
+    await expect(items).toHaveCount(5);
 
     const cta = panel.locator('a.btn-primary');
     await expect(cta).toBeVisible();

@@ -9,41 +9,87 @@
      variables; nothing else declares a colour. Values are space-separated RGB
      channels so Tailwind's `<alpha-value>` form can compose opacity.
 
-     Sources: the Design Direction §1.2 palette (paper, ink, gold, slate, rule),
-     the Token Rulings §1 derived set (on-ink, surface-2, danger*,
-     border-control), and Phase C work order §1 (surface-2 revised to #EFF1F5,
-     the Contained card border #DDE1E8). Every contrast figure quoted below was
-     computed, not estimated.
+     Source: the approved prototype (`f448d06`, Baseline Light). Every contrast
+     figure below was computed, not estimated. Where the prototype failed WCAG
+     2.1 AA the value was corrected here, not copied: its control borders
+     (1.31:1) and outline-button border (1.84:1) are replaced by
+     --border-control, and its single-colour focus ring (1.00:1 against the
+     brand) by the dual-tone ring below.
 
-     ⚠ Do not define --font-inter, --font-instrument or --font-ethiopic* here.
-     next/font sets them on a class on <html>. A `:root` declaration has the
-     same specificity and, depending on stylesheet order, silently wins — which
-     meant the Ethiopic subset was never used at all: the switcher rendered from
-     a locally installed Nyala on the reviewer's Windows machine and would have
-     been four missing-glyph boxes on the low-end Android this site is built for.
-     Naming 'Noto Sans Ethiopic' here was worse still. next/font/local mangles
-     its family name, but next/font/google keeps the real one, so that
-     "fallback" matched the 198 KB webfont and every English page downloaded
-     the entire face through it. The same applies to 'Instrument Sans'.
-     Fallbacks live inside var() in tailwind.config.ts, where they apply only
-     when the variable is genuinely absent. */
+     ⚠ Do not define --font-fraunces, --font-outfit, --font-dm-mono or
+     --font-ethiopic* here. next/font sets them on a class on <html>. A `:root`
+     declaration has the same specificity and, depending on stylesheet order,
+     silently wins — which once meant the Ethiopic subset was never used at all.
+     Fallbacks live inside var() in tailwind.config.ts. */
   :root {
-    --paper: 255 255 255; /* #FFFFFF  page ground */
-    --ink: 14 26 51; /* #0E1A33  deep navy from the mark. Text, the one dark surface */
-    --gold: 184 134 43; /* #B8862B  3.24:1 on paper — display sizes only there; 5.34:1 on ink */
-    --slate: 85 96 122; /* #55607A  secondary text on paper, 6.29:1. NEVER on ink: 2.75:1 */
-    --on-ink: 136 144 162; /* #8890A2  secondary text on ink */
-    --surface-2: 239 241 245; /* #EFF1F5  the only secondary surface, 1.13:1 against paper. Ink on it 14.9:1 */
-    --rule: 227 230 237; /* #E3E6ED  decorative hairlines; nothing depends on seeing one */
-    --rule-card: 221 225 232; /* #DDE1E8  the Contained card's border */
-    --border-control: 142 147 159; /* #8E939F  form-field borders, 3.08:1 — WCAG 1.4.11 */
-    --danger: 192 54 44; /* #C0362C  carried forward; three forms already pass on it */
-    --danger-bg: 253 243 242; /* #FDF3F2 */
-    --danger-border: 226 169 163; /* #E2A9A3 */
+    /* Surfaces */
+    --page: 250 248 245; /* #FAF8F5  footer and tinted bands */
+    --surface: 255 255 255; /* #FFFFFF  main reading surface */
+    --surface-2: 245 242 237; /* #F5F2ED  raised cards and panels */
+    --surface-elevated: 255 255 255; /* #FFFFFF  separated by shadow */
+
+    /* Text — ratios against --page; all hold on white and on --surface-2 too */
+    --content: 26 21 18; /* #1A1512  17.08:1 */
+    --content-secondary: 92 79 69; /* #5C4F45  7.45:1 */
+    --content-muted: 116 104 96; /* #746860  5.09:1 (4.83:1 on surface-2) */
+    --content-inverse: 250 248 245; /* #FAF8F5  5.80:1 on brand */
+
+    /* Structure */
+    --border: 232 224 216; /* #E8E0D8  decorative */
+    --border-strong: 200 189 181; /* #C8BDB5  decorative; 1.84:1, never a control edge */
+    --border-control: 138 124 114; /* #8A7C72  ≥3.61:1 on every surface — WCAG 1.4.11 */
+    --divider: 237 230 222; /* #EDE6DE */
+
+    /* Brand */
+    --brand: 160 71 32; /* #A04720  6.15:1 white on brand; 5.80:1 as text on page */
+    --brand-secondary: 217 123 69; /* #D97B45  decorative only, 2.88:1 */
+    --brand-hover: 148 63 26; /* #943F1A  7.03:1 white on it */
+    --brand-active: 126 54 22; /* #7E3616  8.65:1 white on it */
+    --brand-muted: 240 221 209; /* #F0DDD1  brand text on it 4.67:1 */
+    --on-brand: 255 255 255;
+    --accent-warm: 247 240 232; /* #F7F0E8 */
+    --accent-sage: 234 240 232; /* #EAF0E8 */
+    --accent-mint: 234 245 238; /* #EAF5EE */
+
+    /* Interaction */
+    --hover: 245 242 237; /* neutral hover fill */
+    --selected: 240 221 209; /* active nav pill */
+    --selected-content: 160 71 32; /* 4.67:1 on --selected */
+    --focus: 45 92 194; /* #2D5CC2  5.79:1 on page */
+
+    /* Operational states — kept apart from brand on purpose */
+    --success: 45 122 79; /* #2D7A4F  4.69:1 on its bg */
+    --success-bg: 234 245 238;
+    --warning: 147 99 19; /* #936313  4.73:1 on its bg */
+    --warning-bg: 253 243 225;
+    --danger: 194 55 45; /* #C2372D  4.73:1 on its bg, 5.41:1 on white */
+    --danger-bg: 253 236 234;
+    --danger-border: 230 170 164;
+    --info: 45 92 194; /* #2D5CC2  5.38:1 on its bg */
+    --info-bg: 235 240 252;
+
+    --shadow: 26 21 18;
+
+    /* Photography slot tones (from → to). Brief text in --content-secondary
+       holds ≥4.69:1 on the darkest end. */
+    --photo-sand-from: 241 232 222;
+    --photo-sand-to: 227 213 198;
+    --photo-clay-from: 239 224 212;
+    --photo-clay-to: 220 195 175;
+    --photo-sage-from: 230 236 227;
+    --photo-sage-to: 208 220 205;
+    --photo-stone-from: 237 235 231;
+    --photo-stone-to: 218 214 207;
+  }
+
+  /* The header is sticky, so every in-page anchor (#main, #waitlist, legal
+     sections) must land below it rather than underneath it. */
+  html {
+    scroll-padding-top: 5rem;
   }
 
   body {
-    @apply bg-paper text-ink font-sans text-body antialiased;
+    @apply bg-surface font-sans text-body text-content antialiased;
   }
 
   /* Figures are read as evidence throughout this product -- completed handoff
@@ -54,45 +100,37 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Instrument Sans SemiBold for display and headings; Inter for everything
-     else. The display stack carries the same Ethiopic tail as the body stack,
-     so an Amharic heading falls through to Noto Sans Ethiopic at the same fixed
-     line height and nothing shifts. */
+  /* Fraunces SemiBold for every heading, as in the prototype. The display stack
+     carries the same Ethiopic tail as the body stack, so an Amharic heading
+     falls through to Noto Sans Ethiopic and nothing shifts. */
   h1,
   h2,
   h3 {
-    @apply font-display font-semibold text-ink text-balance;
+    @apply font-display font-semibold text-content text-balance;
   }
 
-  /* Dual-tone, PAPER INNER, INK OUTER — work order §1.2.
+  /* Dual-tone: SURFACE INNER, FOCUS OUTER.
 
-     The ring must contrast with the element, not only with the surface. An
-     ink inner ring merges with an ink button and a paper outer ring merges with
-     a paper page: invisible on exactly the site's primary CTA. Paper against
-     the button and ink against the page is the order that holds on every
-     element, and it needs no knowledge of what it sits on.
-
-     One design rule falls out: no paper-filled control sits on the ink
-     surface, the single combination where both tones would merge. That
-     surface carries gold or ink controls only.
+     The ring must contrast with the element and with what it sits on. The
+     prototype's single blue ring measured 1.00:1 against the brand band —
+     invisible on exactly the band's call to action. Here the 2px white inner
+     stop separates any control from a dark or brand background (6.15:1 against
+     the brand) and the 2px blue outer stop separates it from a light one
+     (5.79:1 against the page). It needs no knowledge of what it sits on.
 
      ⚠ The outer stop is an OUTLINE, not a second shadow layer. WebKit does not
      paint author box-shadows on native-appearance controls — checkboxes,
-     selects — so a ring built entirely from box-shadow is invisible on exactly
-     the controls in the site's only conversion, in Safari. It passed before
-     only because Tailwind's `outline-none` leaves a 2px *transparent* outline
-     behind and the focus check counted it. An outline at 2px offset over a 2px
-     paper shadow is the same geometry as the spec's two shadow layers, and it
-     paints everywhere. */
+     selects — so a ring built entirely from box-shadow is invisible on the
+     waitlist's controls in Safari. The outline follows border-radius, so pill
+     buttons keep their shape when focused. */
   :focus-visible {
-    outline: 2px solid rgb(var(--ink));
+    outline: 2px solid rgb(var(--focus));
     outline-offset: 2px;
-    box-shadow: 0 0 0 2px rgb(var(--paper));
-    @apply rounded;
+    box-shadow: 0 0 0 2px rgb(var(--surface));
   }
 
   ::selection {
-    @apply bg-ink text-paper;
+    @apply bg-brand text-on-brand;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -108,207 +146,127 @@
 }
 
 @layer components {
+  /* ----------------------------------------------------------- layout */
+
+  /* The prototype's 1120px section width, with a 20px gutter on a phone. */
   .container-page {
-    @apply mx-auto w-full max-w-container px-gutter md:px-gutter-lg;
+    @apply mx-auto w-full max-w-container px-gutter md:px-gutter-md lg:px-gutter-lg;
   }
 
   /* Sections size to their content. Amharic runs roughly 40% longer than
-     English, so a fixed height would hide the overflow instead of revealing it.
-
-     Two registers, two rhythms (work order §2.2): relational pages breathe,
-     evidentiary pages are set tighter and read as a document. */
+     English, so a fixed height would hide the overflow instead of revealing it. */
   .section {
-    @apply py-10 md:py-14;
+    @apply py-12 md:py-[4.5rem];
   }
 
   .section-tight {
-    @apply py-6 md:py-8;
+    @apply py-8 md:py-10;
   }
 
-  /* ------------------------------------------------------------- cards
-
-     Two treatments and only two. Contained: the secondary surface with its own
-     border, for a group that benefits from being held together. Open: a
-     hairline above, no fill, no border, for a set — the second container
-     treatment in this system is the absence of a container.
-
-     (`card-sunken` and `card-tint` were retired names for Contained. They
-     carried the token layer through the page-by-page restyle and were removed
-     in group 5 once no markup used them.) */
-  .card {
-    @apply rounded border border-rule-card bg-surface-2 p-4 md:p-6;
+  /* The prototype's eyebrow: a mono, uppercase brand pill above a heading. */
+  .section-label {
+    @apply inline-flex items-center rounded-2xl bg-brand-muted px-3 py-1 font-mono text-label font-medium uppercase text-brand;
   }
 
-  .card-open {
-    @apply border-t border-rule pt-4 md:pt-6;
+  .cta-group {
+    @apply mt-8 flex flex-wrap items-center gap-3;
   }
 
-  /* The one band on a page that changes audience -- seller side to buyer side,
-     or back. The heavy ink border is what marks it as a door rather than a card. */
-  .door {
-    @apply rounded border-2 border-ink bg-paper p-4 md:p-5;
-  }
-
-  /* The one ink surface a relational page carries. Once per page, never as a
-     card, never as a divider. Secondary text on it is on-ink; gold is a text
-     colour here at any size. Controls on it are gold or ink, never paper-filled
-     (see :focus-visible).
-
-     ⚠ The mark's double-curl prow is specified as this surface's top edge. The
-     mark's vector is not in this repository and drawing an approximation would
-     be inventing brand geometry — recorded in docs/decisions-pending.md. The
-     surface is otherwise complete; the prow drops in as a mask on ::before. */
-  .surface-ink {
-    @apply relative rounded bg-ink p-6 text-paper md:p-8;
-  }
-
-  /* ------------------------------------------------------- the prow slot
-
-     §2.3 places the mark's double-curl prow as the top edge of the one ink
-     surface a relational page carries. The drawing does not exist yet — it is
-     commissioned with the icon, one drawing serving three purposes — so this is
-     the SLOT, not the shape.
-
-     Current state: a plain top edge, which is what `.surface-ink` already has.
-     Nothing renders, because `--prow` is undefined.
-
-     When `prow.svg` lands, one rule makes it real:
-
-         :root { --prow: url('/prow.svg'); --prow-on: 1; }
-
-     The mask is what keeps this a file drop. The band's height and position are
-     fixed here, the ink comes from the surface, and the SVG supplies only the
-     silhouette — so the drawing can change without touching layout, and a
-     drawing that is the wrong colour still works.
-
-     `mask-size: 100% 100%` stretches one path across the band, which is why the
-     brief asks for a curve that survives both compression and extension: the
-     same path renders at 312px on a phone and 1216px on a desktop. Verified at
-     both in the landing rehearsal.
-
-     ⚠ Used ONCE per page. If it appears on a second surface it has become
-     decoration and should be removed entirely. */
-  .surface-ink::before {
-    content: '';
-    display: block;
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    height: 14px;
-    background-color: rgb(var(--ink));
-    -webkit-mask-image: var(--prow, none);
-    mask-image: var(--prow, none);
-    -webkit-mask-size: 100% 100%;
-    mask-size: 100% 100%;
-    -webkit-mask-repeat: no-repeat;
-    mask-repeat: no-repeat;
-    /* Off until a drawing exists. `mask-image: none` would otherwise paint the
-       whole band as a plain ink bar on an ink surface — invisible, but still a
-       box. Keeping it out of the render means the pre-artwork state is
-       genuinely "a plain edge", not "an edge that happens to look plain".
-
-       ⚠ Two variables, not one, and the rehearsal is why. The first version
-       switched on a descendant selector (`[style*='--prow'] .surface-ink`),
-       which never matched: the variable is set ON the surface, not on an
-       ancestor of it. A companion variable cannot miss — there is no selector
-       to get wrong. */
-    opacity: var(--prow-on, 0);
-  }
-
-  .surface-ink h1,
-  .surface-ink h2,
-  .surface-ink h3 {
-    @apply text-paper;
-  }
-
-  .surface-ink .card-body,
-  .surface-ink .lede,
-  .surface-ink .note {
-    @apply text-on-ink;
-  }
-
-  /* A Contained card nested on the ink surface is back on surface-2, and the
-     rules above must stop at its edge. They did not, once: paper titles at
-     1.13:1 and on-ink body at 2.83:1 on the three illustration cards, caught by
-     axe (G4) on the first suite run after Home was composed. Nothing about the
-     page looked wrong in a screenshot at a glance. */
-  .surface-ink .card h1,
-  .surface-ink .card h2,
-  .surface-ink .card h3,
-  .surface-ink .card .card-title {
-    @apply text-ink;
-  }
-
-  .surface-ink .card .card-body,
-  .surface-ink .card .note {
-    @apply text-slate;
-  }
-
-  .card-title {
-    @apply text-heading-m text-ink;
-  }
-
-  .card-body {
-    @apply mt-1 text-body text-slate;
-  }
-
-  /* Display/M on a phone, Display/L from md. The Home hero alone uses .display
-     for the XL step, and only there may a line be gold — at 40px and 56px it
-     is well above the 24px floor for gold on paper. */
-  .page-title {
-    @apply text-display-m md:text-display-l;
-  }
+  /* --------------------------------------------------------- headings */
 
   .display {
-    @apply text-display-l md:text-display-xl;
+    @apply text-display-s sm:text-display-m lg:text-display-xl;
   }
 
-  .display-gold {
-    @apply text-gold;
+  .page-title {
+    @apply text-display-s md:text-display-l;
   }
 
   .section-title {
-    @apply text-heading-l text-ink;
+    @apply text-heading-l md:text-display-m;
+  }
+
+  .card-title {
+    @apply text-heading-m text-content;
+  }
+
+  .card-body {
+    @apply mt-2 text-body text-content-secondary;
   }
 
   .lede {
-    @apply mt-3 max-w-prose text-body-l text-slate;
+    @apply mt-4 max-w-prose text-body-l text-content-secondary;
   }
 
   .note {
-    @apply text-body-s text-slate;
+    @apply text-body-s text-content-muted;
   }
 
-  /* ----------------------------------------------------------- buttons */
-  /* 50px tall, per the Figma Button set: 26px line + 12px top and bottom. The
-     44px floor stays as the invariant it is — this exceeds it. */
+  /* ------------------------------------------------------------ cards
+
+     Raised: the secondary surface, no border — the prototype's default card.
+     Bordered: white with a hairline, for a card that sits on a tinted band.
+     Open: a hairline above and nothing else, for a set that should not be
+     boxed. */
+  .card {
+    @apply rounded-2xl bg-surface-2 p-6 md:p-7;
+  }
+
+  .card-bordered {
+    @apply rounded-2xl border border-border bg-surface p-6 md:p-7;
+  }
+
+  .card-open {
+    @apply border-t border-divider pt-5 md:pt-6;
+  }
+
+  /* The band that hands the reader to the other audience: a card with a
+     stronger edge so it reads as a way through rather than as content. */
+  .door {
+    @apply rounded-2xl border border-border-strong bg-surface p-5 md:p-6;
+  }
+
+  /* The Home "bio link to product" panel. Retired with that section in
+     WEB-MIG-003; until then it is a quiet tinted panel. */
+  .surface-ink {
+    @apply relative rounded-3xl border border-border bg-page p-6 md:p-8;
+  }
+
+  /* ---------------------------------------------------------- buttons
+
+     Pills, as in the prototype. 48px tall: above the 44px target floor. */
   .btn {
-    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded px-5 py-3 text-body font-semibold transition-colors;
+    @apply inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full px-7 py-3 text-body font-semibold transition-colors;
   }
 
   .btn-primary {
-    @apply btn bg-ink text-paper hover:bg-slate;
+    @apply btn bg-brand text-on-brand hover:bg-brand-hover active:bg-brand-active;
   }
 
-  /* An outlined control's boundary is a component boundary: border-control,
-     not rule, so it meets 3:1 (WCAG 1.4.11). */
-  /* py-[11px], not py-3: this button has a 1px boundary top and bottom, and
-     border-box counts it. 11 + 1 = 12, so it matches the primary at 50px
-     rather than standing 2px taller in the same row. */
+  /* Neutral outline. Its edge is a control boundary, so --border-control at
+     ≥3:1 rather than the prototype's 1.84:1 border-strong. */
   .btn-secondary {
-    @apply btn border border-border-control bg-paper py-[11px] text-ink hover:bg-surface-2;
+    @apply btn border-[1.5px] border-border-control bg-surface py-2.5 text-content hover:bg-hover;
   }
 
-  /* On the ink surface: gold fill, ink text (5.31:1). The only primary control
-     permitted there — a paper-filled button would merge with the focus ring's
-     inner stop. */
-  .btn-gold {
-    @apply btn bg-gold text-ink hover:brightness-110;
+  /* Brand outline: the prototype's secondary call to action beside a brand
+     primary. Brand on white is 6.15:1. */
+  .btn-outline {
+    @apply btn border-[1.5px] border-brand bg-surface py-2.5 text-brand hover:bg-brand-muted;
+  }
+
+  /* On a brand band. White on brand would merge with nothing: the focus ring's
+     white inner stop still separates it from the band. */
+  .btn-inverted {
+    @apply btn bg-on-brand text-brand hover:bg-brand-muted;
   }
 
   .btn-danger {
-    @apply btn bg-danger text-paper hover:brightness-110;
+    @apply btn bg-danger text-on-brand hover:brightness-95;
+  }
+
+  .btn-sm {
+    @apply min-h-[44px] px-5 py-2 text-body-s;
   }
 
   .btn-block {
@@ -317,35 +275,51 @@
 
   .btn:disabled,
   .btn[aria-disabled='true'] {
-    @apply cursor-not-allowed border border-rule-card bg-surface-2 text-slate;
+    @apply cursor-not-allowed border border-border bg-surface-2 text-content-muted;
   }
 
-  /* Two classes because there are two roles, and the role decides whether the
-     44x44 invariant applies (ADU-WEB-01 §10).
+  /* Text actions. Two classes because there are two roles, and the role decides
+     whether the 44x44 invariant applies (ADU-WEB-01 §10).
 
-     .link-arrow        — a link INLINE within a sentence. Exempt from 44x44:
-                          its size is constrained by the line-height of the text
-                          around it, which is the same exemption WCAG 2.1 SC
-                          2.5.5 and WCAG 2.2 SC 2.5.8 carry. Currently the
-                          Privacy link inside the waitlist consent label.
-
-     .link-arrow-target — a STANDALONE link that happens to be styled as text.
-                          A target, so it takes the 44px minimum. The two
-                          audience doors and the two Trust & Safety routes.
-
-     Deliberately not one class with a blanket min-height: that would reach 44px
-     by disturbing the inline case, which is the one usage that should not
-     change. Choosing between these two is choosing a role, which is the
-     decision a future developer should be making consciously. */
+     .link-arrow        — INLINE within a sentence. Exempt from 44x44 (WCAG 2.5.8
+                          inline exception). Always underlined: brand against body
+                          text is not 3:1, so colour alone would not mark it as a
+                          link (WCAG 1.4.1).
+     .link-arrow-target — STANDALONE text action. A target, so it takes the 44px
+                          minimum. The prototype's "Learn more →" links. */
   .link-arrow {
-    @apply font-semibold text-ink underline-offset-4 hover:underline;
+    @apply font-semibold text-brand underline decoration-1 underline-offset-4;
   }
 
   .link-arrow-target {
-    @apply link-arrow inline-flex min-h-[44px] items-center;
+    @apply inline-flex min-h-[44px] items-center font-semibold text-brand underline-offset-4 hover:underline;
   }
 
-  /* ------------------------------------------------------------- fields */
+  .btn-text {
+    @apply link-arrow-target;
+  }
+
+  /* ------------------------------------------------------- navigation */
+
+  .nav-link {
+    @apply inline-flex min-h-[44px] items-center rounded-lg px-3 text-body-s font-medium text-content-secondary transition-colors hover:bg-hover hover:text-content;
+  }
+
+  /* The active route: a pill, not colour alone. */
+  .nav-link[aria-current='page'] {
+    @apply bg-selected text-selected-content;
+  }
+
+  .footer-heading {
+    @apply font-mono text-label font-medium uppercase text-content-muted;
+  }
+
+  .footer-link {
+    @apply inline-flex min-h-[44px] min-w-[44px] items-center text-body-s text-content-secondary underline-offset-4 hover:text-content hover:underline;
+  }
+
+  /* ----------------------------------------------------------- fields */
+
   .form-column {
     @apply w-full max-w-form;
   }
@@ -355,21 +329,19 @@
   }
 
   .label {
-    @apply block text-label font-medium text-ink;
+    @apply block text-body-s font-semibold text-content;
   }
 
   .label-optional {
-    @apply font-normal text-slate;
+    @apply font-normal text-content-muted;
   }
 
-  /* border-control, not rule. The previous hairline measured ~1.25:1 against
-     paper on the site's only conversion — an existing WCAG 1.4.11 failure, fixed
-     in this pass. Decorative dividers may stay light; a field's boundary is
-     something a person has to find. */
+  /* 16px text so iOS does not zoom on focus; --border-control so a person can
+     find the field (the prototype's 1.31:1 border could not be seen). */
   .input,
   .select,
   .textarea {
-    @apply mt-1.5 block min-h-[44px] w-full rounded border border-border-control bg-paper px-3 py-2.5 text-body text-ink placeholder:text-slate;
+    @apply mt-1.5 block min-h-[48px] w-full rounded border-[1.5px] border-border-control bg-surface px-3.5 py-2.5 text-body text-content placeholder:text-content-muted;
   }
 
   .textarea {
@@ -387,81 +359,118 @@
   }
 
   .field-help {
-    @apply mt-1.5 block text-body-s text-slate;
+    @apply mt-1.5 block text-body-s text-content-muted;
   }
 
   .error-summary {
-    @apply rounded border border-danger-border bg-danger-bg p-4;
+    @apply rounded-2xl border border-danger-border bg-danger-bg p-5;
   }
 
   .checkbox {
-    @apply mt-0.5 h-5 w-5 shrink-0 rounded border-border-control text-ink;
+    @apply mt-0.5 h-5 w-5 shrink-0 accent-brand;
   }
 
-  /* --------------------------------------------------------------- tags
+  /* ----------------------------------------------------------- alerts
 
-     Tag/Status: a state the reader should register — the beta chip.
-     Tag/Marker: a truthfulness control — the EXAMPLE stamp on invented cards.
-     Both are Label-sized; there is no smaller text style. */
-  /* Status: a filled pill, no boundary. Quiet by design — it reports a state,
-     it does not ask to be read first. */
+     Operational states, each with its own token pair. The inline-start bar is a
+     shape, so the state is never carried by colour alone; consumers add
+     role="status" or role="alert" when the alert is dynamic. */
+  .alert {
+    @apply rounded-2xl border-s-4 p-5 text-body text-content;
+  }
+
+  .alert-info {
+    @apply border-info bg-info-bg;
+  }
+
+  .alert-success {
+    @apply border-success bg-success-bg;
+  }
+
+  .alert-warning {
+    @apply border-warning bg-warning-bg;
+  }
+
+  .alert-error {
+    @apply border-danger bg-danger-bg;
+  }
+
+  /* ------------------------------------------------------------- tags
+
+     Status: a quiet state pill. Marker: a truthfulness control — the EXAMPLE
+     stamp on invented content — high-contrast and outlined so it is never
+     missed. */
   .badge-beta,
   .tag-status {
-    @apply inline-flex items-center rounded-pill bg-surface-2 px-3 py-1 text-label font-medium text-slate;
+    @apply inline-flex items-center rounded-2xl bg-surface-2 px-3 py-1 font-mono text-label font-medium uppercase text-content-secondary;
   }
 
-  /* Illustrative seller cards only -- the home hero and the How-it-works shop
-     mock. Never the trust ladder: New, Established and Trusted are real level
-     names, and only their thresholds are undecided.
-     Slate on surface-2 is 5.56:1, above the 4.5 a marker this size needs. */
-  /* Marker: an OUTLINED pill in ink on paper — the Figma Tag set's treatment,
-     and the opposite of Status on purpose. This is a truthfulness control: the
-     seller name, price, stock time and order count on those cards are invented
-     and this label is the only thing that says so, so it is the one label that
-     must never be missed. It sits on surface-2 cards, where a paper fill and an
-     ink edge both separate it from the card. Ink on paper is 17.4:1. */
   .badge-example,
   .tag-marker {
-    @apply inline-flex items-center rounded-pill border border-ink bg-paper px-3 py-0.5 text-micro font-semibold uppercase text-ink;
+    @apply inline-flex items-center rounded-full border border-content bg-surface px-2.5 py-0.5 font-mono text-label font-medium uppercase text-content;
   }
 
   .badge-level {
-    @apply text-body-s font-semibold text-ink;
+    @apply text-body-s font-semibold text-content;
   }
 
-  /* ------------------------------------------------------- placeholders
+  /* ------------------------------------------------------ placeholders
 
-     Unmistakably unfinished, on purpose. G11 holds a pixel baseline of each of
-     these and fails when either is tidied into something that reads as
-     designed. The dashed gold edge is a shape, which is where gold is allowed on
-     paper; the text stays ink, because gold at 14px on paper fails AA. */
-  /* Dashed neutral on paper, per the Figma Placeholder set.
-     ⚠ Not gold. Gold was tried and is wrong twice over: the ruling permits no
-     gold on an evidentiary page, and UNDECIDED flags appear on Trust & Safety
-     and all four legal pages, which are exactly those. A dashed edge and the
-     word UNDECIDED carry it without a colour that means something else here. */
+     Unmistakably unfinished, on purpose: G11 holds a pixel baseline of each. */
   .placeholder-flag {
-    @apply rounded border border-dashed border-border-control bg-paper px-4 py-3 text-body-s font-semibold text-ink;
+    @apply rounded-xl border border-dashed border-border-control bg-surface px-4 py-3 text-body-s font-semibold text-content;
   }
 
   .placeholder-line {
     @apply h-2 rounded bg-surface-2;
   }
 
-  /* Slate at full opacity against surface-2: 5.56:1. At 70% the old label
-     measured 3.02:1, below the 4.5:1 AA floor, and it was the only axe
-     violation in the whole suite (QA report 01, Q-02). */
-  .placeholder-media {
-    @apply relative flex items-center justify-center rounded border border-dashed
-           border-border-control bg-surface-2 text-micro font-semibold uppercase text-slate;
-    background-image:
-      linear-gradient(to top right, transparent calc(50% - 0.5px),
-        rgb(var(--border-control)) 50%, transparent calc(50% + 0.5px)),
-      linear-gradient(to bottom right, transparent calc(50% - 0.5px),
-        rgb(var(--border-control)) 50%, transparent calc(50% + 0.5px));
+  /* ------------------------------------------------------- photography
+
+     The prototype's photography slot: a quiet tonal panel carrying its shot's
+     brief, sized by its place in the layout. Size comes from the caller as an
+     aspect-ratio or height utility, never from an inline style (CSP
+     `style-src-attr 'none'`). When approved photography exists, the image goes
+     inside as .photo-slot-media and the brief is dropped. */
+  .photo-slot {
+    @apply relative w-full overflow-hidden rounded-3xl border border-border;
+    background-image: linear-gradient(160deg, rgb(var(--photo-from)) 0%, rgb(var(--photo-to)) 100%);
   }
 
+  .photo-slot-sand {
+    --photo-from: var(--photo-sand-from);
+    --photo-to: var(--photo-sand-to);
+  }
+
+  .photo-slot-clay {
+    --photo-from: var(--photo-clay-from);
+    --photo-to: var(--photo-clay-to);
+  }
+
+  .photo-slot-sage {
+    --photo-from: var(--photo-sage-from);
+    --photo-to: var(--photo-sage-to);
+  }
+
+  .photo-slot-stone {
+    --photo-from: var(--photo-stone-from);
+    --photo-to: var(--photo-stone-to);
+  }
+
+  .photo-slot-unframed {
+    @apply border-0;
+  }
+
+  .photo-slot-brief {
+    @apply absolute inset-x-4 top-4 font-mono text-label font-medium uppercase text-content-secondary sm:inset-x-5 sm:top-5;
+  }
+
+  .photo-slot-media {
+    @apply absolute inset-0 h-full w-full object-cover;
+  }
+
+  /* Fixed rather than absolute so it sits above the sticky header. */
   .skip-link {
-    @apply sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-ink focus:px-4 focus:py-2 focus:text-paper;
+    @apply sr-only focus:not-sr-only focus:fixed focus:start-4 focus:top-4 focus:z-[60] focus:rounded-full focus:bg-content focus:px-5 focus:py-3 focus:text-content-inverse;
   }
 }

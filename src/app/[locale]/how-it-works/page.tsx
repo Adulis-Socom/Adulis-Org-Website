@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import { ROUTES } from '@/lib/routes';
-import { InfoCard, MediaPlaceholder, SectionTitle } from '@/components/ui';
+import { InfoCard, SectionTitle } from '@/components/ui';
+import { PhotoSlot } from '@/components/PhotoSlot';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
 type Step = { title: string; body: string };
@@ -47,14 +48,14 @@ export default async function HowItWorksPage({ params }: LocaleParams) {
         <div className="grid gap-4 md:grid-cols-3">
           {previews.map((p) => (
             <div key={p.seller} className="card">
-              <MediaPlaceholder label={common('mutedProductImage')} className="min-h-[120px]" />
+              <PhotoSlot brief={common('mutedProductImage')} className="aspect-[4/3]" />
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <span className="text-h3 text-ink">{p.seller}</span>
+                <span className="text-heading-m text-content">{p.seller}</span>
                 <span className="badge-example">{common('exampleTag')}</span>
               </div>
               <p className="card-body">{p.product}</p>
-              <p className="tnum mt-1 text-small text-ink">{p.price}</p>
-              <p className="tnum mt-1 text-small text-ink-muted">{p.stock}</p>
+              <p className="tnum mt-1 text-body-s text-content">{p.price}</p>
+              <p className="tnum mt-1 text-body-s text-content-secondary">{p.stock}</p>
               <p className="badge-level mt-2">{p.level}</p>
             </div>
           ))}

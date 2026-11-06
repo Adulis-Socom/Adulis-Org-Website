@@ -88,7 +88,7 @@ Copy `.env.example` to `.env.local` before deploying anywhere real. Leaving
 | Hosting | Cloudflare Pages + Workers *(not yet configured)* | Zero egress, edge PoPs are the closest realistic answer to "no cloud region operates in Ethiopia", one vendor alongside the R2 decision |
 | i18n | `next-intl`, English unprefixed (`/`, `/about`) and Amharic under `/am` (`localePrefix: 'as-needed'`) | Shared links land in the right language, nothing depends on JavaScript |
 | Styling | Tailwind over CSS custom properties | Every colour is a `var()` into `:root` in `src/app/globals.css` — the one definition. `tailwind.config.ts` only names utilities against it |
-| Fonts | Inter (body, UI, forms) + Instrument Sans (display, headings) + Noto Sans Ethiopic | See below — this is load-bearing |
+| Fonts | Fraunces (display, headings) + Outfit (body, UI, forms) + DM Mono (labels), self-hosted through `next/font`, + Noto Sans Ethiopic | The approved prototype's faces (WEB-MIG-002). See below — the stack is load-bearing |
 | Analytics | None. Self-hosted only, when it exists | The site collects personal data from prospective sellers; adding a third party creates a processor relationship nobody has assessed |
 
 ### The font stack is load-bearing
@@ -428,7 +428,7 @@ otherwise wonder why.
 
 - Copy lives in `src/messages/*.json`, never in components. English is the base;
   Amharic is a partial catalogue that falls back to English key by key.
-- Arrows are real glyphs — `→` and `↓`, never `>` and `v`. Inter covers them.
+- Arrows are real glyphs — `→` and `↓`, never `>` and `v`.
 - Navigation is defined once in `src/lib/nav.ts`. Header, mobile menu and footer
   all read it, so a link cannot exist in one and not the others.
 - Numbered markers appear only where the content genuinely is a sequence — the

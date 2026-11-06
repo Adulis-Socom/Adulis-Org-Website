@@ -250,7 +250,7 @@ test.describe('§2.9 fonts', () => {
 
   /**
    * The display face — Phase C. Two things can go wrong silently: it fails to
-   * load and headings render from Inter (nobody notices, because Inter is a
+   * load and headings render from the fallback (nobody notices, because it is a
    * fine face), or it loads with a wider subset than declared and every English
    * page pays for glyphs no heading uses. `check:font` guards the declaration;
    * this measures what a browser actually got.
@@ -260,17 +260,17 @@ test.describe('§2.9 fonts', () => {
     await page.waitForTimeout(600);
 
     // Not the metric-adjusted local stand-in next/font also registers as
-    // "Instrument Sans Fallback": it is a local face, always loaded, weight
+    // "Fraunces Fallback": it is a local face, always loaded, weight
     // normal, and it failed this test in both engines on a correct build.
     const faces = await page.evaluate(() =>
       Array.from(document.fonts)
-        .filter((f) => /instrument/i.test(f.family) && !/fallback/i.test(f.family))
+        .filter((f) => /fraunces/i.test(f.family) && !/fallback/i.test(f.family))
         .map((f) => ({ family: f.family, weight: f.weight, status: f.status, unicodeRange: f.unicodeRange }))
     );
     const loaded = faces.filter((f) => f.status === 'loaded');
     record('fonts.jsonl', { displayFace: faces });
 
-    expect(loaded.length, `no Instrument Sans face loaded on /en:\n${JSON.stringify(faces, null, 2)}`).toBeGreaterThan(0);
+    expect(loaded.length, `no Fraunces face loaded on /:\n${JSON.stringify(faces, null, 2)}`).toBeGreaterThan(0);
     for (const f of loaded) {
       expect(f.weight, `display face loaded at weight ${f.weight}; only 600 is declared`).toBe('600');
       // Latin ranges only. An Ethiopic block here would mean the display stack
@@ -285,9 +285,9 @@ test.describe('§2.9 fonts', () => {
     }
 
     // And headings actually resolve to it. A computed family that starts with
-    // the Inter variable means the display class never reached the element.
+    // the body face means the display class never reached the element.
     const h1Family = await page.evaluate(() => getComputedStyle(document.querySelector('h1')!).fontFamily);
-    expect(h1Family, `h1 font-family is "${h1Family}"`).toMatch(/instrument/i);
+    expect(h1Family, `h1 font-family is "${h1Family}"`).toMatch(/fraunces/i);
   });
 
   test('no Google Fonts origin is contacted at runtime', async ({ page }) => {

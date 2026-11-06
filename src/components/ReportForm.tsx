@@ -37,7 +37,7 @@ export function ReportForm() {
         {/* States the 24-hour commitment outright. Someone who has just reported
             harmful content should not have to guess whether anyone will look. */}
         <p className="card-body max-w-prose">{t('success.body')}</p>
-        <p className="tnum mt-2 text-body font-semibold text-ink">
+        <p className="tnum mt-2 text-body font-semibold text-content">
           {t('success.reference', { reference: state.reference })}
         </p>
       </div>

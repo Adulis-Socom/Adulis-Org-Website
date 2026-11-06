@@ -60,3 +60,33 @@ test.describe('§2.2 360px layout / §2.3 touch targets', () => {
   }
 
 });
+
+/**
+ * The remaining responsive widths of WEB-MIG-002 §20, from the largest phones
+ * to a wide desktop. English routes only: the 360px pass above walks both
+ * locales, and `pseudo.spec.ts` stresses Ge'ez expansion. One test per width
+ * keeps the run short while still naming every route that overflows.
+ */
+const WIDTHS = [390, 430, 768, 1024, 1280, 1440];
+
+test.describe('§2.2 responsive widths', () => {
+  for (const width of WIDTHS) {
+    test(`${width}px: no page-level horizontal overflow on any English route`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      const failures: string[] = [];
+
+      for (const p of allPages().filter((entry) => entry.locale === 'en')) {
+        await page.goto(p.url, { waitUntil: 'networkidle' });
+        const report = await overflowReport(page, width);
+        if (report.horizontalScroll || report.offenders.length > 0) {
+          failures.push(
+            `${p.label}: scrollWidth ${report.scrollWidth} > ${report.clientWidth}; ` +
+              JSON.stringify(report.offenders)
+          );
+        }
+      }
+
+      expect(failures, `overflow at ${width}px:\n${failures.join('\n')}`).toEqual([]);
+    });
+  }
+});

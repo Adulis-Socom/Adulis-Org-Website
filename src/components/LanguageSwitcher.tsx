@@ -23,13 +23,13 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
   const pathname = usePathname();
 
   return (
-    <div role="group" aria-label={t('languageLabel')} className="flex items-center gap-1 text-small">
+    <div role="group" aria-label={t('languageLabel')} className="flex items-center gap-1 text-body-s">
       {locales.map((code, i) => {
         const current = code === locale;
         return (
           <span key={code} className="flex items-center gap-1">
             {i > 0 && (
-              <span aria-hidden className="text-ink-muted">
+              <span aria-hidden className="text-content-secondary">
                 /
               </span>
             )}
@@ -48,7 +48,7 @@ export function LanguageSwitcher({ locale }: { locale: Locale }) {
               // measured. The landing rehearsal turned the flag on and the whole
               // 360px layout suite failed on it.
               className={`inline-flex min-h-[44px] min-w-[44px] items-center justify-center px-1 font-semibold ${
-                current ? 'text-ink' : 'text-ink-muted hover:text-ink'
+                current ? 'text-content' : 'text-content-secondary hover:text-content'
               }`}
               // Emits nothing today: track() has no transport until Checkpoint 4,
               // and the switcher is hidden behind AM_ENABLED anyway. The call

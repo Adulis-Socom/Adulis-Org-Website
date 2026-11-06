@@ -1,23 +1,41 @@
 'use client';
 
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { AM_ENABLED, Link, usePathname } from '@/i18n/routing';
 import type { Locale } from '@/i18n/routing';
 import { primaryNav, ROUTES, WAITLIST_HREF, sellerConsoleLink } from '@/lib/nav';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { Logo } from './Logo';
+
+/** Tailwind's `lg`: the width from which the full navigation shows. */
+const DESKTOP_QUERY = '(min-width: 1024px)';
 
 /**
- * An earlier revision shipped the mobile call to action as a compressed ~14px
- * sliver and shipped no mobile navigation at all. On a site whose target reader
- * is on a low-end Android, that is most of the audience unable to reach most of
- * the pages. Both the panel and the full-size button below are load-bearing.
+ * The global header, after the approved prototype: sticky, a translucent
+ * surface, the mark and wordmark, the primary navigation with the current route
+ * as a pill, and one primary call to action.
+ *
+ * Production behaviour the prototype lacked, kept or added on purpose:
+ *   - real routes through next-intl `Link`, read from `lib/nav.ts`
+ *   - `aria-current="page"` on the current route
+ *   - a disclosure menu below `lg` with `aria-expanded`/`aria-controls`, a 44px
+ *     trigger, Escape to close (focus returns to the trigger), close on
+ *     navigation, close when focus or a tap leaves the header, and a body scroll
+ *     lock released the moment the viewport widens past `lg`
+ *   - the panel scrolls itself, so a locked page can never strand a link
+ *     below the fold of a short phone
+ *
+ * Without JavaScript the trigger does nothing; every destination stays
+ * reachable from the footer, which renders on every page.
  */
 export function Header() {
   const t = useTranslations('nav');
   const locale = useLocale() as Locale;
   const pathname = usePathname();
   const panelId = useId();
+  const headerRef = useRef<HTMLElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
 
   // Close on navigation. Without this the panel stays open over the new page.
@@ -29,39 +47,68 @@ export function Header() {
     if (!open) return;
 
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setOpen(false);
+      if (event.key !== 'Escape') return;
+      setOpen(false);
+      toggleRef.current?.focus();
+    };
+    const isOutside = (node: EventTarget | null) =>
+      node instanceof Node && !headerRef.current?.contains(node);
+    // A tap anywhere outside the header closes the menu...
+    const onPointerDown = (event: PointerEvent) => {
+      if (isOutside(event.target)) setOpen(false);
+    };
+    // ...and so does keyboard focus moving out of it, so Tab past the last link
+    // never lands on content hidden behind the panel.
+    const onFocusIn = (event: FocusEvent) => {
+      if (isOutside(event.target)) setOpen(false);
+    };
+    const desktop = window.matchMedia(DESKTOP_QUERY);
+    const onWiden = () => {
+      if (desktop.matches) setOpen(false);
     };
 
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     document.addEventListener('keydown', onKeyDown);
+    document.addEventListener('pointerdown', onPointerDown);
+    document.addEventListener('focusin', onFocusIn);
+    desktop.addEventListener('change', onWiden);
 
     return () => {
       document.body.style.overflow = previousOverflow;
       document.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('pointerdown', onPointerDown);
+      document.removeEventListener('focusin', onFocusIn);
+      desktop.removeEventListener('change', onWiden);
     };
   }, [open]);
 
+  const isCurrent = (href: string) =>
+    href === ROUTES.home ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+
   return (
-    <header className="border-b border-line bg-surface">
-      <div className="container-page flex items-center justify-between gap-4 py-3">
-        {/* inline-flex + min-h-[44px] rather than bare text: this is the home
-            link, the one a person reaches for when lost, and it measured 60x24
-            against the 44x44 invariant in ADU-WEB-01 §10 (QA report 01, Q-01). */}
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-40 border-b border-border bg-surface/95 backdrop-blur-md"
+    >
+      <div className="container-page flex h-16 items-center gap-3 lg:gap-6">
+        {/* The visible word is the link's name; the mark is decorative. */}
         <Link
           href={ROUTES.home}
-          className="inline-flex min-h-[44px] items-center text-h3 font-bold tracking-tight text-ink"
+          className="-ms-1 inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-lg px-1"
         >
-          ADULIS
+          <Logo />
+          <span className="font-display text-heading-s font-semibold text-content">Adulis</span>
         </Link>
 
-        <nav aria-label="Primary" className="hidden lg:block">
-          <ul className="flex items-center gap-5">
+        <nav aria-label={t('primaryLabel')} className="hidden flex-1 justify-center lg:flex">
+          <ul className="flex items-center gap-1">
             {primaryNav.map((item) => (
               <li key={item.key}>
                 <Link
                   href={item.href}
-                  className="text-small font-medium text-ink-muted hover:text-ink"
+                  aria-current={isCurrent(item.href) ? 'page' : undefined}
+                  className="nav-link"
                 >
                   {t(item.key)}
                 </Link>
@@ -70,74 +117,76 @@ export function Header() {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-3">
+        <div className="ms-auto flex items-center gap-2 lg:ms-0">
           {/* Hidden until the Amharic catalogue is human-translated. Offering a
               language that resolves to English is a broken promise. */}
-          {AM_ENABLED && <LanguageSwitcher locale={locale} />}
+          {AM_ENABLED && (
+            <div className="hidden lg:block">
+              <LanguageSwitcher locale={locale} />
+            </div>
+          )}
 
-          {/* A plain anchor, not next-intl's Link: this is a different origin,
-              and Link would prefix the locale onto an absolute URL. */}
-          <a
-            href={sellerConsoleLink.href}
-            className="hidden min-h-[44px] items-center text-small font-medium text-ink-muted hover:text-ink lg:inline-flex"
-          >
+          {/* A plain anchor, not next-intl's Link: a different origin, and Link
+              would prefix a locale onto an absolute URL. */}
+          <a href={sellerConsoleLink.href} className="nav-link hidden lg:inline-flex">
             {t(sellerConsoleLink.key)}
           </a>
 
-          <Link href={WAITLIST_HREF} className="btn-primary hidden lg:inline-flex">
-            {t('waitlistCta')}
+          <Link href={WAITLIST_HREF} className="btn-primary btn-sm">
+            <span className="sm:hidden">{t('waitlistCtaShort')}</span>
+            <span className="hidden sm:inline">{t('waitlistCta')}</span>
           </Link>
 
           <button
+            ref={toggleRef}
             type="button"
             onClick={() => setOpen((value) => !value)}
             aria-expanded={open}
             aria-controls={panelId}
             aria-label={open ? t('closeMenu') : t('openMenu')}
-            // border-control, not rule: this is a control's boundary, and a
-            // person has to find it. 3.08:1 meets WCAG 1.4.11; the hairline did not.
-            className="inline-flex h-11 w-11 items-center justify-center rounded border border-border-control text-ink lg:hidden"
+            className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-[1.5px] border-border-control text-content lg:hidden"
           >
             {open ? <CloseIcon /> : <MenuIcon />}
           </button>
         </div>
       </div>
 
-      {open && (
-        <div id={panelId} className="border-t border-line bg-surface lg:hidden">
-          <nav aria-label="Primary" className="container-page py-4">
-            <ul className="flex flex-col gap-2">
-              {primaryNav.map((item) => (
-                <li key={item.key}>
-                  <Link
-                    href={item.href}
-                    className="flex min-h-[44px] items-center rounded border border-line px-4 py-3 text-body font-medium text-ink"
-                  >
-                    {t(item.key)}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+      <div
+        id={panelId}
+        hidden={!open}
+        className="max-h-[calc(100dvh-4rem)] overflow-y-auto border-t border-border bg-surface lg:hidden"
+      >
+        <nav aria-label={t('primaryLabel')} className="container-page py-4">
+          <ul className="flex flex-col gap-1">
+            {primaryNav.map((item) => (
+              <li key={item.key}>
+                <Link
+                  href={item.href}
+                  aria-current={isCurrent(item.href) ? 'page' : undefined}
+                  className="nav-link flex w-full px-4 py-3 text-body"
+                >
+                  {t(item.key)}
+                </Link>
+              </li>
+            ))}
+          </ul>
 
-            {AM_ENABLED && (
-              <div className="mt-4 flex items-center justify-between gap-4 border-t border-line pt-4">
-                <LanguageSwitcher locale={locale} />
-              </div>
-            )}
+          {AM_ENABLED && (
+            <div className="mt-4 border-t border-border pt-4">
+              <LanguageSwitcher locale={locale} />
+            </div>
+          )}
 
-            <a
-              href={sellerConsoleLink.href}
-              className="mt-4 flex min-h-[44px] items-center rounded border border-line px-4 py-3 text-body font-medium text-ink"
-            >
+          <div className="mt-4 border-t border-border pt-4">
+            <a href={sellerConsoleLink.href} className="nav-link flex w-full px-4 py-3 text-body">
               {t(sellerConsoleLink.key)}
             </a>
-
-            <Link href={WAITLIST_HREF} className="btn-primary btn-block mt-4">
+            <Link href={WAITLIST_HREF} className="btn-primary btn-block mt-3">
               {t('waitlistCta')}
             </Link>
-          </nav>
-        </div>
-      )}
+          </div>
+        </nav>
+      </div>
     </header>
   );
 }

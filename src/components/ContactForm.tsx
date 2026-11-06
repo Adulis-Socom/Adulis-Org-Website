@@ -31,7 +31,7 @@ export function ContactForm() {
       <div className="card" role="status">
         <h2 className="section-title">{t('success.title')}</h2>
         <p className="card-body max-w-prose">{t('success.body')}</p>
-        <p className="tnum mt-2 text-body font-semibold text-ink">
+        <p className="tnum mt-2 text-body font-semibold text-content">
           {t('success.reference', { reference: state.reference })}
         </p>
       </div>

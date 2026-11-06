@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildPageMetadata } from '@/lib/metadata';
 import { ROUTES } from '@/lib/routes';
-import { MediaPlaceholder, SectionTitle, UndecidedFlag } from '@/components/ui';
+import { SectionTitle, UndecidedFlag } from '@/components/ui';
+import { PhotoSlot } from '@/components/PhotoSlot';
 
 type LocaleParams = { params: Promise<{ locale: string }> };
 type Founder = { name: string; role: string };
@@ -44,9 +45,9 @@ export default async function AboutPage({ params }: LocaleParams) {
         <ul className="grid gap-4 md:grid-cols-3">
           {founders.map((founder) => (
             <li key={founder.name} className="card">
-              <MediaPlaceholder label={common('photoPlaceholder')} className="h-32 w-32" />
+              <PhotoSlot brief={common('photoPlaceholder')} tone="stone" className="aspect-square w-32" />
               <p className="card-title mt-4">{founder.name}</p>
-              <p className="text-small font-semibold text-ink-muted">{founder.role}</p>
+              <p className="text-body-s font-semibold text-content-secondary">{founder.role}</p>
             </li>
           ))}
         </ul>

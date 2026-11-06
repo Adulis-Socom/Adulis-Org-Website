@@ -76,11 +76,11 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
           {ladder.map((row) => (
             <li key={row.level} className="card-open">
               <h3 className="card-title">{row.level}</h3>
-              <p className="mt-2 text-small font-semibold text-ink-muted">
+              <p className="mt-2 text-body-s font-semibold text-content-secondary">
                 {t('ladderColumns.earnedBy')}
               </p>
               <p className="card-body">{row.earnedBy}</p>
-              <p className="mt-2 text-small font-semibold text-ink-muted">
+              <p className="mt-2 text-body-s font-semibold text-content-secondary">
                 {t('ladderColumns.meaning')}
               </p>
               <p className="card-body">{row.meaning}</p>
@@ -91,13 +91,13 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
         <table className="hidden w-full border-collapse text-left md:table">
           <thead>
             <tr>
-              <th scope="col" className="border-b border-line py-2 pr-4 text-small text-ink-muted">
+              <th scope="col" className="border-b border-border py-2 pr-4 text-body-s text-content-secondary">
                 {t('ladderColumns.level')}
               </th>
-              <th scope="col" className="border-b border-line py-2 pr-4 text-small text-ink-muted">
+              <th scope="col" className="border-b border-border py-2 pr-4 text-body-s text-content-secondary">
                 {t('ladderColumns.earnedBy')}
               </th>
-              <th scope="col" className="border-b border-line py-2 text-small text-ink-muted">
+              <th scope="col" className="border-b border-border py-2 text-body-s text-content-secondary">
                 {t('ladderColumns.meaning')}
               </th>
             </tr>
@@ -105,11 +105,11 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
           <tbody>
             {ladder.map((row) => (
               <tr key={row.level}>
-                <th scope="row" className="card-title border-b border-line py-3 pr-4 align-top">
+                <th scope="row" className="card-title border-b border-border py-3 pr-4 align-top">
                   {row.level}
                 </th>
-                <td className="card-body border-b border-line py-3 pr-4 align-top">{row.earnedBy}</td>
-                <td className="card-body border-b border-line py-3 align-top">{row.meaning}</td>
+                <td className="card-body border-b border-border py-3 pr-4 align-top">{row.earnedBy}</td>
+                <td className="card-body border-b border-border py-3 align-top">{row.meaning}</td>
               </tr>
             ))}
           </tbody>
@@ -132,7 +132,7 @@ export default async function TrustAndSafetyPage({ params }: LocaleParams) {
         {/* A hairline-separated list, single column: this is a table of
             commitments in all but markup, and the evidentiary register sets
             it as a document, not as cards. */}
-        <ul className="divide-y divide-rule border-y border-rule">
+        <ul className="divide-y divide-divider border-y border-divider">
           {published.map((entry) => (
             <li key={entry} className="py-3">
               <span className="card-title">{entry}</span>

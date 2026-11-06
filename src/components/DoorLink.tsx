@@ -11,8 +11,8 @@ import { track, type AnalyticsEvent } from '@/lib/analytics';
  * directly, which is the opposite of what the event is for.
  *
  * This is a client component so that `ui.tsx` does not have to be. Marking that
- * file `'use client'` would drag `InfoCard`, `SectionTitle` and
- * `MediaPlaceholder` into the browser bundle on every route that renders a card,
+ * file `'use client'` would drag `InfoCard` and `SectionTitle` into the
+ * browser bundle on every route that renders a card,
  * which is all of them.
  *
  * The click is still a plain navigation if the bundle never arrives: `track()`
