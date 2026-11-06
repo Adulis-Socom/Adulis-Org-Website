@@ -17,7 +17,7 @@ Work order: **WEB-MIG-001**. This matrix turns [`COMPANY_WEBSITE_REPOSITORY_AUDI
 | **REPLACE** | Remove the current implementation and build a production equivalent of the prototype. |
 | **DELETE** | Remove once its replacement lands. |
 | **NEW** | Does not exist in production; build it. |
-| **REVIEW** | Needs a founder, legal or technical decision before acting (open items in audit §18.4). D-01…D-08 are ruled; see §3. |
+| **REVIEW** | Needs a founder, legal or technical decision before acting. D-01…D-08 and F-01…F-06 are ruled; see §3. |
 
 ## Proposed work-order mapping
 
@@ -87,7 +87,7 @@ Inferred from the reading lists in `../reference/REFERENCE_INDEX.md`. Each work 
 | --- | --- | --- | --- | --- |
 | `src/actions/waitlist.ts` | Waitlist validation, controls, delivery | KEEP → MIGRATE (later WO) | Email **and** phone both required; explicit consent checkbox kept (D-05). Changed in the work order that builds `/waitlist` (WEB-MIG-004) or a dedicated one, never in WEB-MIG-002. Action, `WaitlistRecord`, form, `waitlist.spec.ts` and `nojs.spec.ts` change together. Mapping of the remaining prototype fields (name split, business name, category, location) is decided there | Founder ruling D-05; WEB-02 §30/§106; WEB-MIG-002 §8 forbids action changes |
 | `src/actions/contact.ts` | Contact intake | KEEP | Unchanged | Protected |
-| `src/actions/report.ts` | Report intake | KEEP + extend | Anonymous intake stays; no verification step (D-06). The reason becomes a required enum once the public taxonomy is confirmed in WEB-MIG-006 (candidate list in audit §18.2) | Founder ruling D-06 |
+| `src/actions/report.ts` | Report intake | KEEP + extend | Anonymous intake stays; no verification step (D-06). Content type and reason become validated, extensible values using the F-06 taxonomy in WEB-MIG-006 | Founder rulings D-06, F-06 |
 | `src/actions/deletion.ts` | Deletion state machine | KEEP | Unchanged | Protected; HIGH-risk area (DEPLOY §175) |
 
 ### 1.5 App shell and special routes
@@ -178,7 +178,7 @@ Rulings given 2026-11-06 and recorded in `../reference/MIGRATION_AUTHORITY.md`. 
 | D-07 | Theme Lab | Do not port | — |
 | D-08 | Availability indexing | `noindex` initially; index only once it is an approved public acquisition page | WEB-MIG-005 |
 
-Still open (audit §18.4 #2–#4): "Adulis never holds funds", "7 years", "within 2 business days", "We will not share your details with third parties", and "verified" wording. Each must be confirmed or dropped before the page carrying it ships.
+Additional rulings F-01…F-06 (2026-11-06, also in `MIGRATION_AUTHORITY.md`) settle the remaining items: no "Adulis never holds funds" or custody/settlement claims (F-01); no invented retention period (F-02); no response-time SLA (F-03); no absolute third-party-sharing claim (F-04); no generic "Verified Seller(s)/Storefront(s)", with "verified" reserved for specific verified events such as Verified Handoff or Verified Review (F-05); the Report Content taxonomy (F-06, implemented in WEB-MIG-006). Nothing in audit §18.4 remains open.
 
 ## 4. Cross-references
 
