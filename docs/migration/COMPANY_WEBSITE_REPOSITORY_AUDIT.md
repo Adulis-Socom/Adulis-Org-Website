@@ -195,7 +195,7 @@ All page routes live under `src/app/[locale]/`. Every page calls `setRequestLoca
 | `/refunds-and-disputes` | Legal | title only | `unbuilt` → noindex | server | As Terms | As Terms. |
 | `/prohibited-products` | Policy | title only | indexable | server | 12 category cards with definitions + report link | Restyle; content review. |
 | `/report-content` | Content-report intake | title only | `unbuilt` → noindex | server; `ReportForm` client | Report form (reason category UNDECIDED) + moderation cards + T&S link | Restyle; keep action (WEB-MIG-006). Integration with the Platform report API is future work. |
-| `/delete-account` | App-store deletion path | title only | `unlisted` → noindex | server; `DeleteAccountFlow` client, gated server-side | `DELETION_FLOW_ENABLED = false`: explanatory content + "contact Adulis" manual route; five-step flow hidden | Restyle; keep gate. Slug decision: ADU-WEB-02 canonical is `/account-deletion` (see §18). |
+| `/delete-account` | App-store deletion path | title only | `unlisted` → noindex | server; `DeleteAccountFlow` client, gated server-side | `DELETION_FLOW_ENABLED = false`: explanatory content + "contact Adulis" manual route; five-step flow hidden | Restyle; keep gate. Moves to `/account-deletion` with a permanent redirect from `/delete-account` in WEB-MIG-006 (D-02). |
 | `/[locale]/[...rest]` | Unknown path under a locale | none (inherits layout robots) | n/a | server → `notFound()` | Localised 404 inside the shell | Keep. |
 | `[locale]/not-found.tsx` | Localised 404 | none | n/a | server | Code, heading, one Home button | Restyle. ADU-WEB-02 §97 asks for helpful links (Home, How it works, Help, Availability, Ethiopia). |
 | `app/not-found.tsx` | Unlocalised fallback | none | n/a | server, own `<html>` | Inline-styled English 404 | Keep (rarely reached). Note the inline styles (W-17). |
@@ -223,7 +223,7 @@ Routes the target requires that production lacks: `/pricing`, `/markets/ethiopia
 | `DoorLink.tsx` (client) | Tracked door link | **KEEP** | Fire-and-forget `track()`; plain navigation without JS. |
 | `ShopPreview.tsx` (server) | "From bio link to product" EXAMPLE panel on Home | **DELETE** (after WEB-MIG-003 replaces it) | Superseded narrative; Product/Scene presentation replaces it. |
 | `form.tsx` (client): `Field`, `ErrorSummary`, `Honeypot`, `ConsentField`, `SubmitButton` | Shared accessible form contract (visible labels, error summary of links with focus, always-enabled submit, off-screen honeypot, consent label ≥44px) | **KEEP** (restyle in WEB-MIG-002) | Production asset; do not change semantics. |
-| `WaitlistForm.tsx` (client) | Waitlist UI, `useActionState`, no-JS path, field abandonment beacon | **KEEP** (restyle) | Field set vs ADU-WEB-02 §30 is **REVIEW** (no email/country). |
+| `WaitlistForm.tsx` (client) | Waitlist UI, `useActionState`, no-JS path, field abandonment beacon | **KEEP** (restyle) | Field set changes under D-05: email and phone both required, explicit consent kept. |
 | `ContactForm.tsx` (client) | Contact UI | **KEEP** (restyle) | |
 | `ReportForm.tsx` (client) | Report UI (reason category UNDECIDED) | **KEEP** (restyle) | |
 | `DeleteAccountFlow.tsx` (client) | Five-step server-action flow, gated by the server | **KEEP** (restyle) | Copy review; blocker reason codes are historical (see §10). |
@@ -284,7 +284,7 @@ Privacy boundaries already enforced: no submission body in logs, no PII in analy
 | Open Graph / Twitter | None | **Gap** (new coverage in WEB-MIG-003 / WEB-MIG-007). |
 | Structured data | None | **Gap**. ADU-WEB-02 §50 allows Organization and WebSite (corporate only). |
 | 404 handling | Catch-all → localised 404 with correct status; unknown path 404 asserted by `check:routes`; never redirects to Home | Correct (ADU-WEB-02 §97); add helpful links. |
-| Locale root | `/` redirects to `/en` | Diverges from ADU-WEB-02 §8/§49 and MKT-01 §66/§125 (`/` is the canonical English homepage; `/en` redirects to `/`). See §18 D-01. |
+| Locale root | `/` redirects to `/en` | Diverges from ADU-WEB-02 §8/§49 and MKT-01 §66/§125 (`/` is the canonical English homepage; `/en` redirects to `/`). Ruled D-01: adopt `/` before WEB-MIG-003. |
 
 ---
 
@@ -317,13 +317,13 @@ Privacy boundaries already enforced: no submission body in logs, no PII in analy
 
 **New coverage required** (assigned in the matrix):
 
-- New routes: `/pricing` (no price, fee or plan content), `/markets/ethiopia`, `/availability` (noindex until D-08), standalone `/waitlist`; `/press` only if D-04 approves it.
-- Routing: `/` and `/en` behaviour if D-01 is adopted; redirect from `/delete-account` if D-02 is adopted.
+- New routes: `/pricing` (no price, fee or plan content), `/markets/ethiopia`, `/availability` (noindex, D-08), standalone `/waitlist` (D-03). No `/press` (D-04).
+- Routing: `/` serves English and `/en` redirects to `/` (D-01); `/delete-account` permanently redirects to `/account-deletion` (D-02).
+- Waitlist: email and phone both required; an unconsented submission is refused (D-05).
 - Copy invariants (extend `check:copy`): no public "Product Post" or "Shoppable Post", no `0.5%`, no commission or surcharge figures, no free-period promises, four Trust labels wherever labels are enumerated, no Government-ID claim, no Seller payment-confirmation claim.
 - Responsive suite at 360/390/430/768/1024/1280/1440 with no page-level horizontal overflow.
 - Photo-slot contract: fixed aspect ratio, alt text or `aria-hidden`, no CLS.
 - No inline `style` attributes in SSR output (CSP).
-- Theme Lab absent from production builds.
 
 ---
 
@@ -464,10 +464,10 @@ Literal `\'` rendered in the For Buyers subcopy (CW:854); For Buyers and Trust p
 | Primary nav | How it works, For sellers, For buyers, About, Trust & safety, Help; Log in (Seller Console); Join the waitlist | How It Works, For Sellers, For Buyers, Trust & Safety, Availability, About; Join Seller Waitlist | Prototype items and order; keep the Seller Console link and the gated language switcher |
 | Mobile menu | Disclosure panel with Escape, close on navigation, scroll lock, `aria-controls`, 44px trigger | Positioned div, no Escape, focus or scroll handling | Prototype look, production behaviour |
 | Footer | Primary row + full legal row (incl. Refunds & Disputes) + address + copyright | Brand column + Platform / Company / Legal; no Refunds & Disputes, no Trust & Safety | Prototype layout, production legal reachability |
-| Pages | 15 routes | 18 page keys incl. Availability, Ethiopia, Pricing, standalone Waitlist; no Press, no Refunds & Disputes, no 404 | Union: add Availability, Ethiopia, Pricing, Waitlist; keep Refunds & Disputes and 404; Press is a decision (D-04) |
+| Pages | 15 routes | 18 page keys incl. Availability, Ethiopia, Pricing, standalone Waitlist; no Press, no Refunds & Disputes, no 404 | Union: add Availability, Ethiopia, Pricing, Waitlist; keep Refunds & Disputes and 404; Press deferred with no link (D-04) |
 | Forms | Server actions, no-JS, server validation, explicit consent checkbox, rate limits, references | Fake submits; client validation; consent as text only; fake OTP | Keep production forms and actions; restyle to prototype |
-| Waitlist fields | Name, phone\*, platform (TikTok/Instagram), handle, second platform, followers, what you sell, city, consent | First/last name, email\*, phone (optional), business name, category, social handle, location | Decision D-05 |
-| Report | Anonymous; reason category undecided | Content type + 6 reasons; account verification required | Decision D-06 |
+| Waitlist fields | Name, phone\*, platform (TikTok/Instagram), handle, second platform, followers, what you sell, city, consent | First/last name, email\*, phone (optional), business name, category, social handle, location | Production form, restyled; email and phone both required with explicit consent (D-05) |
+| Report | Anonymous; reason category undecided | Content type + 6 reasons; account verification required | Anonymous intake kept, no verification step, approved public reason taxonomy (D-06) |
 | Deletion | Explanatory page + manual route; five-step flow gated off | Full (fake) six-step flow with "type DELETE" confirm | Keep the gate; restyle explanatory state to prototype |
 | Help | 11 answered FAQs in `<details>` | Topic grid, question titles only, non-functional search | Prototype layout + production's working disclosure answers; no fake search |
 | Legal | Section maps with UNDECIDED bodies (fail closed) | Drafted text labelled "Prototype draft — not final legal text" | Keep production pattern; never publish prototype legal text |
@@ -513,7 +513,7 @@ Only constraints that bind the visual and content migration are listed; each is 
 - No analytics events exist for the Website in ANL-01. Do not add events beyond the existing closed list without registration; never send form values, phone, email or social handles (WEB-02 §47, ANL §13).
 - Do not hard-code retention durations (PRV §20/§22, WEB-02 §36).
 - PII-collecting forms must fail closed where no approved policy exists (WEB-02 §41, DEPLOY §96). Today the production equivalent is "refuse without a delivery destination".
-- Theme Lab: dev/staging only (authority). Any flag is server-side by environment, never client-side (DEPLOY §125).
+- Theme Lab: not ported (founder ruling D-07).
 
 ---
 
@@ -526,7 +526,7 @@ Each item below is **confirmed present** in `cfbd338`. Replacing any of them req
 | 1 | **Next.js App Router** | `src/app/` | Required stack (WEB-02 §17, MKT §115); real routes, not a client page switcher. |
 | 2 | **TypeScript (strict)** | `tsconfig.json` (`strict: true`, `@/*` paths) | Typed route keys turn broken links into compile errors. |
 | 3 | **next-intl** | `src/i18n/*`, `next.config.mjs` plugin | Locale routing, message loading, typed navigation `Link`. |
-| 4 | **Locale-aware routing** | `[locale]` segment, `routing.ts`, middleware | URL-shared language, no JS dependency, `/am` staged behind `AM_ENABLED`. (Prefix mode is a decision, D-01, not a removal.) |
+| 4 | **Locale-aware routing** | `[locale]` segment, `routing.ts`, middleware | URL-shared language, no JS dependency, `/am` staged behind `AM_ENABLED`. (D-01 changes the prefix mode to `as-needed`; locale routing itself stays.) |
 | 5 | **Metadata helper** | `src/lib/metadata.ts` | One call sets title, robots, canonical and hreflang; prevents the per-field override defect. |
 | 6 | **Sitemap** | `src/app/sitemap.ts` | Derived from `INDEX_POLICY`; never lists a noindex route. |
 | 7 | **Robots** | `src/app/robots.ts` | Closed until a public site URL exists. |
@@ -560,11 +560,11 @@ Each item exists in the prototype at `f448d06` and must not enter production. Th
 | 7 | **Fake verification**: no SMS, any 6 digits pass, always resolves to "Maya Tesfaye"; deletion reason collected and discarded | CW:1507-1518, 1570-1576, 1611-1612; `demo-data/derived.ts` | Production deletion action behind `DELETION_FLOW_ENABLED` + `DELETION_API_URL`; no verification UI without a real Platform API |
 | 8 | **Demo fixtures**: Addis Atelier, Nura Glow, demo Scenes, Products with ETB prices, demo Orders and person; `HeroScene`, `FeedIllustration`, `StorefrontIllustration` | CW:551-645; `src/demo-data/*` | Illustrative content only where needed, always with the EXAMPLE marker; no demo person or Orders |
 | 9 | **Mock business logic**: `requestAccountDeletionAt`, `submitContentReport`, `trustAt`, `forYouAt`, capability issuers | `src/demo-data/derived.ts` and others | None. The Website computes no Trust, feed or deletion state (WEB-INV-04, -12) |
-| 10 | **Public Theme Lab**, its `localStorage` persistence, pre-paint script and inline `--adulis-*` properties on `<html>`, plus the 10 candidate palettes | APP:64-121, 233-239; TL; TP:21-69; `main.tsx:7-9`; PAL:52-123; TT:66-130; CSS:282-523 | Not ported (recommended). If ever needed: development/staging only, server-gated, class/attribute-based, no inline styles |
+| 10 | **Public Theme Lab**, its `localStorage` persistence, pre-paint script and inline `--adulis-*` properties on `<html>`, plus the 10 candidate palettes | APP:64-121, 233-239; TL; TP:21-69; `main.tsx:7-9`; PAL:52-123; TT:66-130; CSS:282-523 | Not ported (founder ruling D-07) |
 | 11 | **Inline `style` objects** on almost every element, plus hard-coded hex (`PHOTO_TONES`, step tiles, storefront tiles, availability borders) | CW throughout; 498-503, 617, 690-715, 996, 1014 | Tailwind utilities and component classes over semantic tokens; no inline style attributes (CSP) |
 | 12 | **CSS override hacks**: `.website-compact` attribute selectors with `!important`, DOM-shape header selectors | CSS:583-612, 700-725 | Ordinary responsive classes |
 | 13 | **Google Fonts CSS `@import`** | CSS:1-3 | `next/font` self-hosting |
-| 14 | **Non-functional UI**: Help search without handler, answerless FAQ titles, Press card with `href:'#'` | CW:1341-1371, 1147-1153 | Working `<details>` answers; no search until it works; Press only if a real page exists |
+| 14 | **Non-functional UI**: Help search without handler, answerless FAQ titles, Press card with `href:'#'` | CW:1341-1371, 1147-1153 | Working `<details>` answers; no search until it works; no Press link until approved press content exists (D-04) |
 | 15 | **Prototype draft legal text and unapproved commitments** ("7 years", "2 business days", "We will not share your details with third parties") | CW:1438-1477, 1258, 1400; `demo-data/account-deletion.ts` | Production UNDECIDED pattern until approved text exists |
 | 16 | **Inline hard-coded configuration**: nav and footer arrays, © year, category list, report taxonomy, `+251`/9-digit rule, all copy inline with no i18n | CW:27-34, 155-177, 1252, 1573, 1822, 1836 | `lib/nav.ts`, `ROUTES`, message catalogues, server-side validation |
 | 17 | **Consent as text without a checkbox** | CW:1258 | Production `ConsentField` (explicit consent is a legal record) |
@@ -585,7 +585,7 @@ Each item exists in the prototype at `f448d06` and must not enter production. Th
 | W-06 | Rate limiting is per-process memory; edge rules are not configured | `lib/ratelimit` | Known and documented; out of migration scope |
 | W-07 | Forms relay to webhooks; dedupe is per instance; report does not reach a Platform moderation API | `lib/store/*` | Out of migration scope; the store interface is the seam |
 | W-08 | Retention is hard-coded as 12 months (`purgeAfterFor`), asserted by tests | `lib/store/*`, `waitlist.spec.ts` | REVIEW: conflicts with PRV §20/§22 and WEB-02 §36 (no invented durations in code) |
-| W-09 | Waitlist has no email or country field and only TikTok/Instagram | `actions/waitlist.ts` | REVIEW against WEB-02 §30 and the prototype waitlist (§12) |
+| W-09 | Waitlist has no email or country field and only TikTok/Instagram | `actions/waitlist.ts` | Ruled D-05: email and phone both required, explicit consent kept; changed in the WO that builds `/waitlist` |
 | W-10 | Amharic catalogue empty; `AM_ENABLED = false` | `am.json` | Unchanged; the migration must keep layouts Ge'ez-safe (`pseudo.spec.ts`) |
 | W-11 | `.env.example` stale | B-02 | Separate fix |
 | W-12 | Dependency advisories incl. critical `next` range | B-03 | Separate security work order |
@@ -611,7 +611,7 @@ Each item exists in the prototype at `f448d06` and must not enter production. Th
 | R-07 | Restoring outdated commercial or trust copy while rebuilding pages | Extend `check:copy` with the invariants in §9 before rebuilding the pages that carry them |
 | R-08 | Photography slots trip `check:assets`: `sharp` 0.35.4 is inside a new high advisory (< 0.35.5) | Placeholders only (no raster, no `next/image`) until a `sharp` upgrade lands in its own change |
 | R-09 | `next/image` emits inline `style` attributes, which the CSP blocks | Prefer a CSS-class media component; evaluate `next/image` under CSP before use |
-| R-10 | Theme Lab leaks into production | Not ported, or ported behind a server-side environment check that `next build` for production excludes; test asserts absence |
+| R-10 | Theme Lab leaks into production | Not ported (D-07): no code, flag or persistence to gate |
 | R-11 | Routing change (D-01) breaks canonical, hreflang, sitemap, `check:routes` and tests | Do it in one dedicated change with tests updated together; site is not indexed yet, so cost is lowest now |
 | R-12 | Demo Sellers, Products or Scenes from the prototype presented as real businesses | Keep the EXAMPLE marker contract; illustrative content always badged |
 | R-13 | Per-route client namespaces: new client components fail at runtime with `MISSING_MESSAGE` | Add namespaces to `ROUTE_NAMESPACES`; `console.spec.ts` catches omissions |
@@ -631,36 +631,40 @@ Each item exists in the prototype at `f448d06` and must not enter production. Th
 | Long-lived `dev` branch | DEPLOY §110 ("avoid long-lived develop branches") vs work order | Work order (rank 1) wins. |
 | Nonce SSR vs static hash profile | CSP-01 §29 ("static hash profile preferred if actual deployment is static") | Production is not static; CSP-01 explicitly allows nonce SSR. Keep. |
 
-### 18.2 Decisions requested (precedence points one way; confirmation needed because they change URLs or scope)
+### 18.2 Founder rulings on D-01…D-08 (2026-11-06)
 
-| ID | Decision | Evidence | Recommendation |
-| --- | --- | --- | --- |
-| D-01 | Locale URL model: `/` as the unprefixed English canonical, with `/en` redirecting to `/` | WEB-02 §8, §49; MKT-01 §66, §125 (rank 4/6) vs production `localePrefix: 'always'` (rank 7) | Adopt `localePrefix: 'as-needed'` in one dedicated change (WEB-MIG-002 or WEB-MIG-007). The site is unindexed, so it is cheapest now. |
-| D-02 | Deletion route slug `/account-deletion` (WEB-02 §39 canonical) vs production `/delete-account` | WEB-02 §8, §39 | Rename with a permanent redirect from `/delete-account` in WEB-MIG-006; update `ROUTES`, `legalNav`, tests. |
-| D-03 | Standalone `/waitlist` route vs `/for-sellers#waitlist` | Prototype has a Waitlist page (rank 3); WEB-02 §8 lists `/waitlist` | Add `/waitlist` (WEB-MIG-004); point every waitlist CTA at it; keep the production form and action. |
-| D-04 | Press: the prototype has only a dead About card (`href:'#'`); WEB-02 §15 and KB §5 list a Press page | No approved boilerplate, media kit or releases exist | Do not build `/press` until approved content exists; point the About "Press" card at Contact meanwhile. |
-| D-05 | Waitlist field set | Prototype (rank 3): first/last name, **email required, phone optional**, business name, category, one social handle, free-text location, consent as text. WEB-02 §30/§106 (rank 4): email **and** phone captured, country/market, consent/policy version. Production (rank 7): phone required, no email, TikTok/Instagram enum, explicit consent checkbox | WEB-MIG-002 restyles only (the work order forbids action changes). Reconcile the field set in a dedicated work order. See 18.4 item 1. |
-| D-06 | Report Content: the prototype requires account verification before a report and offers a content-type + reason taxonomy; production accepts anonymous reports with no taxonomy | Prototype (rank 3) vs no Platform report/auth API (WEB-02 §38) | Keep anonymous intake until a Platform API exists; adopt the prototype taxonomy (with "Product" instead of "Product Listing") only with founder confirmation, because a public taxonomy is a moderation-policy statement. |
-| D-07 | Theme Lab | Authority: dev/staging only | Do not port in WEB-MIG-002. Revisit only if the founder wants palette comparison on staging. |
-| D-08 | `/availability` indexing | WEB-02 §49: `noindex` unless owners want it discoverable | Ship `noindex` (`INDEX_POLICY`) until the founder approves indexing. |
+The founder ruled on every decision this audit raised. The rulings are also recorded in `../reference/MIGRATION_AUTHORITY.md` (authority rank 2), which is where later work orders read them.
 
-### 18.4 Genuine unresolved contradictions (reported, not resolved)
+| ID | Decision | Final ruling | Implemented in | Consequences |
+| --- | --- | --- | --- | --- |
+| D-01 | `/` vs `/en` | **Adopt `/` as the canonical English URL.** Locale prefix only when needed, e.g. `/am` once Amharic launches. | **Before WEB-MIG-003** | `localePrefix: 'as-needed'`; `/en` redirects to `/`; canonical, hreflang, sitemap, `check:routes` and the route-dependent specs change together in one change |
+| D-02 | Account deletion slug | **Adopt `/account-deletion`**, with a permanent compatibility redirect from `/delete-account`. | WEB-MIG-006 | `ROUTES.deleteAccount` path, `legalNav`, `ROUTE_NAMESPACES`, tests; permanent redirect for the old path |
+| D-03 | Standalone Waitlist | **Adopt `/waitlist`.** | WEB-MIG-004 | New route; `WAITLIST_HREF` and every waitlist CTA point at it; production form and action reused |
+| D-04 | Press page | **Defer.** No fake or empty Press page. Remove the dead Press CTA/link until real approved press content exists. | WEB-MIG-005 (About) | No `/press` route; the prototype's About "Press" card is not reproduced; no Press link in nav or footer |
+| D-05 | Waitlist fields | **Require both email and phone. Keep an explicit consent checkbox.** The prototype's optional-phone / no-checkbox behaviour must not be copied. | The WO that builds `/waitlist` (WEB-MIG-004) or a dedicated WO; never WEB-MIG-002, which forbids action changes | `submitWaitlist` gains a required, validated email; phone stays required (it keys the per-phone limit and dedupe); `ConsentField` stays; store record, form and specs change together |
+| D-06 | Report Content verification | **Keep anonymous report intake for MVP.** No fake account verification. Use an approved public reason taxonomy; reporting itself does not imply enforcement. | WEB-MIG-006 | No verification step; the reason becomes a required enum once the public list is confirmed; copy states that a report does not by itself mean action will be taken |
+| D-07 | Theme Lab | **Do not port it.** | — | No Theme Lab code, flag, persistence or test in production |
+| D-08 | Availability indexing | **`noindex` initially.** Index only after market-availability content becomes an approved public acquisition page. | WEB-MIG-005 | `availability` gets an `INDEX_POLICY` entry; excluded from the sitemap |
 
-These remain after applying the authority order. They need a founder or legal decision before the owning work order publishes the affected copy or behaviour.
+Open detail under D-06: the ruling requires "an approved public reason taxonomy" without naming one. The only candidate on record is the prototype's (CW:1822, 1836): content type *Product Listing / Scene / Seller Profile / Review / Other* (where "Product Listing" must read "Product" under the authority terminology), and reason *Prohibited product / Misleading or false information / Counterfeit goods / Hate speech or harassment / Spam / Other policy violation*. WEB-MIG-006 should confirm this list, or the replacement, before the action validates against it.
 
-1. **Waitlist data contract (D-05).** The prototype outranks ADU-WEB-02, but its form makes phone optional and has no consent control. That conflicts with the ADU-WEB-02 launch gate ("waitlist captures email + phone") and with production's recorded-consent requirement (Proclamation 1321/2024, cited in `actions/waitlist.ts`). Phone is also the key for production's per-phone rate limit and dedupe. Which fields are required, and whether consent is an explicit control, is a data-protection decision the precedence list does not settle.
-2. **"Adulis never holds funds."** The prototype (rank 3) states it on Home, How It Works and Trust & Safety. The Knowledge Base (rank 5) says the site "must not claim escrow, guaranteed buyer safety, fund custody or settlement behavior that has not been legally and technically finalized", and records provider-managed settlement as a conditional target. The authority file also says the site communicates "only approved commercial facts". Whether this sentence is an approved fact is not established.
-3. **Prototype factual commitments.** The prototype shows "retained for 7 years for regulatory compliance" on the Account Deletion explain step, "We'll reply… within 2 business days" on Contact, and "We will not share your details with third parties" on the waitlist. PRV-01 §20/§71 says retention durations are LEGAL REVIEW REQUIRED, and no source approves the reply time or the sharing statement. Precedence ranks the prototype above PRV-01, but these read as unapproved commitments under the authority file's "no unsupported guarantees" rule. They should not be published until confirmed.
-4. **"Verified" wording.** The prototype says "Verified Storefronts", "verified sellers" and "verified Trust level". The Knowledge Base (§53) limits verification to phone/Account control, social-account control and business evidence, and forbids implying identity verification. The words may be acceptable in context, but that judgement belongs to the founder.
-
-Resolved by precedence and recorded for transparency:
+### 18.3 Resolved by precedence and recorded for transparency
 
 - **Pricing content.** WEB-02 §22 says `/pricing` renders "Coming Soon and nothing else"; the prototype adds a Seller-tools section. The prototype (rank 3) wins. The phrase "no hidden fees, no invented tiers, and no asterisks" is flagged for founder review as a possible soft guarantee.
 - **Primary navigation.** WEB-02 §22 suggests Availability, Ethiopia, Help and Language in the header; the prototype's six items win. Help stays reachable from the footer. The production language switcher stays, gated by `AM_ENABLED`.
 - **Legal text.** The prototype labels its legal copy "Prototype draft — not final legal text", so it is not approved behaviour. Production's UNDECIDED pattern stays.
 - **Seller Console link.** The prototype has none. The work order (WEB-MIG-002 §2: "Seller Console outbound link where required") and production's allowlisted `sellerConsoleLink` keep it.
 
-### 18.3 Inter-document tension recorded for later integration work (not blocking the migration)
+### 18.4 Genuine unresolved contradictions (reported, not resolved)
+
+These remain after applying the authority order and the founder rulings. They need a founder or legal decision before the owning work order publishes the affected copy or behaviour. Numbering is kept stable because the matrix cites these items.
+
+1. ~~**Waitlist data contract.**~~ **Resolved by founder ruling D-05** (email and phone both required; explicit consent checkbox kept).
+2. **"Adulis never holds funds."** The prototype (rank 3) states it on Home, How It Works and Trust & Safety. The Knowledge Base (rank 5) says the site "must not claim escrow, guaranteed buyer safety, fund custody or settlement behavior that has not been legally and technically finalized", and records provider-managed settlement as a conditional target. The authority file also says the site communicates "only approved commercial facts". Whether this sentence is an approved fact is not established.
+3. **Prototype factual commitments.** The prototype shows "retained for 7 years for regulatory compliance" on the Account Deletion explain step, "We'll reply… within 2 business days" on Contact, and "We will not share your details with third parties" on the waitlist. PRV-01 §20/§71 says retention durations are LEGAL REVIEW REQUIRED, and no source approves the reply time or the sharing statement. Precedence ranks the prototype above PRV-01, but these read as unapproved commitments under the authority file's "no unsupported guarantees" rule. They should not be published until confirmed.
+4. **"Verified" wording.** The prototype says "Verified Storefronts", "verified sellers" and "verified Trust level". The Knowledge Base (§53) limits verification to phone/Account control, social-account control and business evidence, and forbids implying identity verification. The words may be acceptable in context, but that judgement belongs to the founder.
+
+### 18.5 Inter-document tension recorded for later integration work (not blocking the migration)
 
 - Account-deletion API shape: WEB-02 §39 (`/v1/me/account-deletion/start|verify|confirm|status`) vs PRV-01 §57 (`/v1/privacy/deletion-requests` … `/confirm`, `/cancel`). Production's client targets a third, provisional shape behind `DELETION_API_URL`. The flow is gated off, so this does not affect WEB-MIG work. It must be settled with the Platform owner before `DELETION_FLOW_ENABLED` can be certified.
 - Hosting: README (Cloudflare Pages + Workers) vs DEPLOY-01 §3/§11 (Render compute behind Cloudflare) vs ARCH-PLATFORM App B/F ("Cloudflare edge/web"). Nothing is deployed; decide at WEB-MIG-007 or in a deployment work order.

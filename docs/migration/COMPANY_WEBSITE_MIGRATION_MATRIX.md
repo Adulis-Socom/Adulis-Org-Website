@@ -17,7 +17,7 @@ Work order: **WEB-MIG-001**. This matrix turns [`COMPANY_WEBSITE_REPOSITORY_AUDI
 | **REPLACE** | Remove the current implementation and build a production equivalent of the prototype. |
 | **DELETE** | Remove once its replacement lands. |
 | **NEW** | Does not exist in production; build it. |
-| **REVIEW** | Needs a founder, legal or technical decision before acting (decisions D-01…D-08 and audit §18.4). |
+| **REVIEW** | Needs a founder, legal or technical decision before acting (open items in audit §18.4). D-01…D-08 are ruled; see §3. |
 
 ## Proposed work-order mapping
 
@@ -25,7 +25,7 @@ Inferred from the reading lists in `../reference/REFERENCE_INDEX.md`. Each work 
 
 | Work order | Scope assumed by this matrix |
 | --- | --- |
-| WEB-MIG-002 | Tokens, fonts, global shell (Header, mobile menu, Footer), shared primitives, photo slot, form styling, focus, responsive foundations, 404 styling, navigation registry update |
+| WEB-MIG-002 | Tokens, fonts, global shell (Header, mobile menu, Footer), shared primitives, photo slot, form styling, focus, responsive foundations, 404 styling, navigation registry update. **D-01 (`/` canonical) must land before WEB-MIG-003**, either here or as a dedicated change |
 | WEB-MIG-003 | Home |
 | WEB-MIG-004 | How It Works, For Sellers, For Buyers, Waitlist (new), Pricing (new) |
 | WEB-MIG-005 | Trust & Safety, Availability (new), Ethiopia (new), About, Help |
@@ -61,7 +61,7 @@ Inferred from the reading lists in `../reference/REFERENCE_INDEX.md`. Each work 
 | --- | --- | --- | --- | --- |
 | `src/middleware.ts` | Per-request CSP nonce, `x-pathname`, locale middleware | KEEP | Unchanged during visual work. CSP hardening against CSP-01 App A §63 is reviewed at WEB-MIG-007 (W-05) | Audited control |
 | `src/i18n/config.ts` | Locales, `AM_ENABLED` | KEEP | Unchanged; `AM_ENABLED` stays false until human-reviewed Amharic exists | MKT-01 §72 |
-| `src/i18n/routing.ts` | `localePrefix: 'always'`, typed navigation | KEEP / REVIEW | `localePrefix: 'as-needed'` if D-01 is approved | WEB-02 §8/§49, MKT-01 §66/§125 |
+| `src/i18n/routing.ts` | `localePrefix: 'always'`, typed navigation | MIGRATE | `localePrefix: 'as-needed'`: `/` serves English without a prefix, `/en` redirects to `/`, `/am` keeps its prefix. Lands before WEB-MIG-003, together with `lib/metadata.ts` hrefs, `sitemap.ts`, `check:routes` and route-dependent specs | Founder ruling D-01; WEB-02 §8/§49, MKT-01 §66/§125 |
 | `src/i18n/request.ts` | Catalogue merge, pseudo-locale, timezone | KEEP | Unchanged | Production infrastructure |
 | `src/messages/en.json` | All public copy | MIGRATE | Rewritten page by page to the prototype copy, filtered through the authority rules and audit §18.4; one namespace per page; a real `description` per page; removal of every OUTDATED/PROHIBITED key in audit §10 | Content drift |
 | `src/messages/am.json` | Provisional, one key | KEEP | Unchanged; never machine-translated | MKT-01 §72, §75 |
@@ -71,7 +71,7 @@ Inferred from the reading lists in `../reference/REFERENCE_INDEX.md`. Each work 
 
 | File/Area | Current Responsibility | Classification | Target State | Reason |
 | --- | --- | --- | --- | --- |
-| `src/lib/routes.ts` | `ROUTES`, `INDEX_POLICY`, `WAITLIST_HREF`, `SELLER_CONSOLE_URL` | KEEP + extend | Add `pricing`, `availability`, `ethiopia` (`/markets/ethiopia`), `waitlist`; `press` only if D-04; rename `deleteAccount` → `/account-deletion` if D-02; `INDEX_POLICY` entry for `availability` (D-08); `WAITLIST_HREF` → `/waitlist` (D-03) | Route registry is protected infrastructure (audit §14 #16) |
+| `src/lib/routes.ts` | `ROUTES`, `INDEX_POLICY`, `WAITLIST_HREF`, `SELLER_CONSOLE_URL` | KEEP + extend | Add `pricing`, `availability`, `ethiopia` (`/markets/ethiopia`), `waitlist`; no `press` (D-04); `deleteAccount` path → `/account-deletion` with a permanent redirect from `/delete-account` in WEB-MIG-006 (D-02); `availability` gets an `INDEX_POLICY` entry so it stays noindex and out of the sitemap (D-08); `WAITLIST_HREF` → `/waitlist` (D-03) | Route registry is protected infrastructure (audit §14 #16) |
 | `src/lib/nav.ts` | `primaryNav`, `legalNav`, `LOCALE_LABELS`, `sellerConsoleLink` | MIGRATE | `primaryNav` = How It Works, For Sellers, For Buyers, Trust & Safety, Availability, About. Footer groups follow the prototype (Platform / Company / Legal) **plus** Trust & Safety and Refunds & Disputes. `sellerConsoleLink` and `LOCALE_LABELS` unchanged (WEB-MIG-002) | Prototype IA; legal reachability (WEB-MIG-002 §3) |
 | `src/lib/metadata.ts` | Title, robots, canonical, hreflang | KEEP + extend | Per-page `description`; Open Graph / Twitter fields; `alternates` follow D-01 | SEO gaps W-02, W-03 |
 | `src/lib/flags.ts` | `DELETION_FLOW_ENABLED` | KEEP | Unchanged. If Theme Lab is ever ported, its flag lives here, server-side, environment-based | DEPLOY §125 |
@@ -85,9 +85,9 @@ Inferred from the reading lists in `../reference/REFERENCE_INDEX.md`. Each work 
 
 | File/Area | Current Responsibility | Classification | Target State | Reason |
 | --- | --- | --- | --- | --- |
-| `src/actions/waitlist.ts` | Waitlist validation, controls, delivery | KEEP / REVIEW | Unchanged until D-05 is decided; then a dedicated work order reconciles fields with tests | Protected; WEB-MIG-002 §8 forbids changes |
+| `src/actions/waitlist.ts` | Waitlist validation, controls, delivery | KEEP → MIGRATE (later WO) | Email **and** phone both required; explicit consent checkbox kept (D-05). Changed in the work order that builds `/waitlist` (WEB-MIG-004) or a dedicated one, never in WEB-MIG-002. Action, `WaitlistRecord`, form, `waitlist.spec.ts` and `nojs.spec.ts` change together. Mapping of the remaining prototype fields (name split, business name, category, location) is decided there | Founder ruling D-05; WEB-02 §30/§106; WEB-MIG-002 §8 forbids action changes |
 | `src/actions/contact.ts` | Contact intake | KEEP | Unchanged | Protected |
-| `src/actions/report.ts` | Report intake | KEEP / REVIEW | Unchanged; enum validation added only if D-06 approves a taxonomy | Protected |
+| `src/actions/report.ts` | Report intake | KEEP + extend | Anonymous intake stays; no verification step (D-06). The reason becomes a required enum once the public taxonomy is confirmed in WEB-MIG-006 (candidate list in audit §18.2) | Founder ruling D-06 |
 | `src/actions/deletion.ts` | Deletion state machine | KEEP | Unchanged | Protected; HIGH-risk area (DEPLOY §175) |
 
 ### 1.5 App shell and special routes
@@ -117,12 +117,12 @@ Inferred from the reading lists in `../reference/REFERENCE_INDEX.md`. Each work 
 | `src/components/DoorLink.tsx` | Tracked link | KEEP | Unchanged | Analytics hook |
 | `src/components/ShopPreview.tsx` | Bio-link EXAMPLE panel | DELETE | Removed when WEB-MIG-003 lands the Product/Scene hero | Superseded narrative |
 | `src/components/form.tsx` | Field, ErrorSummary, Honeypot, ConsentField, SubmitButton | KEEP | Restyled to prototype inputs (radius 10, 1.5px border at ≥3:1, error colour) without changing semantics (WEB-MIG-002) | WEB-MIG-002 §8 |
-| `src/components/WaitlistForm.tsx`, `ContactForm.tsx`, `ReportForm.tsx` | Form UIs on server actions | KEEP | Restyled; field sets unchanged until D-05/D-06 | Protected forms |
+| `src/components/WaitlistForm.tsx`, `ContactForm.tsx`, `ReportForm.tsx` | Form UIs on server actions | KEEP | Restyled in WEB-MIG-002 with field sets unchanged; waitlist fields change with the action per D-05, report reason per D-06 | Protected forms |
 | `src/components/DeleteAccountFlow.tsx` | Gated deletion UI | KEEP | Restyled; explanatory state follows the prototype "explain" step without the unapproved "7 years" claim | Gate stays |
 | `src/components/LegalSections.tsx` | Legal section map | KEEP | Restyled to the prototype legal layout (pill, H1, H2 sections, max-width 740); UNDECIDED bodies stay | Fail-closed legal content |
 | **NEW** shared primitives | — | NEW | `Container`, `Section`, `SectionLabel` (mono eyebrow), `Heading`, `CtaGroup`, `Button` (primary, secondary/outline, inverted, text action), `Card`, `PhotoSlot`, `Alert` (success/warning/error/info), `Pill`/`Badge`, `ExampleBadge`, form control styles for input, select, textarea and checkbox (WEB-MIG-002) | WEB-MIG-002 §4 |
 | **NEW** `Logo` | — | NEW | SVG wordmark component (prototype `AdulisLogo`, no circular import, no raster) | Shell |
-| Theme Lab | — (prototype only) | REVIEW | Not ported (D-07) | Authority file, "Theme Lab" |
+| Theme Lab | — (prototype only) | Not ported | No code, flag, persistence or test | Founder ruling D-07 |
 
 ### 1.7 Tests
 
@@ -131,7 +131,7 @@ Inferred from the reading lists in `../reference/REFERENCE_INDEX.md`. Each work 
 | `headers-fonts`, `nojs`, `keyboard`, `discovery`, `metadata`, `analytics`, `deletion`, `deletion-journey`, `enquiries`, `waitlist`, `console`, `messages`, `pseudo`, `am-rehearsal` specs | Security, no-JS, keyboard, SEO, analytics, forms, deletion, i18n | KEEP | Green at every WO; font expectations updated in WEB-MIG-002; route lists extended as routes land | Behavioural guarantees (audit §9) |
 | `a11y`, `layout`, `menu`, `design`, `focus-pixels`, `placeholder-appearance`, `measure-lengths`, `icons` specs | axe, 360px layout, menu, design truthfulness, focus pixels, G11 snapshots, lengths, icons | UPDATE AFTER MIGRATION | Updated in the WO that changes the thing they measure; principles kept | Redesign changes selectors and visuals, not the requirements |
 | `prow-slot.spec.ts` | Prow mask on the ink surface | OBSOLETE ONLY IF PROVEN | Removed only if WEB-MIG-002 removes the prow motif, with that recorded | Old doctrine |
-| **NEW** tests | — | NEW | Responsive overflow at 360/390/430/768/1024/1280/1440 (WEB-MIG-002); new routes in `check:routes`, `discovery`, `a11y`, `layout` (WEB-MIG-004/005); Pricing shows no price, fee or plan content (WEB-MIG-004); photo-slot accessibility (WEB-MIG-002); redirects for D-01/D-02 if adopted; Theme Lab absent in production (if ever ported) | Audit §9 |
+| **NEW** tests | — | NEW | Responsive overflow at 360/390/430/768/1024/1280/1440 (WEB-MIG-002); new routes in `check:routes`, `discovery`, `a11y`, `layout` (WEB-MIG-004/005); Pricing shows no price, fee or plan content (WEB-MIG-004); photo-slot accessibility (WEB-MIG-002); `/` serves English and `/en` redirects to `/` (D-01, before WEB-MIG-003); `/delete-account` permanently redirects to `/account-deletion` (D-02, WEB-MIG-006); waitlist requires email and phone and refuses unconsented submissions (D-05) | Audit §9 |
 
 ---
 
@@ -139,45 +139,46 @@ Inferred from the reading lists in `../reference/REFERENCE_INDEX.md`. Each work 
 
 | Route/Page | Production State | Prototype Target | Action | Risks |
 | --- | --- | --- | --- | --- |
-| Home `/` (`/en` today) | Bio-link narrative, gold display heading, ink EXAMPLE panel, controlled-beta cohort | Hero "Discover products through the way people actually like to see them used." with Scene photo slot; Problem; Adulis Model; For You; Storefronts; Trust; Nine steps; Availability; CTA band | **MIGRATE**: rebuild to prototype sections with shared primitives (WEB-MIG-003). Demo product card and illustrations carry EXAMPLE badges. Delete `ShopPreview`. New title, description and social metadata | Unlabelled demo Sellers; "Adulis never holds funds" (audit §18.4 #2); "Verified Storefronts" (#4); 9-step strip clipping; hero H1 squeeze at 641–1000px |
+| Home `/` (`/en` today) | Bio-link narrative, gold display heading, ink EXAMPLE panel, controlled-beta cohort | Hero "Discover products through the way people actually like to see them used." with Scene photo slot; Problem; Adulis Model; For You; Storefronts; Trust; Nine steps; Availability; CTA band | **MIGRATE**: served at `/` (D-01 lands first); rebuild to prototype sections with shared primitives (WEB-MIG-003). Demo product card and illustrations carry EXAMPLE badges. Delete `ShopPreview`. New title, description and social metadata | Unlabelled demo Sellers; "Adulis never holds funds" (audit §18.4 #2); "Verified Storefronts" (#4); 9-step strip clipping; hero H1 squeeze at 641–1000px |
 | How It Works `/how-it-works` | 5 steps around bank transfer and receipt; EXAMPLE shops; money card | Nine accountable steps with callouts; hero photo slot | **MIGRATE** (WEB-MIG-004). Replace payment and reservation copy entirely; one responsive step list (no separate 4-step mobile version) | Step count consistency (prototype has 9, 4 and Home variants); QR primary / OTP fallback wording must match KB §34 |
 | For Sellers `/for-sellers` | Problems, benefits, payment-verifier card, free-period sequence, embedded waitlist | Hero + 9 Seller tools + CTA band "Seller Console is waiting for you." | **MIGRATE** (WEB-MIG-004). Remove free periods, plans, blue tick and Seller payment verification; waitlist CTAs go to `/waitlist` | "Orders are rejected automatically when stock hits zero" and "24/7" chatbot claims need checking against current designs |
 | For Buyers `/for-buyers` | Steps incl. reserve and pay Seller; disabled app badges; limits | Hero + 9 Buyer features; no CTA | **MIGRATE** (WEB-MIG-004). Add one CTA (prototype has none; production has the seller door) and fix the literal `\'` bug | Do not claim app availability; keep "not yet available" truthfulness |
-| Waitlist `/waitlist` | Not a route; form at `/for-sellers#waitlist` | "Apply to sell on Adulis." page with form and success state | **NEW** route (WEB-MIG-004) with prototype layout and the **production** `WaitlistForm` + `submitWaitlist`; success state shows the production reference; `/for-sellers#waitlist` links updated | D-05 field set; consent checkbox must stay; noindex the success state (WEB-02 §51) |
+| Waitlist `/waitlist` | Not a route; form at `/for-sellers#waitlist` | "Apply to sell on Adulis." page with form and success state | **NEW** route (WEB-MIG-004) with prototype layout and the **production** `WaitlistForm` + `submitWaitlist`; success state shows the production reference; `/for-sellers#waitlist` links updated | Email and phone both required, consent checkbox kept (D-05); never copy the prototype's optional phone or text-only consent; noindex the success state (WEB-02 §51) |
 | Pricing `/pricing` | Not present | "Pricing is coming soon." + Seller tools | **NEW** (WEB-MIG-004): prototype content, no figures; footer link only | "no hidden fees" phrase review; never add tiers, prices or free periods (WEB-INV-03) |
 | Trust & Safety `/trust-and-safety` | Government ID, 3-level ladder with caps, published facts, reviews, claims, moderation | Long-form: Seller Admission (no physical shop, no Government ID), Trust Ladder, Gateway Payments, Handoff Evidence, Verified Reviews, Claims | **MIGRATE** (WEB-MIG-005). Keep a link to Report Content and Refunds & Disputes (prototype lacks them). If labels are enumerated, all four | Losing moderation/report reachability; "verified" wording |
-| Availability `/availability` | Not present | "Starting in Ethiopia. Honest about where." + In Development / Architecture Ready cards + warning | **NEW** (WEB-MIG-005); `noindex` until D-08 | Do not invent country support (WEB-02 §8) |
+| Availability `/availability` | Not present | "Starting in Ethiopia. Honest about where." + In Development / Architecture Ready cards + warning | **NEW** (WEB-MIG-005); `noindex` and out of the sitemap until it becomes an approved acquisition page (D-08) | Do not invent country support (WEB-02 §8) |
 | Ethiopia `/markets/ethiopia` | Not present | "Adulis in Ethiopia" + Focus City, Payment Infrastructure ("No specific provider is announced here."), Courier Network, Language | **NEW** (WEB-MIG-005); reachable from Availability and the footer | Chapa named only once enabled (WEB-02 §10); "Adulis supports Amharic" vs `AM_ENABLED = false` |
-| About `/about` | Origin, founder placeholders, UNDECIDED registration/contact | Mission, Adulis-port origin, Help/Contact/Press cards | **MIGRATE** (WEB-MIG-005). Prototype structure; Press card → Contact until D-04 | Removing founder cards is a content decision the prototype implies |
-| Press `/press` | Not present | Dead card only | **REVIEW** (D-04); not built without approved content | Announcing unsupported facts (WEB-02 §15) |
+| About `/about` | Origin, founder placeholders, UNDECIDED registration/contact | Mission, Adulis-port origin, Help/Contact/Press cards | **MIGRATE** (WEB-MIG-005). Prototype structure **without** the Press card (D-04: no dead Press link) | Removing founder cards is a content decision the prototype implies |
+| Press `/press` | Not present | Dead card only | **DEFERRED** (D-04): no page and no link anywhere until real approved press content exists | Announcing unsupported facts (WEB-02 §15) |
 | Help `/help` | 11 answered FAQs in `<details>` | Topic grid (4 groups), search box, question titles | **MIGRATE** (WEB-MIG-005). Prototype grouping and look with production `<details>` answers rewritten for current facts; no search until it works | Answers must reflect Scene publication, four Trust labels and Government-ID rules (WEB-02 §16) |
 | Contact `/contact` | Routes UNDECIDED, location, form, privacy note; noindex | "Get in touch" form; success "Message received." | **MIGRATE** (WEB-MIG-006). Production `ContactForm`/action, prototype layout | Do not publish "within 2 business days" (audit §18.4 #3) |
 | Terms / Privacy / Seller Terms `/terms`, `/privacy`, `/seller-terms` | Section maps, UNDECIDED bodies, noindex | Legal layout with draft text | **MIGRATE** (WEB-MIG-006): prototype layout only; bodies stay UNDECIDED until approved | Publishing prototype draft text ("7 years", "We do not sell personal data") |
 | Refunds & Disputes `/refunds-and-disputes` | Section map, UNDECIDED, noindex | **Not in prototype** | **KEEP** (WEB-MIG-006), styled like the other legal pages; footer link kept | Dropping it because the prototype lacks it |
 | Prohibited Products `/prohibited-products` | 12 categories with definitions; indexable | Legal-style page (4 draft sections) | **MIGRATE** (WEB-MIG-006). Prototype legal layout, production category content after review; label "Prohibited Products" (not "Items") | Content review against current Moderation/Catalogue rules |
-| Report Content `/report-content` | Anonymous form, reason UNDECIDED, moderation cards; noindex | Content type + reason form, verification step, success "Report submitted." | **MIGRATE** (WEB-MIG-006). Production `ReportForm`/action; no fake verification; taxonomy per D-06 | Reporter identity stays out of analytics (PRV §44) |
-| Account Deletion `/delete-account` (`/account-deletion` per D-02) | Explanatory content + manual route; flow gated off; unlisted | Six-step flow (explain → phone → code → preview → confirm → result) | **MIGRATE** (WEB-MIG-006). Prototype styling for the explanatory state and step layout; gate unchanged; slug per D-02 with redirect | No "7 years"; never confirm account existence; HIGH-risk change rules (DEPLOY §175) |
+| Report Content `/report-content` | Anonymous form, reason UNDECIDED, moderation cards; noindex | Content type + reason form, verification step, success "Report submitted." | **MIGRATE** (WEB-MIG-006). Production `ReportForm`/action; anonymous intake, no verification step; approved public reason taxonomy; copy states that submitting a report does not by itself mean enforcement (D-06) | Reporter identity stays out of analytics (PRV §44) |
+| Account Deletion `/account-deletion` (today `/delete-account`; D-02) | Explanatory content + manual route; flow gated off; unlisted | Six-step flow (explain → phone → code → preview → confirm → result) | **MIGRATE** (WEB-MIG-006). Prototype styling for the explanatory state and step layout; gate unchanged; route moves to `/account-deletion` with a permanent redirect from `/delete-account` (D-02) | No "7 years"; never confirm account existence; HIGH-risk change rules (DEPLOY §175) |
 | 404 (localised) | Code, heading, Home button | None in prototype | **MIGRATE** (WEB-MIG-002): prototype styling + helpful links | Must keep the real 404 status |
 | 404 (global) | Inline-styled English fallback | — | **KEEP** (REVIEW W-17) | — |
 | Mobile-only prototype pages | — | `MobileHomePage`, `MobileHowItWorks`, `MobileForSellers`, `MobileWaitlist`, `MobileTrust` | **DELETE** concept: each route is one responsive page with the same content at every width | Content divergence between widths |
 
 ---
 
-## 3. Decisions required before or during the owning work order
+## 3. Founder rulings and remaining decisions
 
-Full reasoning in audit §18.
+Rulings given 2026-11-06 and recorded in `../reference/MIGRATION_AUTHORITY.md`. Full consequences in audit §18.2.
 
-| ID | Decision | Needed by | Recommendation |
+| ID | Decision | Final ruling | Implemented in |
 | --- | --- | --- | --- |
-| D-01 | `/` as the unprefixed English canonical (`localePrefix: 'as-needed'`) | Before WEB-MIG-003 (so pages are built on final URLs), otherwise WEB-MIG-007 | Adopt |
-| D-02 | `/account-deletion` slug with redirect from `/delete-account` | WEB-MIG-006 | Adopt |
-| D-03 | Standalone `/waitlist` | WEB-MIG-004 | Adopt |
-| D-04 | Press page | WEB-MIG-005 | Defer until approved content exists |
-| D-05 | Waitlist field set and consent control | Dedicated WO after WEB-MIG-004 | Founder/legal decision (audit §18.4 #1) |
-| D-06 | Report verification and public taxonomy | WEB-MIG-006 | Keep anonymous intake; confirm taxonomy |
-| D-07 | Theme Lab | WEB-MIG-002 | Do not port |
-| D-08 | `/availability` indexing | WEB-MIG-005 | `noindex` until approved |
-| — | Prototype claims: "Adulis never holds funds", "7 years", "2 business days", "We will not share your details with third parties", "verified" wording | Before the page carrying each claim ships | Confirm or drop (audit §18.4 #2–#4) |
+| D-01 | `/` vs `/en` | Adopt `/` as the canonical English URL; prefix only when needed (e.g. `/am` once Amharic launches) | **Before WEB-MIG-003** |
+| D-02 | Account deletion slug | Adopt `/account-deletion`, permanent compatibility redirect from `/delete-account` | WEB-MIG-006 |
+| D-03 | Standalone Waitlist | Adopt `/waitlist` | WEB-MIG-004 |
+| D-04 | Press page | Defer. No fake or empty Press page; remove the dead Press CTA/link until approved press content exists | WEB-MIG-005 (About) |
+| D-05 | Waitlist fields | Require both email and phone; keep an explicit consent checkbox; do not copy the prototype's optional phone or missing checkbox | WO that builds `/waitlist` (WEB-MIG-004) or a dedicated WO |
+| D-06 | Report Content verification | Keep anonymous report intake for MVP; no fake account verification; approved public reason taxonomy; reporting does not imply enforcement | WEB-MIG-006 (confirm the exact taxonomy there) |
+| D-07 | Theme Lab | Do not port | — |
+| D-08 | Availability indexing | `noindex` initially; index only once it is an approved public acquisition page | WEB-MIG-005 |
+
+Still open (audit §18.4 #2–#4): "Adulis never holds funds", "7 years", "within 2 business days", "We will not share your details with third parties", and "verified" wording. Each must be confirmed or dropped before the page carrying it ships.
 
 ## 4. Cross-references
 
