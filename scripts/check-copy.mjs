@@ -14,6 +14,15 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
+/**
+ * The copy a visitor can actually read: the message catalogues, and page and
+ * component markup (comments are stripped before matching). Checks that carry
+ * `files: PUBLIC_COPY` look nowhere else, so system designs, migration reports,
+ * tests that assert a phrase is absent, and comments explaining a rule cannot
+ * trip them. Paths are repository-relative with forward slashes.
+ */
+const PUBLIC_COPY = /^src\/(messages\/[^/]+\.json|app\/.+\.tsx|components\/.+\.tsx)$/;
+
 const CHECKS = [
   {
     name: 'no buyer-protection claim',
@@ -38,6 +47,44 @@ const CHECKS = [
     why: 'Pricing is not public during the controlled beta. ADU-WEB-01 §3.3.',
     dirs: ['src'],
     pattern: /\$\d/
+  },
+
+  /* Public Website wording — founder rulings and MIGRATION_AUTHORITY.md
+     (WEB-MIG-003). Public copy only; see PUBLIC_COPY. */
+  {
+    name: 'public terminology is Product and Scene',
+    why: 'MIGRATION_AUTHORITY.md "Current public terminology": never "Product Post" or "Shoppable Post" in public copy.',
+    dirs: ['src'],
+    files: PUBLIC_COPY,
+    pattern: /\b(product|shoppable)[\s-]+posts?\b/i
+  },
+  {
+    name: 'no generic verified Seller or Storefront claim',
+    why: 'Founder ruling F-05: "verified" only for a specific verified event such as Verified Handoff.',
+    dirs: ['src'],
+    files: PUBLIC_COPY,
+    pattern: /\bverified\s+(sellers?|storefronts?)\b/i
+  },
+  {
+    name: 'no funds-custody claim',
+    why: 'Founder ruling F-01: no public claim about custody, settlement or where money is held.',
+    dirs: ['src'],
+    files: PUBLIC_COPY,
+    pattern: /never holds funds/i
+  },
+  {
+    name: 'no 0.5% surcharge claim',
+    why: 'MIGRATION_AUTHORITY.md "Website commercial claims": the 0.5% concept is not an approved public promise.',
+    dirs: ['src'],
+    files: PUBLIC_COPY,
+    pattern: /\b0[.,]5\s?%/
+  },
+  {
+    name: 'no commission or surcharge in public copy',
+    why: 'Commercial treatment is unresolved (MIGRATION_AUTHORITY.md "Pricing", ADU-WEB-02 §6); any mention needs approved, versioned commercial copy.',
+    dirs: ['src'],
+    files: PUBLIC_COPY,
+    pattern: /\b(commissions?|surcharges?)\b/i
   }
 ];
 
@@ -95,6 +142,7 @@ for (const check of CHECKS) {
   for (const dir of check.dirs) {
     for (const file of walk(join(ROOT, dir))) {
       if (!TEXT_FILE.test(file)) continue;
+      if (check.files && !check.files.test(rel(file))) continue;
       const raw = readFileSync(file, 'utf8');
       const body = file.endsWith('.json') ? raw : stripComments(raw);
       body.split('\n').forEach((line, i) => {

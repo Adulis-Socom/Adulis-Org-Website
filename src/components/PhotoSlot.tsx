@@ -8,6 +8,19 @@ import { getTranslations } from 'next-intl/server';
 type PhotoTone = 'sand' | 'clay' | 'sage' | 'stone';
 
 /**
+ * Whole class names, never `photo-slot-${tone}`. Tailwind keeps a component
+ * class only if it finds the literal name in source; an interpolated one is
+ * purged, and every slot silently rendered as a white box until this map
+ * existed.
+ */
+const TONE_CLASS: Record<PhotoTone, string> = {
+  sand: 'photo-slot-sand',
+  clay: 'photo-slot-clay',
+  sage: 'photo-slot-sage',
+  stone: 'photo-slot-stone'
+};
+
+/**
  * A photography-ready media area: hero, Seller, Buyer/discovery, Scene,
  * Ethiopia and Trust imagery all go through this.
  *
@@ -41,7 +54,7 @@ export async function PhotoSlot({
   children?: ReactNode;
 }) {
   const t = await getTranslations('common');
-  const classes = `photo-slot photo-slot-${tone}${framed ? '' : ' photo-slot-unframed'} ${className}`;
+  const classes = `photo-slot ${TONE_CLASS[tone]}${framed ? '' : ' photo-slot-unframed'} ${className}`;
 
   if (children) return <div className={classes}>{children}</div>;
 

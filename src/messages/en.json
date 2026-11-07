@@ -2,7 +2,7 @@
   "meta": {
     "siteName": "Adulis",
     "titleTemplate": "{page} · Adulis",
-    "defaultDescription": "Adulis is a commerce layer for sellers whose audience already lives on TikTok and Instagram. Sellers pay a subscription. Buyers pay sellers directly."
+    "defaultDescription": "Adulis is a commerce platform built around Products and Scenes, now in development and starting in Ethiopia."
   },
   "nav": {
     "skipToContent": "Skip to content",
@@ -39,7 +39,6 @@
     "copyright": "© 2026 Adulis. All rights reserved."
   },
   "common": {
-    "betaBadge": "Controlled beta · not publicly available yet",
     "exampleTag": "EXAMPLE",
     "required": "Required",
     "optional": "Optional",
@@ -53,76 +52,140 @@
     "mutedProductImage": "Product photograph"
   },
   "home": {
-    "pageTitle": "Adulis — a shop for sellers whose buyers already follow them",
-    "heading": "Sell where your audience",
-    "headingAccent": "already knows you.",
-    "sub": "Adulis gives creators, small businesses and shops a structured place for the orders now getting buried in direct messages.",
-    "bioToProduct": {
-      "title": "From bio link to product",
+    "pageTitle": "Adulis — Discover products in context",
+    "description": "Adulis is a commerce platform built around Products and Scenes: image-led discovery connected to real Products, public Seller storefronts and accountable delivery. Now in development, starting in Ethiopia.",
+    "hero": {
+      "label": "Now in development · Ethiopia",
+      "heading": "Discover products through the way people actually like to see them used.",
+      "sub": "Adulis is a commerce platform built around Products and Scenes — content where the product is the subject, not an afterthought. Browse, trust, buy, receive.",
+      "secondaryCta": "See How It Works",
+      "photoBrief": "A Scene: products styled in a real home",
+      "exampleScene": "Scene · An autumn outfit",
+      "exampleTagged": "Tagged Product",
+      "exampleProduct": "Linen overshirt",
+      "exampleStatus": "Available"
+    },
+    "problem": {
+      "label": "The Problem",
+      "title": "Commerce without context doesn't build trust.",
+      "items": [
+        {
+          "title": "Sellers struggle to be believed",
+          "body": "Listing a product with a photo isn't enough. Buyers need to see how it looks, how it's used, and who stands behind it."
+        },
+        {
+          "title": "Buyers can't tell what's real",
+          "body": "Generic marketplaces mix genuine sellers with poor-quality listings. There's no accountability and no way to check a seller's record."
+        },
+        {
+          "title": "Fulfilment falls apart at handoff",
+          "body": "Cash on delivery creates disputes. No evidence. No accountability. Sellers and buyers have no recourse when things go wrong."
+        }
+      ]
+    },
+    "model": {
+      "label": "The Adulis Model",
+      "title": "Content that is commerce. Commerce that is trustworthy.",
+      "intro": "Adulis separates the discovery layer from the transaction layer — without losing the connection between them. Sellers publish rich content. Buyers act on what they see. Checkout runs through a payment gateway, and every handoff is recorded as evidence.",
+      "items": [
+        {
+          "title": "Products",
+          "body": "A dedicated page for a single product — photos, options, price, availability and the Seller behind it. The product is the subject."
+        },
+        {
+          "title": "Scenes",
+          "body": "Image-led Scenes show Products in context — an outfit, a setup, a routine. Tap a tag to open the Product behind it."
+        },
+        {
+          "title": "Public storefronts",
+          "body": "Every Seller has a public storefront with their Products, Scenes, Trust level and reviews. Open to browse without an account."
+        },
+        {
+          "title": "Gateway payments",
+          "body": "Checkout runs through an established payment provider, and payment is confirmed before the Seller prepares the order."
+        }
+      ]
+    },
+    "discovery": {
+      "label": "For You Discovery",
+      "title": "Products discovered in context, not in a grid.",
+      "body": "The For You feed is made of Scenes from Sellers whose work matches your interests. Image-led, and built for photos.",
+      "tap": "Tap a tagged Product to see its price, options, availability and Seller — then add it to your cart.",
+      "link": "Learn more about the buyer experience →",
+      "examples": [
+        {
+          "title": "An outfit, styled three ways",
+          "tags": "3 tagged Products"
+        },
+        {
+          "title": "A three-step morning routine",
+          "tags": "2 tagged Products"
+        }
+      ]
+    },
+    "storefront": {
+      "label": "Seller Storefronts",
+      "title": "Every Seller has a public home — no app required to browse.",
+      "body": "Storefronts are open on the web. Share your link on Instagram, TikTok or anywhere else. Buyers can see your Products, Scenes, Trust level and reviews before they ever open the Adulis app.",
+      "link": "Learn more for Sellers →",
+      "exampleInitials": "S",
+      "exampleName": "Seller storefront",
+      "exampleProducts": [
+        "Linen overshirt",
+        "Wide-leg trousers",
+        "Shoulder bag",
+        "Shirt dress"
+      ]
+    },
+    "trust": {
+      "label": "Trust & Safety",
+      "title": "Accountability at every step, not just at checkout.",
+      "photoBrief": "A courier handing a delivery to a buyer",
+      "items": [
+        {
+          "title": "Seller admission",
+          "body": "Sellers are admitted, not self-served. Admission looks for an established social selling presence and a TikTok or Instagram account the Seller controls."
+        },
+        {
+          "title": "Trust Ladder",
+          "body": "Every Seller has a public Trust level — New, Rebuilding, Established or Trusted — earned on Adulis from completed orders, verified handoffs and claims. It can't be bought."
+        },
+        {
+          "title": "Gateway payment",
+          "body": "The payment provider confirms payment before the Seller prepares the order. Sellers never mark an order as paid."
+        },
+        {
+          "title": "Handoffs and reviews",
+          "body": "A QR scan at pickup and at delivery records each handoff. Reviews rate the Product and the Seller's service separately."
+        }
+      ],
+      "link": "Read our Trust & Safety approach"
+    },
+    "journey": {
+      "label": "How Commerce Works",
+      "title": "Nine steps. Complete accountability.",
       "steps": [
-        {
-          "title": "Seller profile bio",
-          "body": "One Adulis link in the TikTok or Instagram bio."
-        },
-        {
-          "title": "Adulis storefront",
-          "body": "Products organised in a structured shop."
-        },
-        {
-          "title": "Product",
-          "body": "Glow Set · 1,250 ETB · In stock · confirmed 12m ago · Trusted seller · 340 completed orders"
-        }
-      ]
+        "Discover",
+        "Product",
+        "Cart",
+        "Checkout",
+        "Gateway payment",
+        "Seller prepares",
+        "Delivery or collection",
+        "Verified handoff",
+        "Review"
+      ],
+      "link": "See the full journey →"
     },
-    "sellerChanges": {
-      "title": "What changes for the seller",
-      "items": [
-        {
-          "title": "The people already following you",
-          "body": "Bring the audience you already earned into a commerce destination."
-        },
-        {
-          "title": "Your real products, in order",
-          "body": "Products are structured instead of buried among old social posts."
-        },
-        {
-          "title": "Every order leaves a record",
-          "body": "Reservation, receipt upload, seller confirmation and handoff create evidence."
-        }
-      ]
+    "availability": {
+      "label": "Availability",
+      "title": "Starting in Ethiopia. Built to expand.",
+      "body": "Adulis is being developed with a focus on the Ethiopian market — particularly Addis Ababa. The architecture is designed for international expansion, but we won't claim coverage we haven't built."
     },
-    "whatFor": {
-      "title": "What Adulis is for",
-      "items": [
-        {
-          "title": "Physical goods",
-          "body": "Clothing, cosmetics and electronics. Buyers pay by bank transfer directly to the seller, then pick up or receive delivery."
-        },
-        {
-          "title": "Not a link-in-bio, merch or tipping product",
-          "body": "Adulis is a commerce layer for real physical products."
-        }
-      ]
-    },
-    "buyerDoorTitle": "Buying from a seller you follow?",
-    "buyerDoorBody": "The buyer page explains what you can check before buying and what Adulis does not do.",
-    "buyerDoorLink": "For buyers →",
-    "cohort": {
-      "title": "Controlled beta",
-      "items": [
-        {
-          "title": "Selected seller cohort",
-          "body": "Selected sellers are contacted directly."
-        },
-        {
-          "title": "Founder review",
-          "body": "Applications are read by a founder within 5–7 business days."
-        },
-        {
-          "title": "Apply for consideration",
-          "body": "Submission does not guarantee access."
-        }
-      ]
+    "cta": {
+      "title": "Ready to sell the right way?",
+      "body": "Join the Seller waitlist to be among the first to sell on Adulis. We review every application.",
+      "photoBrief": "An independent seller preparing orders"
     }
   },
   "howItWorks": {

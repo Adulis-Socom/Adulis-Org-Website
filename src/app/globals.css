@@ -226,12 +226,6 @@
     @apply rounded-2xl border border-border-strong bg-surface p-5 md:p-6;
   }
 
-  /* The Home "bio link to product" panel. Retired with that section in
-     WEB-MIG-003; until then it is a quiet tinted panel. */
-  .surface-ink {
-    @apply relative rounded-3xl border border-border bg-page p-6 md:p-8;
-  }
-
   /* ---------------------------------------------------------- buttons
 
      Pills, as in the prototype. 48px tall: above the 44px target floor. */
